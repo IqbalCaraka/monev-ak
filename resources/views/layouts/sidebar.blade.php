@@ -2,54 +2,58 @@
     <ul class="nav">
         <li class="nav-item">
             <a class="nav-link" href="{{ route('dashboard') }}">
-                <i class="mdi mdi-grid-large menu-icon"></i>
-                <span class="menu-title">Dashboard</span>
+                <i class="mdi mdi-view-dashboard menu-icon"></i>
+                <span class="menu-title">Dashboard Monev</span>
             </a>
         </li>
         <li class="nav-item nav-category">Menu Utama</li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-                <i class="menu-icon mdi mdi-floor-plan"></i>
-                <span class="menu-title">Data Master</span>
-                <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="ui-basic">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="#">Sub Menu 1</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="#">Sub Menu 2</a></li>
-                </ul>
-            </div>
-        </li>
-        <li class="nav-item">
             <a class="nav-link" href="#">
-                <i class="menu-icon mdi mdi-chart-line"></i>
-                <span class="menu-title">Monitoring</span>
+                <i class="menu-icon mdi mdi-file-document-outline"></i>
+                <span class="menu-title">Pelaporan Monev</span>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="#">
-                <i class="menu-icon mdi mdi-file-document"></i>
-                <span class="menu-title">Evaluasi</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">
-                <i class="menu-icon mdi mdi-file-chart"></i>
-                <span class="menu-title">Laporan</span>
+                <i class="menu-icon mdi mdi-chart-bar"></i>
+                <span class="menu-title">Dashboard Skor Arsip</span>
             </a>
         </li>
         <li class="nav-item nav-category">Pengaturan</li>
         <li class="nav-item">
-            <a class="nav-link" href="#">
-                <i class="menu-icon mdi mdi-account-circle-outline"></i>
-                <span class="menu-title">Pengguna</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" data-bs-toggle="collapse" href="#pengaturan-menu" aria-expanded="false" aria-controls="pengaturan-menu">
                 <i class="menu-icon mdi mdi-cog"></i>
-                <span class="menu-title">Konfigurasi</span>
+                <span class="menu-title">Pengaturan</span>
+                <i class="menu-arrow"></i>
             </a>
+            <div class="collapse" id="pengaturan-menu">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="mdi mdi-account-multiple"></i>
+                            Kelola Pengguna
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="mdi mdi-clipboard-check"></i>
+                            Kelola IKK
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="mdi mdi-office-building"></i>
+                            Kelola Instansi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="mdi mdi-account-tie"></i>
+                            Kelola PIC
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </li>
     </ul>
 </nav>
