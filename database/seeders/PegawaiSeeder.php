@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Pegawai;
-use Illuminate\Support\Facades\Hash;
 
 class PegawaiSeeder extends Seeder
 {
@@ -21,27 +20,22 @@ class PegawaiSeeder extends Seeder
         }
 
         $file = fopen($csvFile, 'r');
+        $count = 0;
 
         while (($data = fgetcsv($file)) !== false) {
-            // Skip jika data tidak lengkap
-            if (count($data) < 3) {
+            // Data sudah di-parse oleh fgetcsv, langsung akses index
+            if (count($data) < 5) {
                 continue;
             }
 
-            // Parse data CSV
-            $row = explode(',', $data[0]);
-
-            if (count($row) < 5) {
-                continue;
-            }
-
-            $nip = trim($row[1]);
-            $nama = trim($row[2]);
-            $jabatan = trim($row[3]);
-            $golongan = trim($row[4]);
+            $nip = trim($data[1]);
+            $nama = trim($data[2]);
+            $jabatan = trim($data[3]);
+            $golongan = isset($data[4]) ? trim($data[4]) : '';
 
             // Skip jika NIP kosong atau bukan angka
             if (empty($nip) || !is_numeric($nip)) {
+                $this->command->warn("Skipping invalid NIP: $nip");
                 continue;
             }
 
@@ -51,20 +45,26 @@ class PegawaiSeeder extends Seeder
                 $role_id = 3; // Pimpinan
             }
 
-            Pegawai::create([
-                'nip' => $nip,
-                'nama' => $nama,
-                'jabatan' => $jabatan,
-                'golongan' => $golongan,
-                'role_id' => $role_id,
-                'email' => strtolower(str_replace(' ', '', $nama)) . '@anri.go.id',
-                'password' => Hash::make('password123'),
-                'is_active' => true,
-            ]);
+            try {
+                Pegawai::updateOrCreate(
+                    ['nip' => $nip],
+                    [
+                        'nama' => $nama,
+                        'jabatan' => $jabatan,
+                        'golongan' => $golongan,
+                        'role_id' => $role_id,
+                        'is_active' => true,
+                    ]
+                );
+                $count++;
+                $this->command->info("Inserted: $nama ($nip)");
+            } catch (\Exception $e) {
+                $this->command->error("Error inserting $nama: " . $e->getMessage());
+            }
         }
 
         fclose($file);
 
-        $this->command->info('Data pegawai berhasil di-seed!');
+        $this->command->info("Total $count pegawai berhasil di-seed!");
     }
 }

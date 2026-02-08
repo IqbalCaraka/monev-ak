@@ -29,7 +29,7 @@
             <div class="collapse" id="pengaturan-menu">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('pegawai.index') }}">
                             <i class="mdi mdi-account-multiple"></i>
                             Kelola Pengguna
                         </a>
