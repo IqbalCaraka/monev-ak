@@ -27,14 +27,18 @@ class AktivitasPegawaiController extends Controller
             $aktivitas = $this->getFilteredActivities($search, $dateFrom, $dateTo);
             $topKategori = $this->getTopKategoriFiltered($dateFrom, $dateTo);
             $stats = $this->getStatsFiltered($dateFrom, $dateTo);
+            $mappingDokumen = $this->getMappingDokumenSummary($dateFrom, $dateTo, $search);
+            $injectDokumen = $this->getInjectDokumenSummary($dateFrom, $dateTo, $search);
         } else {
             // Default: pakai summary table (sangat cepat)
             $aktivitas = $this->getActivitiesFromSummary($search);
             $topKategori = $this->getTopKategoriFromSummary();
             $stats = $this->getStatsFromSummary();
+            $mappingDokumen = $this->getMappingDokumenSummary(null, null, $search);
+            $injectDokumen = $this->getInjectDokumenSummary(null, null, $search);
         }
 
-        return view('statistik.aktivitas-pegawai', compact('aktivitas', 'topKategori', 'stats', 'search', 'dateFrom', 'dateTo'));
+        return view('statistik.aktivitas-pegawai', compact('aktivitas', 'topKategori', 'stats', 'search', 'dateFrom', 'dateTo', 'mappingDokumen', 'injectDokumen'));
     }
 
     /**
@@ -584,5 +588,96 @@ class AktivitasPegawaiController extends Controller
         ";
 
         DB::statement($sql, [$nip]);
+    }
+
+    /**
+     * Get Mapping Dokumen Summary (Non-Inject) - ALL PEGAWAI
+     * HIGHLY OPTIMIZED: Using composite index and efficient aggregation
+     *
+     * Counts:
+     * - Total mapping per dokumen (COUNT(*))
+     * - Total mapping per unique object_pns_id (COUNT DISTINCT)
+     */
+    private function getMappingDokumenSummary($dateFrom = null, $dateTo = null, $search = null)
+    {
+        $query = DB::table('log_aktivitas as la')
+            ->leftJoin('pegawai as p', 'la.created_by_nip', '=', 'p.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(p.nama, la.created_by_nama) as nama'),
+                DB::raw('COUNT(*) as total_per_dokumen'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
+            )
+            ->where('la.event_name', 'mapping_dokumen')
+            ->where(function($q) {
+                $q->where('la.details', 'NOT LIKE', '%inject%')
+                  ->orWhereNull('la.details');
+            })
+            ->whereNotNull('la.created_by_nip');
+
+        // Date filter
+        if ($dateFrom) {
+            $query->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        // Search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('la.created_by_nip', 'like', "%{$search}%")
+                  ->orWhere('p.nama', 'like', "%{$search}%")
+                  ->orWhere('la.created_by_nama', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->groupBy('la.created_by_nip', 'p.nama', 'la.created_by_nama')
+                     ->orderByDesc('total_per_dokumen')
+                     ->paginate(20, ['*'], 'mapping_page'); // Custom page parameter
+    }
+
+    /**
+     * Get Inject Dokumen Summary (Inject - Unggah Dokumen) - ALL PEGAWAI
+     * HIGHLY OPTIMIZED: Using composite index and efficient aggregation
+     *
+     * Counts:
+     * - Total inject per dokumen (COUNT(*))
+     * - Total inject per unique object_pns_id (COUNT DISTINCT)
+     */
+    private function getInjectDokumenSummary($dateFrom = null, $dateTo = null, $search = null)
+    {
+        $query = DB::table('log_aktivitas as la')
+            ->leftJoin('pegawai as p', 'la.created_by_nip', '=', 'p.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(p.nama, la.created_by_nama) as nama'),
+                DB::raw('COUNT(*) as total_per_dokumen'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
+            )
+            ->where('la.event_name', 'unggah_dokumen')
+            ->where('la.details', '!=', 'unggah_dokumen')
+            ->whereNotNull('la.created_by_nip');
+
+        // Date filter
+        if ($dateFrom) {
+            $query->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        // Search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('la.created_by_nip', 'like', "%{$search}%")
+                  ->orWhere('p.nama', 'like', "%{$search}%")
+                  ->orWhere('la.created_by_nama', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->groupBy('la.created_by_nip', 'p.nama', 'la.created_by_nama')
+                     ->orderByDesc('total_per_dokumen')
+                     ->paginate(20, ['*'], 'inject_page'); // Custom page parameter
     }
 }
