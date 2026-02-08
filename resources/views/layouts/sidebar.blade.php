@@ -19,6 +19,24 @@
                 <span class="menu-title">Dashboard Skor Arsip</span>
             </a>
         </li>
+        <li class="nav-item nav-category">Statistik</li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#statistik-menu" aria-expanded="false" aria-controls="statistik-menu">
+                <i class="menu-icon mdi mdi-chart-line"></i>
+                <span class="menu-title">Statistik</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="statistik-menu">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('aktivitas-pegawai.index') }}">
+                            <i class="mdi mdi-account-check"></i>
+                            Aktivitas Pegawai
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
         <li class="nav-item nav-category">Pengaturan</li>
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#pengaturan-menu" aria-expanded="false" aria-controls="pengaturan-menu">
@@ -41,7 +59,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('instansi.index') }}">
                             <i class="mdi mdi-office-building"></i>
                             Kelola Instansi
                         </a>

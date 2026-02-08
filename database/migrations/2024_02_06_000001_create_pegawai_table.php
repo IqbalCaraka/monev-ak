@@ -16,7 +16,12 @@ return new class extends Migration
             $table->string('nip', 18)->unique();
             $table->string('nama');
             $table->string('jabatan');
-            $table->string('golongan', 10);
+            $table->enum('golongan', [
+                'I/a', 'I/b', 'I/c', 'I/d',
+                'II/a', 'II/b', 'II/c', 'II/d',
+                'III/a', 'III/b', 'III/c', 'III/d',
+                'IV/a', 'IV/b', 'IV/c', 'IV/d', 'IV/e'
+            ]);
             $table->string('photo')->nullable();
             $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('set null');
             $table->string('email')->unique()->nullable();

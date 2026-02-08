@@ -1,0 +1,332 @@
+@extends('layouts.app')
+
+@section('title', 'Statistik Aktivitas Pegawai')
+
+@section('content')
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+<!-- Date Filter Form -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body py-3">
+                <form method="GET" action="{{ route('aktivitas-pegawai.index') }}" id="filterForm">
+                    <div class="row align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label mb-1 small"><i class="ti-calendar me-1"></i> Dari Tanggal</label>
+                            <input type="date"
+                                   name="date_from"
+                                   class="form-control"
+                                   value="{{ $dateFrom ?? '' }}"
+                                   max="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label mb-1 small"><i class="ti-calendar me-1"></i> Sampai Tanggal</label>
+                            <input type="date"
+                                   name="date_to"
+                                   class="form-control"
+                                   value="{{ $dateTo ?? '' }}"
+                                   max="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label mb-1 small"><i class="ti-search me-1"></i> Cari NIP/Nama</label>
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   placeholder="Cari NIP/Nama..."
+                                   value="{{ $search ?? '' }}">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="ti-filter"></i> Filter
+                            </button>
+                            @if($dateFrom || $dateTo || $search)
+                                <a href="{{ route('aktivitas-pegawai.index') }}" class="btn btn-secondary">
+                                    <i class="ti-reload"></i> Reset
+                                </a>
+                            @endif
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                <i class="ti-upload"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Filter Info -->
+                @if($dateFrom || $dateTo)
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="ti-info-alt"></i>
+                            Menampilkan data dari
+                            <strong>{{ $dateFrom ? date('d/m/Y', strtotime($dateFrom)) : 'awal' }}</strong>
+                            sampai
+                            <strong>{{ $dateTo ? date('d/m/Y', strtotime($dateTo)) : 'akhir' }}</strong>
+                        </small>
+                    </div>
+                @else
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="ti-info-alt"></i>
+                            Periode Data Log:
+                            <strong>{{ $stats['first_log'] }}</strong>
+                            →
+                            <strong>{{ $stats['last_log'] }}</strong>
+                        </small>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <p class="card-title text-md-center text-xl-left">Total Pegawai Aktif</p>
+                <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">{{ number_format($stats['total_pegawai']) }}</h3>
+                    <i class="ti-user icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <p class="card-title text-md-center text-xl-left">Total Aktivitas</p>
+                <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">{{ number_format($stats['total_aktivitas']) }}</h3>
+                    <i class="ti-stats-up icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <p class="card-title text-md-center text-xl-left">Jenis Aktivitas</p>
+                <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">{{ number_format($stats['total_kategori']) }}</h3>
+                    <i class="ti-layers icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <p class="card-title text-md-center text-xl-left">Total Inject</p>
+                <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">{{ number_format($stats['total_inject']) }}</h3>
+                    <i class="ti-upload icon-md text-muted mb-0 mb-md-3 mb-xl-0"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <p class="card-title text-md-center text-xl-left">Pegawai Belum Terdata</p>
+                <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0">{{ number_format($stats['pegawai_belum_terdata']) }}</h3>
+                    <i class="ti-alert icon-md mb-0 mb-md-3 mb-xl-0"></i>
+                </div>
+                @if($stats['pegawai_belum_terdata'] > 0)
+                    <a href="{{ route('staging.index') }}" class="btn btn-sm btn-light mt-2 w-100">
+                        <i class="ti-eye"></i> Lihat Detail
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top 5 Kategori Aktivitas -->
+<div class="row">
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Top 5 Kategori Aktivitas</h4>
+                <div class="row">
+                    @foreach($topKategori as $index => $kategori)
+                    <div class="col-md-2-4 mb-3">
+                        <div class="text-center">
+                            <div class="mb-2">
+                                <span class="badge badge-{{ ['primary', 'success', 'info', 'warning', 'danger'][$index] }} badge-pill px-3 py-2">
+                                    #{{ $index + 1 }}
+                                </span>
+                            </div>
+                            <h5 class="mb-1">{{ number_format($kategori->total) }}</h5>
+                            <p class="text-muted text-small mb-2">{{ $kategori->kategori_aktivitas }}</p>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][$index] }}"
+                                     role="progressbar"
+                                     style="width: {{ ($kategori->total / $topKategori->first()->total) * 100 }}%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Aktivitas Pegawai Table -->
+<div class="row">
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Aktivitas Pegawai</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
+                                <th class="text-center">Jenis Aktivitas</th>
+                                <th class="text-center">Total Aktivitas</th>
+                                <th class="text-center">Last Activity</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($aktivitas as $index => $a)
+                                <tr>
+                                    <td>{{ $aktivitas->firstItem() + $index }}</td>
+                                    <td><code>{{ $a->nip }}</code></td>
+                                    <td>{{ $a->nama }}</td>
+                                    <td class="text-center">
+                                        <span class="badge badge-info">{{ $a->jenis_aktivitas }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <strong>{{ number_format($a->total_aktivitas) }}</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <small class="text-muted">{{ $a->last_activity ?? '-' }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ route('aktivitas-pegawai.show', $a->nip) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="ti-eye"></i> Detail
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        @if($search)
+                                            Tidak ada data yang ditemukan untuk "{{ $search }}"
+                                        @else
+                                            Belum ada data aktivitas
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                @if($aktivitas->hasPages())
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        Menampilkan {{ $aktivitas->firstItem() }} - {{ $aktivitas->lastItem() }} dari {{ $aktivitas->total() }} data
+                    </div>
+                    <div>
+                        {{ $aktivitas->appends(['search' => $search])->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pagination .page-link {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Custom 5-column layout for Top 5 Kategori */
+    @media (min-width: 768px) {
+        .col-md-2-4 {
+            flex: 0 0 20%;
+            max-width: 20%;
+        }
+    }
+</style>
+
+<!-- Upload CSV Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">
+                    <i class="ti-upload me-2"></i>Upload Log Aktivitas CSV
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('aktivitas-pegawai.upload') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="alert alert-info" role="alert">
+                        <i class="ti-info-alt me-2"></i>
+                        <strong>Petunjuk Upload:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Format file: CSV (.csv, .txt)</li>
+                            <li>Maksimal ukuran: 50 MB</li>
+                            <li>Logs dengan NIP terdaftar akan masuk ke aktivitas utama</li>
+                            <li>Logs dengan NIP belum terdaftar akan masuk ke staging</li>
+                            <li>Summary akan otomatis di-update setelah upload</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label">Pilih File CSV</label>
+                        <input type="file"
+                               class="form-control"
+                               id="csv_file"
+                               name="csv_file"
+                               accept=".csv,.txt"
+                               required>
+                        <div class="form-text">
+                            File CSV harus mengikuti format yang sama dengan data log aktivitas yang ada.
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <i class="ti-alert me-2"></i>
+                        <strong>Perhatian:</strong> Proses upload file besar mungkin membutuhkan waktu beberapa menit. Jangan tutup halaman selama proses berlangsung.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ti-close"></i> Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti-upload"></i> Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection

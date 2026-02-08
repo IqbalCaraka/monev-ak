@@ -1,0 +1,675 @@
+﻿Id,lokasi_id,nama,jenis,nama_baru,nama_jabatan,jenis_instansi_id,kantor_regional_id,prov_id
+014C560C79B72247E060640AF1082B75,,Sekretariat Jenderal Dewan Nasional Kawasan Ekonomi Khusus,P,Sekretariat Jenderal Dewan Nasional Kawasan Ekonomi Khusus,Sekretaris Jenderal Dewan Nasional Kawasan Ekonomi Khusus,LNS,0,6000
+044d32a2f58049f0b84d9afb4c2ab398,,Kementerian Transmigrasi,P,Kementerian Transmigrasi,Menteri Transmigrasi,KEMENT,0,6000
+063E7DF648C0B4B9E060640AF10839CE,,Badan Karantina Indonesia,P,,Kepala Badan Karantina Indonesia,LPNK,0,6000
+0c1606502b9d4da9a0df26cc1d24900a,,"Kementerian Usaha Mikro, Kecil, dan Menengah",P,"Kementerian Usaha Mikro, Kecil, dan Menengah","Menteri Usaha Mikro, Kecil, dan Menengah",KEMENT,0,6000
+0C37093AED94370CE050640A1502102F,,Kementerian Koordinator Bidang Kemaritiman dan Investasi,P,Kementerian Koordinator Bidang Kemaritiman dan Investasi,Menteri Koordinator Bidang Kemaritiman dan Investasi,KO,0,6000
+0c771fccefd7493aa4f6ef70450f026e,,Kementerian Kehutanan,P,Kementerian Kehutanan,Menteri Kehutanan,KEMENT,0,6000
+0C8286E5D5268A36E050640A150223A8,ff8080814b224047014b250287ff0ec0,Pemerintah Kab. Buton Selatan,D,Pemerintah Kab. Buton Selatan,Bupati Buton Selatan,KAB,4,7400
+0E4FE60BDC1D9C73E050640A0202492C,0E4FE60BDC1C9C73E050640A0202492C,Pemerintah Kab. Buton Tengah,D,Pemerintah Kab. Buton Tengah,Bupati Buton Tengah,KAB,4,7400
+1b9717bd344742358408349558447f5e,,Kementerian Koperasi,P,Kementerian Koperasi,Menteri Koperasi,KEMENT,0,6000
+23B3C7AFE842586CE050640A150208C2,,Badan Ekonomi Kreatif,P,,Kepala Badan Ekonomi Kreatif,LPNK,0,6000
+290fe639443d4f79a4b615dd332e8100,,Kementerian Ekonomi Kreatif/Badan Ekonomi Kreatif,P,Kementerian Ekonomi Kreatif/Badan Ekonomi Kreatif,Menteri Ekonomi Kreatif/Kepala Badan Ekonomi Kreatif,KEMENT,0,6000
+30a3f5b5-1ad0-4985-a141-ea68f90fc882,,Badan Penyelenggara Jaminan Produk Halal,P,Badan Penyelenggara Jaminan Produk Halal,Kepala Badan Penyelenggara Jaminan Produk Halal,LPNK,0,6000
+3f40424b93634708b44bfbbed9380744,,"Kementerian Pendidikan Tinggi, Sains, dan Teknologi",P,"Kementerian Pendidikan Tinggi, Sains, dan Teknologi","Menteri Pendidikan Tinggi, Sains, dan Teknologi",KEMENT,0,6000
+4099cc4f13cb46df9ee512b7938e235b,,Kementerian Koordinator Bidang Pemberdayaan Masyarakat,P,Kementerian Koordinator Bidang Pemberdayaan Masyarakat,Menteri Koordinator Bidang Pemberdayaan Masyarakat,KO,0,6000
+40c164aac4df4504b37f3c51b91dbaf8,,Kementerian Kebudayaan,P,Kementerian Kebudayaan,Menteri Kebudayaan,KEMENT,0,6000
+4891ac9bd44743d0a4585d3598b45b01,,Kementerian Koordinator Bidang Infrastruktur dan Pembangunan Kewilayahan,P,Kementerian Koordinator Bidang Infrastruktur dan Pembangunan Kewilayahan,Menteri Koordinator Bidang Infrastruktur dan Pembangunan Kewilayahan,KO,0,6000
+6291CFA065278E99E050640A290279EA,,Lembaga Perlindungan Saksi dan Korban,P,Lembaga Perlindungan Saksi dan Korban,Kepala Lembaga Perlindungan Saksi dan Korban,LNS,0,6000
+6a52007e-b46c-4a9a-a140-c53119e96aa6,,Badan Penyelenggara Haji,P,Badan Penyelenggara Haji,Kepala Badan Penyelenggara Haji,LPNK,0,6000
+748FC9961C1A485EE050640A2A030F86,,Badan Pembinaan Ideologi Pancasila,P,Badan Pembinaan Ideologi Pancasila,Kepala Badan Pembinaan Ideologi Pancasila,LPNK,0,6000
+8ae48288503bd9ee0150606afe0c766e,,Komisi Aparatur Sipil Negara,P,,Ketua Komisi Aparatur Sipil Negara,LNS,0,6000
+8ae482893d68b543013d7c73e421677a,,Setjen Komisi Pengawas Persaingan Usaha,P,Setjen Komisi Pengawas Persaingan Usaha,Ketua Komisi Pengawas Persaingan Usaha,LNS,0,6000
+8ae4828940ecc41d0140f19098654ee4,,Badan Pengawas Pemilihan Umum,P,Badan Pengawas Pemilihan Umum,Ketua Badan Pengawas Pemilihan Umum,LNS,0,6000
+8ae482894305762301430a5c07e7709c,8ae482894305762301430a5a9c4c709a,Pemerintah Kab. Musi Rawas Utara,D,Pemerintah Kab. Musi Rawas Utara,Bupati Musi Rawas Utara,KAB,7,5600
+8ae4828944dd62730144dd79597f077b,8ae4828944dd62730144dd765c9105c7,Pemerintah Kab. Konawe Kepulauan,D,Pemerintah Kab. Konawe Kepulauan,Bupati Konawe Kepulauan,KAB,4,7400
+8ae482894bca19a4014bd87660831274,8ae482894bca19a4014bd861a2497f97,Pemerintah Kab. Muna Barat,D,Pemerintah Kab. Muna Barat,Bupati Muna Barat,KAB,4,7400
+a51da632e235405da40cec0dbd61b75b,,Kementerian Pendidikan Dasar dan Menengah,P,Kementerian Pendidikan Dasar dan Menengah,Menteri Pendidikan Dasar dan Menengah,KEMENT,0,6000
+A5EB03E23AF7F6A0E040640A040252AD,A5EB03E22075F6A0E040640A040252AD,Pemerintah Kab. Pesawaran,D,Pemerintah Kab. Pesawaran,Bupati Pesawaran,KAB,5,5900
+A5EB03E23AF9F6A0E040640A040252AD,,Kementerian Kesehatan,P,Kementerian Kesehatan,Menteri Kesehatan,KEMENT,0,6000
+A5EB03E23AFAF6A0E040640A040252AD,,Kementerian Ketenagakerjaan,P,Kementerian Ketenagakerjaan,Menteri Ketenagakerjaan,KEMENT,0,6000
+A5EB03E23AFBF6A0E040640A040252AD,,Kementerian Lingkungan Hidup dan Kehutanan,P,Kementerian Lingkungan Hidup dan Kehutanan,Menteri Lingkungan Hidup dan Kehutanan,KEMENT,0,6000
+A5EB03E23AFCF6A0E040640A040252AD,,Kementerian Sekretariat Negara,P,Kementerian Sekretariat Negara,Menteri Sekretaris Negara,KEMENT,0,6000
+A5EB03E23AFDF6A0E040640A040252AD,,Badan Intelijen Negara,P,Badan Intelijen Negara,Kepala Badan Intelijen Negara,,0,6000
+A5EB03E23AFEF6A0E040640A040252AD,,Mahkamah Agung RI,P,Mahkamah Agung RI,Ketua Mahkamah Agung Republik Indonesia,LPNK,0,6000
+A5EB03E23AFFF6A0E040640A040252AD,,Badan Pemeriksa Keuangan,P,Badan Pemeriksa Keuangan ,Sekretaris Jenderal Badan Pemeriksa Keuangan RI,LPNK,0,6000
+A5EB03E23B00F6A0E040640A040252AD,,Badan Kepegawaian Negara,P,Badan Kepegawaian Negara,Kepala Badan Kepegawaian Negara,LPNK,0,6000
+A5EB03E23B01F6A0E040640A040252AD,,Lembaga Penerbangan dan Antariksa Nasional,P,Lembaga Penerbangan dan Antariksa Nasional,Kepala Lembaga Penerbangan dan Antariksa Nasional,LPNK,0,6000
+A5EB03E23B02F6A0E040640A040252AD,,Badan Tenaga Nuklir Nasional,P,Badan Tenaga Nuklir Nasional ,Kepala Badan Tenaga Nuklir Nasional,LPNK,0,6000
+A5EB03E23B03F6A0E040640A040252AD,,Kementerian Perencanaan Pembangunan Nasional/Bappenas,P,Kementerian Perencanaan Pembangunan Nasional/Bappenas,Menteri PPN/Kepala BAPPENAS,KEMENT,0,6000
+A5EB03E23B04F6A0E040640A040252AD,,Badan Informasi Geospasial,P,Badan Informasi Geospasial,Kepala Badan Informasi Geospasial,LPNK,0,6000
+A5EB03E23B05F6A0E040640A040252AD,,Badan Pengkajian dan Penerapan Teknologi,P,Badan Pengkajian dan Penerapan Teknologi,Kepala Badan Pengkajian dan Penerapan Teknologi,LPNK,0,6000
+A5EB03E23B06F6A0E040640A040252AD,,Kementerian Agraria dan Tata Ruang/Badan Pertanahan Nasional,P,Kementerian Agraria dan Tata Ruang/Badan Pertanahan Nasional,Menteri Agraria dan Tata Ruang/Kepala Badan Pertahanan Nasional,KEMENT,0,6000
+A5EB03E23B07F6A0E040640A040252AD,,Badan Standardisasi Nasional,P,Badan Standardisasi Nasional ,Kepala Badan Standardisasi Nasional,LPNK,0,6000
+A5EB03E23B08F6A0E040640A040252AD,,Badan Pengawas Obat dan Makanan,P,Badan Pengawas Obat dan Makanan ,Kepala Badan Pengawas Obat dan Makanan,LPNK,0,6000
+A5EB03E23B09F6A0E040640A040252AD,,Kepolisian Negara,P,Kepolisian Negara,Kepala Kepolisian Negara Republik Indonesia,LPNK,0,6000
+A5EB03E23B0AF6A0E040640A040252AD,,"Badan Meteorologi, Klimatologi dan Geofisika",P,"Badan Meteorologi, Klimatologi dan Geofisika",Kepala Badan Meteorologi Klimatologi dan Geofisika,LPNK,0,6000
+A5EB03E23B0BF6A0E040640A040252AD,,Sekretariat Wakil Presiden,P,Sekretariat Wakil Presiden,SEKRETARIS WAKIL PRESIDEN,,0,6000
+A5EB03E23B0CF6A0E040640A040252AD,A5EB03E21F0AF6A0E040640A040252AD,Pemerintah Aceh,D,Pemerintah Aceh,Gubernur Aceh,PROV,13,5100
+A5EB03E23B0DF6A0E040640A040252AD,A5EB03E2203BF6A0E040640A040252AD,Pemerintah Kab. Aceh Utara,D,Pemerintah Kab. Aceh Utara,Bupati Aceh Utara,KAB,13,5100
+A5EB03E23B0EF6A0E040640A040252AD,A5EB03E21FB1F6A0E040640A040252AD,Pemerintah Kab. Aceh Selatan,D,Pemerintah Kab. Aceh Selatan,Bupati Aceh Selatan,KAB,13,5100
+A5EB03E23B0FF6A0E040640A040252AD,A5EB03E22061F6A0E040640A040252AD,Pemerintah Kab. Aceh Tengah,D,Pemerintah Kab. Aceh Tengah,Bupati Aceh Tengah,KAB,13,5100
+A5EB03E23B10F6A0E040640A040252AD,A5EB03E22047F6A0E040640A040252AD,Pemerintah Kab. Simeulue,D,Pemerintah Kab. Simeulue,Bupati Simeulue,KAB,13,5100
+A5EB03E23B11F6A0E040640A040252AD,A5EB03E220C3F6A0E040640A040252AD,Pemerintah Kab. Aceh Barat Daya,D,Pemerintah Kab. Aceh Barat Daya,Bupati Aceh Barat Daya,KAB,13,5100
+A5EB03E23B12F6A0E040640A040252AD,A5EB03E2204AF6A0E040640A040252AD,Pemerintah Kab. Aceh Tamiang,D,Pemerintah Kab. Aceh Tamiang,Bupati Aceh Tamiang,KAB,13,5100
+A5EB03E23B13F6A0E040640A040252AD,A5EB03E21F3DF6A0E040640A040252AD,Pemerintah Kab. Aceh Jaya,D,Pemerintah Kab. Aceh Jaya,Bupati Aceh Jaya,KAB,13,5100
+A5EB03E23B14F6A0E040640A040252AD,A5EB03E21FBCF6A0E040640A040252AD,Pemerintah Kab. Nias Selatan,D,Pemerintah Kab. Nias Selatan,Bupati Nias Selatan,KAB,6,5200
+A5EB03E23B15F6A0E040640A040252AD,A5EB03E21FBEF6A0E040640A040252AD,Pemerintah Kab. Pakpak Bharat,D,Pemerintah Kab. Pakpak Bharat,Bupati Pakpak Bharat,KAB,6,5200
+A5EB03E23B16F6A0E040640A040252AD,A5EB03E21FC1F6A0E040640A040252AD,Pemerintah Kota Tebing Tinggi,D,Pemerintah Kota Tebing Tinggi,Walikota Tebing Tinggi,KOT,6,5200
+A5EB03E23B17F6A0E040640A040252AD,A5EB03E21F74F6A0E040640A040252AD,Pemerintah Kota Pematangsiantar,D,Pemerintah Kota Pematang Siantar,Walikota Pematangsiantar,KOT,6,5200
+A5EB03E23B18F6A0E040640A040252AD,A5EB03E21FD1F6A0E040640A040252AD,Pemerintah Kota Padangsidimpuan,D,Pemerintah Kota Padangsidimpuan,Walikota Padangsidimpuan,KOT,6,5200
+A5EB03E23B19F6A0E040640A040252AD,A5EB03E21FDCF6A0E040640A040252AD,Pemerintah Kab. Kampar,D,Pemerintah Kab. Kampar,Bupati Kampar,KAB,12,5300
+A5EB03E23B1AF6A0E040640A040252AD,A5EB03E21FDAF6A0E040640A040252AD,Pemerintah Kab. Indragiri Hulu,D,Pemerintah Kab. Indragiri Hulu,Bupati Indragiri Hulu,KAB,12,5300
+A5EB03E23B1BF6A0E040640A040252AD,A5EB03E21F9AF6A0E040640A040252AD,Pemerintah Kab. Pelalawan,D,Pemerintah Kab. Pelalawan,Bupati Pelalawan,KAB,12,5300
+A5EB03E23B1CF6A0E040640A040252AD,,Sekretariat Jenderal Komisi Yudisial,P,Sekretariat Jenderal Komisi Yudisial,Sekretaris Jenderal Komisi Yudisial,LPNK,0,6000
+A5EB03E23B1DF6A0E040640A040252AD,,Setjen Dewan Perwakilan Daerah,P,Setjen Dewan Perwakilan Daerah,Sekretaris Jendral Dewan Perwakilan Daerah RI,LPNK,0,6000
+A5EB03E23B1EF6A0E040640A040252AD,A5EB03E21F9CF6A0E040640A040252AD,Pemerintah Kab. Rokan Hilir,D,Pemerintah Kab. Rokan Hilir,Bupati Rokan Hilir,KAB,12,5300
+A5EB03E23B1FF6A0E040640A040252AD,A5EB03E21F9EF6A0E040640A040252AD,Pemerintah Kab. Kuantan Singingi,D,Pemerintah Kab. Kuantan Singingi,Bupati Kuantan Singingi,KAB,12,5300
+A5EB03E23B20F6A0E040640A040252AD,A5EB03E21F0CF6A0E040640A040252AD,Pemerintah Provinsi Sumatera Barat,D,Pemerintah Provinsi Sumatera Barat,Gubernur Sumatera Barat,PROV,12,5400
+A5EB03E23B21F6A0E040640A040252AD,A5EB03E21F81F6A0E040640A040252AD,Pemerintah Kab. Pasaman,D,Pemerintah Kab. Pasaman,Bupati Pasaman,KAB,12,5400
+A5EB03E23B22F6A0E040640A040252AD,A5EB03E21FD3F6A0E040640A040252AD,Pemerintah Kab. Solok,D,Pemerintah Kab. Solok,Bupati Solok,KAB,12,5400
+A5EB03E23B23F6A0E040640A040252AD,A5EB03E21FD2F6A0E040640A040252AD,Pemerintah Kab. Pesisir Selatan,D,Pemerintah Kab. Pesisir Selatan,Bupati Pesisir Selatan,KAB,12,5400
+A5EB03E23B24F6A0E040640A040252AD,A5EB03E21FE0F6A0E040640A040252AD,Pemerintah Kab. Sijunjung,D,Pemerintah Kab. Sijunjung,Bupati Sijunjung,KAB,12,5400
+A5EB03E23B25F6A0E040640A040252AD,A5EB03E21FD8F6A0E040640A040252AD,Pemerintah Kota Bukittinggi,D,Pemerintah Kota Bukittinggi,Walikota Bukittinggi,KOT,12,5400
+A5EB03E23B26F6A0E040640A040252AD,A5EB03E21FD6F6A0E040640A040252AD,Pemerintah Kota Sawahlunto,D,Pemerintah Kota Sawahlunto,Walikota Sawahlunto,KOT,12,5400
+A5EB03E23B27F6A0E040640A040252AD,A5EB03E21FD4F6A0E040640A040252AD,Pemerintah Kota Padang,D,Pemerintah Kota Padang,Walikota Padang,KOT,12,5400
+A5EB03E23B28F6A0E040640A040252AD,A5EB03E220EBF6A0E040640A040252AD,Pemerintah Kota Pariaman,D,Pemerintah Kota Pariaman,Walikota Pariaman,KOT,12,5400
+A5EB03E23B29F6A0E040640A040252AD,A5EB03E22015F6A0E040640A040252AD,Pemerintah Kab. Batang Hari,D,Pemerintah Kab. Batang Hari,Bupati Batang Hari,KAB,7,5500
+A5EB03E23B2AF6A0E040640A040252AD,A5EB03E22014F6A0E040640A040252AD,Pemerintah Kab. Bungo,D,Pemerintah Kab. Bungo,Bupati Bungo,KAB,7,5500
+A5EB03E23B2BF6A0E040640A040252AD,A5EB03E21F9FF6A0E040640A040252AD,Pemerintah Kab. Kerinci,D,Pemerintah Kab. Kerinci,Bupati Kerinci,KAB,7,5500
+A5EB03E23B2CF6A0E040640A040252AD,A5EB03E22016F6A0E040640A040252AD,Pemerintah Kab. Tebo,D,Pemerintah Kab. Tebo,Bupati Tebo,KAB,7,5500
+A5EB03E23B2DF6A0E040640A040252AD,A5EB03E22018F6A0E040640A040252AD,Pemerintah Kab. Tanjung Jabung Timur,D,Pemerintah Kab. Tanjung Jabung Timur,Bupati Tanjung Jabung Timur,KAB,7,5500
+A5EB03E23B2EF6A0E040640A040252AD,A5EB03E21F0EF6A0E040640A040252AD,Pemerintah Provinsi Sumatera Selatan,D,Pemerintah Provinsi Sumatera Selatan,Gubernur Sumatera Selatan,PROV,7,5600
+A5EB03E23B2FF6A0E040640A040252AD,A5EB03E2201BF6A0E040640A040252AD,Pemerintah Kab. Ogan Komering Ulu,D,Pemerintah Kab. Ogan Komering Ulu,Bupati Ogan Komering Ulu,KAB,7,5600
+A5EB03E23B30F6A0E040640A040252AD,A5EB03E220A3F6A0E040640A040252AD,Pemerintah Kab. Musi Rawas,D,Pemerintah Kab. Musi Rawas,Bupati Musi Rawas,KAB,7,5600
+A5EB03E23B31F6A0E040640A040252AD,A5EB03E220A5F6A0E040640A040252AD,Pemerintah Kab. Banyuasin,D,Pemerintah Kab. Banyuasin,Bupati Banyuasin,KAB,7,5600
+A5EB03E23B32F6A0E040640A040252AD,A5EB03E220AAF6A0E040640A040252AD,Pemerintah Kota Pagar Alam,D,Pemerintah Kota Pagar Alam,Walikota Pagar Alam,KOT,7,5600
+A5EB03E23B33F6A0E040640A040252AD,A5EB03E220A8F6A0E040640A040252AD,Pemerintah Kota Prabumulih,D,Pemerintah Kota Prabumulih,Walikota Prabumulih,KOT,7,5600
+A5EB03E23B34F6A0E040640A040252AD,A5EB03E21F36F6A0E040640A040252AD,Pemerintah Kab. Belitung,D,Pemerintah Kab. Belitung,Bupati Belitung,KAB,7,5700
+A5EB03E23B35F6A0E040640A040252AD,A5EB03E21F33F6A0E040640A040252AD,Pemerintah Kab. Bangka Barat,D,Pemerintah Kab. Bangka Barat,Bupati Bangka Barat,KAB,7,5700
+A5EB03E23B36F6A0E040640A040252AD,A5EB03E21F35F6A0E040640A040252AD,Pemerintah Kab. Bangka Selatan,D,Pemerintah Kab. Bangka Selatan,Bupati Bangka Selatan,KAB,7,5700
+A5EB03E23B37F6A0E040640A040252AD,A5EB03E21F32F6A0E040640A040252AD,Pemerintah Kab. Sumenep,D,Pemerintah Kab. Sumenep,Bupati Sumenep,KAB,2,6500
+A5EB03E23B38F6A0E040640A040252AD,A5EB03E21FA0F6A0E040640A040252AD,Pemerintah Kab. Bondowoso,D,Pemerintah Kab. Bondowoso,Bupati Bondowoso,KAB,2,6500
+A5EB03E23B39F6A0E040640A040252AD,A5EB03E21F47F6A0E040640A040252AD,Pemerintah Kab. Banyuwangi,D,Pemerintah Kab. Banyuwangi,Bupati Banyuwangi,KAB,2,6500
+A5EB03E23B3AF6A0E040640A040252AD,A5EB03E21F44F6A0E040640A040252AD,Pemerintah Kab. Malang,D,Pemerintah Kab. Malang,Bupati Malang,KAB,2,6500
+A5EB03E23B3BF6A0E040640A040252AD,A5EB03E21FA2F6A0E040640A040252AD,Pemerintah Kab. Probolinggo,D,Pemerintah Kab. Probolinggo,Bupati Probolinggo,KAB,2,6500
+A5EB03E23B3CF6A0E040640A040252AD,A5EB03E21F43F6A0E040640A040252AD,Pemerintah Kab. Kediri,D,Pemerintah Kab. Kediri,Bupati Kediri,KAB,2,6500
+A5EB03E23B3DF6A0E040640A040252AD,A5EB03E2200FF6A0E040640A040252AD,Pemerintah Kab. Nganjuk,D,Pemerintah Kab. Nganjuk,Bupati Nganjuk,KAB,2,6500
+A5EB03E23B3EF6A0E040640A040252AD,A5EB03E22164F6A0E040640A040252AD,Pemerintah Kab. Blitar,D,Pemerintah Kab. Blitar,Bupati Blitar,KAB,2,6500
+A5EB03E23B3FF6A0E040640A040252AD,A5EB03E2202EF6A0E040640A040252AD,Pemerintah Kab. Ngawi,D,Pemerintah Kab. Ngawi,Bupati Ngawi,KAB,2,6500
+A5EB03E23B40F6A0E040640A040252AD,A5EB03E22040F6A0E040640A040252AD,Pemerintah Kab. Ponorogo,D,Pemerintah Kab. Ponorogo,Bupati Ponorogo,KAB,2,6500
+A5EB03E23B41F6A0E040640A040252AD,A5EB03E2202FF6A0E040640A040252AD,Pemerintah Kab. Bojonegoro,D,Pemerintah Kab. Bojonegoro,Bupati Bojonegoro,KAB,2,6500
+A5EB03E23B42F6A0E040640A040252AD,A5EB03E2203CF6A0E040640A040252AD,Pemerintah Kab. Gunung Kidul,D,Pemerintah Kab. Gunung Kidul,Bupati Gunung Kidul,KAB,1,6300
+A5EB03E23B43F6A0E040640A040252AD,A5EB03E22003F6A0E040640A040252AD,Pemerintah Kota Surakarta,D,Pemerintah Kota Surakarta,Walikota Surakarta,KOT,1,6400
+A5EB03E23B44F6A0E040640A040252AD,A5EB03E21F98F6A0E040640A040252AD,Pemerintah Kota Surabaya,D,Pemerintah Kota Surabaya,Walikota Surabaya,KOT,2,6500
+A5EB03E23B45F6A0E040640A040252AD,A5EB03E22010F6A0E040640A040252AD,Pemerintah Kab. Ciamis,D,Pemerintah Kab. Ciamis,Bupati Ciamis,KAB,3,6100
+A5EB03E23B46F6A0E040640A040252AD,A5EB03E220AEF6A0E040640A040252AD,Pemerintah Kab. Serang,D,Pemerintah Kab. Serang,Bupati Serang,KAB,3,6200
+A5EB03E23B47F6A0E040640A040252AD,A5EB03E22057F6A0E040640A040252AD,Pemerintah Kab. Bulukumba,D,Pemerintah Kab. Bulukumba,Bupati Bulukumba,KAB,4,7300
+A5EB03E23B48F6A0E040640A040252AD,8ae483a764d0984f0164e40e36c04cbc,Pemerintah Kab. Pasangkayu,D,Pemerintah Kab. Pasangkayu,Bupati Pasangkayu,KAB,4,8300
+A5EB03E23B49F6A0E040640A040252AD,A5EB03E2206FF6A0E040640A040252AD,Pemerintah Kab. Dairi,D,Pemerintah Kab. Dairi,Bupati Dairi,KAB,6,5200
+A5EB03E23B4AF6A0E040640A040252AD,A5EB03E22097F6A0E040640A040252AD,Pemerintah Kab. Serdang Bedagai,D,Pemerintah Kab. Serdang Bedagai,Bupati Serdang Bedagai,KAB,6,5200
+A5EB03E23B4BF6A0E040640A040252AD,A5EB03E21F1AF6A0E040640A040252AD,Pemerintah Provinsi Jambi,D,Pemerintah Provinsi Jambi,Gubernur Jambi,PROV,7,5500
+A5EB03E23B4CF6A0E040640A040252AD,A5EB03E22096F6A0E040640A040252AD,Pemerintah Kab. Ogan Ilir,D,Pemerintah Kab. Ogan Ilir,Bupati Ogan Ilir,KAB,7,5600
+A5EB03E23B4DF6A0E040640A040252AD,A5EB03E22081F6A0E040640A040252AD,Pemerintah Kab. Lebong,D,Pemerintah Kab. Lebong,Bupati Lebong,KAB,7,5800
+A5EB03E23B4EF6A0E040640A040252AD,A5EB03E21F7DF6A0E040640A040252AD,Pemerintah Kota Palangka Raya,D,Pemerintah Kota Palangka Raya,Walikota Palangka Raya,KOT,8,6700
+A5EB03E23B4FF6A0E040640A040252AD,A5EB03E21F87F6A0E040640A040252AD,Pemerintah Kab. Kutai Barat,D,Pemerintah Kab. Kutai Barat,Bupati Kutai Barat,KAB,8,6900
+A5EB03E23B50F6A0E040640A040252AD,A5EB03E22025F6A0E040640A040252AD,Pemerintah Kab. Asmat,D,Pemerintah Kab. Asmat,Bupati Asmat,KAB,9,8500
+A5EB03E23B51F6A0E040640A040252AD,A5EB03E22133F6A0E040640A040252AD,Pemerintah Kab. Sorong Selatan,D,Pemerintah Kab. Sorong Selatan,Bupati Sorong Selatan,KAB,14,8800
+A5EB03E23B52F6A0E040640A040252AD,A5EB03E21F6EF6A0E040640A040252AD,Pemerintah Kab. Alor,D,Pemerintah Kab. Alor,Bupati Alor,KAB,10,7700
+A5EB03E23B53F6A0E040640A040252AD,A5EB03E21FB6F6A0E040640A040252AD,Pemerintah Kab. Kepulauan Talaud,D,Pemerintah Kab. Kepulauan Talaud,Bupati Kepulauan Talaud,KAB,11,7000
+A5EB03E23B54F6A0E040640A040252AD,A5EB03E21F18F6A0E040640A040252AD,Pemerintah Provinsi Maluku Utara,D,Pemerintah Provinsi Maluku Utara,Gubernur Maluku Utara,PROV,11,7900
+A5EB03E23B55F6A0E040640A040252AD,A5EB03E21F80F6A0E040640A040252AD,Pemerintah Kab. Limapuluh Kota,D,Pemerintah Kab. Limapuluh Kota,Bupati Limapuluh Kota,KAB,12,5400
+A5EB03E23B56F6A0E040640A040252AD,A5EB03E22046F6A0E040640A040252AD,Pemerintah Kab. Bangka,D,Pemerintah Kab. Bangka,Bupati Bangka,KAB,7,5700
+A5EB03E23B57F6A0E040640A040252AD,A5EB03E22021F6A0E040640A040252AD,Pemerintah Kab. Lamongan,D,Pemerintah Kab. Lamongan,Bupati Lamongan,KAB,2,6500
+A5EB03E23B58F6A0E040640A040252AD,A5EB03E220E5F6A0E040640A040252AD,Pemerintah Kota Malang,D,Pemerintah Kota Malang,Walikota Malang,KOT,2,6500
+A5EB03E23B59F6A0E040640A040252AD,A5EB03E21F95F6A0E040640A040252AD,Pemerintah Kota Probolinggo,D,Pemerintah Kota Probolinggo,Walikota Probolinggo,KOT,2,6500
+A5EB03E23B5AF6A0E040640A040252AD,A5EB03E220E3F6A0E040640A040252AD,Pemerintah Kota Kediri,D,Pemerintah Kota Kediri,Walikota Kediri,KOT,2,6500
+A5EB03E23B5BF6A0E040640A040252AD,A5EB03E2201EF6A0E040640A040252AD,Pemerintah Kota Batu,D,Pemerintah Kota Batu,Walikota Batu,KOT,2,6500
+A5EB03E23B5CF6A0E040640A040252AD,A5EB03E21F04F6A0E040640A040252AD,Pemerintah Provinsi Kalimantan Barat,D,Pemerintah Provinsi Kalimantan Barat,Gubernur Kalimantan Barat,PROV,5,6600
+A5EB03E23B5DF6A0E040640A040252AD,A5EB03E21F67F6A0E040640A040252AD,Pemerintah Kab. Mempawah,D,Pemerintah Kab. Mempawah,Bupati Mempawah,KAB,5,6600
+A5EB03E23B5EF6A0E040640A040252AD,A5EB03E21FCAF6A0E040640A040252AD,Pemerintah Kab. Ketapang,D,Pemerintah Kab. Ketapang,Bupati Ketapang,KAB,5,6600
+A5EB03E23B5FF6A0E040640A040252AD,A5EB03E21FCDF6A0E040640A040252AD,Pemerintah Kab. Landak,D,Pemerintah Kab. Landak,Bupati Landak,KAB,5,6600
+A5EB03E23B60F6A0E040640A040252AD,A5EB03E21FCEF6A0E040640A040252AD,Pemerintah Kota Pontianak,D,Pemerintah Kota Pontianak,Walikota Pontianak,KOT,5,6600
+A5EB03E23B61F6A0E040640A040252AD,A5EB03E21F1BF6A0E040640A040252AD,Pemerintah Provinsi Kalimantan Tengah,D,Pemerintah Provinsi Kalimantan Tengah,Gubernur Kalimantan Tengah,PROV,8,6700
+A5EB03E23B62F6A0E040640A040252AD,A5EB03E21FF6F6A0E040640A040252AD,Pemerintah Kab. Barito Selatan,D,Pemerintah Kab. Barito Selatan,Bupati Barito Selatan,KAB,8,6700
+A5EB03E23B63F6A0E040640A040252AD,A5EB03E21FF3F6A0E040640A040252AD,Pemerintah Kab. Kotawaringin Barat,D,Pemerintah Kab. Kotawaringin Barat,Bupati Kotawaringin Barat,KAB,8,6700
+A5EB03E23B64F6A0E040640A040252AD,A5EB03E21F7BF6A0E040640A040252AD,Pemerintah Kab. Gunung Mas,D,Pemerintah Kab. Gunung Mas,Bupati Gunung Mas,KAB,8,6700
+A5EB03E23B65F6A0E040640A040252AD,A5EB03E21F76F6A0E040640A040252AD,Pemerintah Kab. Sukamara,D,Pemerintah Kab. Sukamara,Bupati Sukamara,KAB,8,6700
+A5EB03E23B66F6A0E040640A040252AD,A5EB03E21F79F6A0E040640A040252AD,Pemerintah Kab. Katingan,D,Pemerintah Kab. Katingan,Bupati Katingan,KAB,8,6700
+A5EB03E23B67F6A0E040640A040252AD,A5EB03E220CBF6A0E040640A040252AD,Pemerintah Kab. Barito Timur,D,Pemerintah Kab. Barito Timur,Bupati Barito Timur,KAB,8,6700
+A5EB03E23B68F6A0E040640A040252AD,A5EB03E21F06F6A0E040640A040252AD,Pemerintah Provinsi Kalimantan Selatan,D,Pemerintah Provinsi Kalimantan Selatan,Gubernur Kalimantan Selatan,PROV,8,6800
+A5EB03E23B69F6A0E040640A040252AD,A5EB03E220CCF6A0E040640A040252AD,Pemerintah Kab. Tapin,D,Pemerintah Kab. Tapin,Bupati Tapin,KAB,8,6800
+A5EB03E23B6AF6A0E040640A040252AD,A5EB03E21FF9F6A0E040640A040252AD,Pemerintah Kab. Hulu Sungai Tengah,D,Pemerintah Kab. Hulu Sungai Tengah,Bupati Hulu Sungai Tengah,KAB,8,6800
+A5EB03E23B6BF6A0E040640A040252AD,A5EB03E21FFBF6A0E040640A040252AD,Pemerintah Kab. Tabalong,D,Pemerintah Kab. Tabalong,Bupati Tabalong,KAB,8,6800
+A5EB03E23B6CF6A0E040640A040252AD,A5EB03E21FFAF6A0E040640A040252AD,Pemerintah Kab. Hulu Sungai Utara,D,Pemerintah Kab. Hulu Sungai Utara,Bupati Hulu Sungai Utara,KAB,8,6800
+A5EB03E23B6DF6A0E040640A040252AD,A5EB03E21F82F6A0E040640A040252AD,Pemerintah Kota Banjarbaru,D,Pemerintah Kota Banjarbaru,Walikota Banjarbaru,KOT,8,6800
+A5EB03E23B6EF6A0E040640A040252AD,A5EB03E22031F6A0E040640A040252AD,Pemerintah Kab. Tanggamus,D,Pemerintah Kab. Tanggamus,Bupati Tanggamus,KAB,5,5900
+A5EB03E23B6FF6A0E040640A040252AD,A5EB03E22043F6A0E040640A040252AD,Pemerintah Kab. Lampung Timur,D,Pemerintah Kab. Lampung Timur,Bupati Lampung Timur,KAB,5,5900
+A5EB03E23B70F6A0E040640A040252AD,A5EB03E22044F6A0E040640A040252AD,Pemerintah Kota Bandar Lampung,D,Pemerintah Kota Bandar Lampung,Walikota Bandar Lampung,KOT,5,5900
+A5EB03E23B71F6A0E040640A040252AD,A5EB03E21F4DF6A0E040640A040252AD,Kab. Kepulauan Seribu,D,Kab. Kepulauan Seribu,Kab. Kepulauan Seribu,,5,6000
+A5EB03E23B74F6A0E040640A040252AD,A5EB03E21F13F6A0E040640A040252AD,Pemerintah Provinsi Jawa Barat,D,Pemerintah Provinsi Jawa Barat,Gubernur Jawa Barat,PROV,3,6100
+A5EB03E23B75F6A0E040640A040252AD,A5EB03E220E7F6A0E040640A040252AD,Pemerintah Kab. Cianjur,D,Pemerintah Kab. Cianjur,Bupati Cianjur,KAB,3,6100
+A5EB03E23B76F6A0E040640A040252AD,A5EB03E21F55F6A0E040640A040252AD,Pemerintah Kab. Karawang,D,Pemerintah Kab. Karawang,Bupati Karawang,KAB,3,6100
+A5EB03E23B77F6A0E040640A040252AD,A5EB03E22023F6A0E040640A040252AD,Pemerintah Kab. Subang,D,Pemerintah Kab. Subang,Bupati Subang,KAB,3,6100
+A5EB03E23B78F6A0E040640A040252AD,A5EB03E2204DF6A0E040640A040252AD,Pemerintah Kab. Sumedang,D,Pemerintah Kab. Sumedang,Bupati Sumedang,KAB,3,6100
+A5EB03E23B79F6A0E040640A040252AD,A5EB03E22064F6A0E040640A040252AD,Pemerintah Kab. Tasikmalaya,D,Pemerintah Kab. Tasikmalaya,Bupati Tasikmalaya,KAB,3,6100
+A5EB03E23B7AF6A0E040640A040252AD,,Badan Keamanan Laut RI,P,Badan Keamanan Laut RI,Kepala Badan Keamanan Laut RI,LPNK,0,6000
+A5EB03E23B7BF6A0E040640A040252AD,A5EB03E220D2F6A0E040640A040252AD,Pemerintah Kab. Bandung Barat,D,Pemerintah Kab. Bandung Barat,Bupati Bandung Barat,KAB,3,6100
+A5EB03E23B7CF6A0E040640A040252AD,A5EB03E220C9F6A0E040640A040252AD,Pemerintah Kab. Labuhanbatu Selatan,D,Pemerintah Kab. Labuhanbatu Selatan,Bupati Labuhanbatu Selatan,KAB,6,5200
+A5EB03E23B7DF6A0E040640A040252AD,A5EB03E22078F6A0E040640A040252AD,Pemerintah Kab. Labuhanbatu Utara,D,Pemerintah Kab. Labuhanbatu Utara,Bupati Labuhanbatu Utara,KAB,6,5200
+A5EB03E23B7EF6A0E040640A040252AD,A5EB03E22098F6A0E040640A040252AD,Pemerintah Kota Sungai Penuh,D,Pemerintah Kota Sungai Penuh,Walikota Sungai Penuh,KOT,7,5500
+A5EB03E23B7FF6A0E040640A040252AD,A5EB03E2208EF6A0E040640A040252AD,Pemerintah Kab. Bengkulu Tengah,D,Pemerintah Kab. Bengkulu Tengah,Bupati Bengkulu Tengah,KAB,7,5800
+A5EB03E23B80F6A0E040640A040252AD,A5EB03E22077F6A0E040640A040252AD,Pemerintah Kab. Kepulauan Anambas,D,Pemerintah Kab. Kepulauan Anambas,Bupati Kepulauan Anambas,KAB,12,8100
+A5EB03E23B81F6A0E040640A040252AD,A5EB03E2207BF6A0E040640A040252AD,Pemerintah Kota Serang,D,Pemerintah Kota Serang,Walikota Serang,KOT,3,6200
+A5EB03E23B82F6A0E040640A040252AD,A5EB03E2206DF6A0E040640A040252AD,Pemerintah Kab. Lombok Utara,D,Pemerintah Kab. Lombok Utara,Bupati Lombok Utara,KAB,10,7600
+A5EB03E23B83F6A0E040640A040252AD,A5EB03E2215EF6A0E040640A040252AD,Pemerintah Kab. Bolaang Mongondow Utara,D,Pemerintah Kab. Bolaang Mongondow Utara,Bupati Bolaang Mongondow Utara,KAB,11,7000
+A5EB03E23B84F6A0E040640A040252AD,A5EB03E220C8F6A0E040640A040252AD,Pemerintah Kab. Kepulauan Siau Tagulandang Biaro,D,Pemerintah Kab. Siau Tagulandang Biaro,Bupati Siau Tagulandang Biaro,KAB,11,7000
+A5EB03E23B85F6A0E040640A040252AD,A5EB03E2207CF6A0E040640A040252AD,Pemerintah Kab. Minahasa Tenggara,D,Pemerintah Kab. Minahasa Tenggara,Bupati Minahasa Tenggara,KAB,11,7000
+A5EB03E23B86F6A0E040640A040252AD,A5EB03E220BDF6A0E040640A040252AD,Pemerintah Kab. Bolaang Mongondow Selatan,D,Pemerintah Kab. Bolaang Mongondow Selatan,Bupati Bolaang Mongondow Selatan,KAB,11,7000
+A5EB03E23B87F6A0E040640A040252AD,A5EB03E220BCF6A0E040640A040252AD,Pemerintah Kab. Bolaang Mongondow Timur,D,Pemerintah Kab. Bolaang Mongondow Timur,Bupati Bolaang Mongondow Timur,KAB,11,7000
+A5EB03E23B88F6A0E040640A040252AD,A5EB03E22076F6A0E040640A040252AD,Pemerintah Kota Kotamobagu,D,Pemerintah Kota KotaMobagu,Walikota KotaMobagu,KOT,11,7000
+A5EB03E23B89F6A0E040640A040252AD,A5EB03E22066F6A0E040640A040252AD,Pemerintah Kab. Sigi,D,Pemerintah Kab. Sigi,Bupati Sigi,KAB,4,7200
+A5EB03E23B8AF6A0E040640A040252AD,A5EB03E22067F6A0E040640A040252AD,Pemerintah Kab. Toraja Utara,D,Pemerintah Kab. Toraja Utara,Bupati Toraja Utara,KAB,4,7300
+A5EB03E23B8BF6A0E040640A040252AD,A5EB03E220DEF6A0E040640A040252AD,Pemerintah Kab. Gorontalo Utara,D,Pemerintah Kab. Gorontalo Utara,Bupati Gorontalo Utara,KAB,11,7100
+A5EB03E23B8CF6A0E040640A040252AD,A5EB03E22069F6A0E040640A040252AD,Pemerintah Kab. Buru Selatan,D,Pemerintah Kab. Buru Selatan,Bupati Buru Selatan,KAB,4,7800
+A5EB03E23B8DF6A0E040640A040252AD,A5EB03E2215FF6A0E040640A040252AD,Pemerintah Kab. Maluku Barat Daya,D,Pemerintah Kab. Maluku Barat Daya,Bupati Maluku Barat Daya,KAB,4,7800
+A5EB03E23B8EF6A0E040640A040252AD,A5EB03E220F5F6A0E040640A040252AD,Pemerintah Kota Tual,D,Pemerintah Kota Tual,Walikota Tual,KOT,4,7800
+A5EB03E23B8FF6A0E040640A040252AD,A5EB03E220DFF6A0E040640A040252AD,Pemerintah Kab. Mamberamo Raya,D,Pemerintah Kab. Mamberamo Raya,Bupati Mamberamo Raya,KAB,9,8000
+A5EB03E23B90F6A0E040640A040252AD,A5EB03E220BFF6A0E040640A040252AD,Pemerintah Kab. Mamberamo Tengah,D,Pemerintah Kab. Mamberamo Tengah,Bupati Mamberamo Tengah,KAB,9,8700
+A5EB03E23B91F6A0E040640A040252AD,A5EB03E22065F6A0E040640A040252AD,Pemerintah Kab. Lanny Jaya,D,Pemerintah Kab. Lanny Jaya,Bupati Lanny Jaya,KAB,9,8700
+A5EB03E23B92F6A0E040640A040252AD,A5EB03E220C7F6A0E040640A040252AD,Pemerintah Kab. Yalimo,D,Pemerintah Kab. Yalimo,Bupati Yalimo,KAB,9,8700
+A5EB03E23B93F6A0E040640A040252AD,A5EB03E220CAF6A0E040640A040252AD,Pemerintah Kab. Nduga,D,Pemerintah Kab. Nduga,Bupati Nduga,KAB,9,8700
+A5EB03E23B94F6A0E040640A040252AD,A5EB03E220D1F6A0E040640A040252AD,Pemerintah Kab. Dogiyai,D,Pemerintah Kab. Dogiyai,Bupati Dogiyai,KAB,9,8600
+A5EB03E23B95F6A0E040640A040252AD,,"Kementerian Desa, Pembangunan Daerah Tertinggal dan Transmigrasi",P,"Kementerian Desa, Pembangunan Daerah Tertinggal dan Transmigrasi","Menteri Desa, Pembangunan Daerah Tertinggal dan Transmigrasi",KEMENT,0,6000
+A5EB03E23B96F6A0E040640A040252AD,,Kementerian Perindustrian,P,Kementerian Perindustrian,Menteri Perindustrian,KEMENT,0,6000
+A5EB03E23B97F6A0E040640A040252AD,A5EB03E22011F6A0E040640A040252AD,Pemerintah Kab. Kuningan,D,Pemerintah Kab. Kuningan,Bupati Kuningan,KAB,3,6100
+A5EB03E23B98F6A0E040640A040252AD,A5EB03E2204CF6A0E040640A040252AD,Pemerintah Kab. Majalengka,D,Pemerintah Kab. Majalengka,Bupati Majalengka,KAB,3,6100
+A5EB03E23B99F6A0E040640A040252AD,A5EB03E220E9F6A0E040640A040252AD,Pemerintah Kota Bogor,D,Pemerintah Kota Bogor,Walikota Bogor,KOT,3,6100
+A5EB03E23B9AF6A0E040640A040252AD,A5EB03E21F58F6A0E040640A040252AD,Pemerintah Kota Cirebon,D,Pemerintah Kota Cirebon,Walikota Cirebon,KOT,3,6100
+A5EB03E23B9BF6A0E040640A040252AD,A5EB03E21F5AF6A0E040640A040252AD,Pemerintah Kota Depok,D,Pemerintah Kota Depok,Walikota Depok,KOT,3,6100
+A5EB03E23B9CF6A0E040640A040252AD,A5EB03E21F5CF6A0E040640A040252AD,Pemerintah Kota Tasikmalaya,D,Pemerintah Kota Tasikmalaya,Walikota Tasikmalaya,KOT,3,6100
+A5EB03E23B9DF6A0E040640A040252AD,A5EB03E21F11F6A0E040640A040252AD,Pemerintah Provinsi Banten,D,Pemerintah Provinsi Banten,Gubernur Banten,PROV,3,6200
+A5EB03E23B9EF6A0E040640A040252AD,A5EB03E22020F6A0E040640A040252AD,Pemerintah Kab. Lebak,D,Pemerintah Kab. Lebak,Bupati Lebak,KAB,3,6200
+A5EB03E23B9FF6A0E040640A040252AD,A5EB03E220AFF6A0E040640A040252AD,Pemerintah Kota Tangerang,D,Pemerintah Kota Tangerang,Walikota Tangerang,KOT,3,6200
+A5EB03E23BA0F6A0E040640A040252AD,A5EB03E21F12F6A0E040640A040252AD,Pemerintah Daerah Daerah Istimewa Yogyakarta,D,Pemerintah Daerah D I Yogyakarta,Gubernur D I Yogyakarta,PROV,1,6300
+A5EB03E23BA1F6A0E040640A040252AD,A5EB03E2203DF6A0E040640A040252AD,Pemerintah Kab. Sleman,D,Pemerintah Kab. Sleman,Bupati Sleman,KAB,1,6300
+A5EB03E23BA2F6A0E040640A040252AD,A5EB03E22008F6A0E040640A040252AD,Pemerintah Kab. Kulon Progo,D,Pemerintah Kab. Kulon Progo,Bupati Kulon Progo,KAB,1,6300
+A5EB03E23BA3F6A0E040640A040252AD,A5EB03E21F03F6A0E040640A040252AD,Pemerintah Provinsi Jawa Tengah,D,Pemerintah Provinsi Jawa Tengah,Gubernur Jawa Tengah,PROV,1,6400
+A5EB03E23BA4F6A0E040640A040252AD,A5EB03E21FDFF6A0E040640A040252AD,Pemerintah Kab. Demak,D,Pemerintah Kab. Demak,Bupati Demak,KAB,1,6400
+A5EB03E23BA5F6A0E040640A040252AD,A5EB03E21FEAF6A0E040640A040252AD,Pemerintah Kab. Pekalongan,D,Pemerintah Kab. Pekalongan,Bupati Pekalongan,KAB,1,6400
+A5EB03E23BA6F6A0E040640A040252AD,A5EB03E22000F6A0E040640A040252AD,Pemerintah Kab. Tegal,D,Pemerintah Kab. Tegal,Bupati Tegal,KAB,1,6400
+A5EB03E23BA7F6A0E040640A040252AD,A5EB03E21FF2F6A0E040640A040252AD,Pemerintah Kab. Pati,D,Pemerintah Kab. Pati,Bupati Pati,KAB,1,6400
+A5EB03E23BA8F6A0E040640A040252AD,A5EB03E21FFFF6A0E040640A040252AD,Pemerintah Kab. Pemalang,D,Pemerintah Kab. Pemalang,Bupati Pemalang,KAB,1,6400
+A5EB03E23BA9F6A0E040640A040252AD,A5EB03E21FF1F6A0E040640A040252AD,Pemerintah Kab. Rembang,D,Pemerintah Kab. Rembang,Bupati Rembang,KAB,1,6400
+A5EB03E23BAAF6A0E040640A040252AD,A5EB03E21F5FF6A0E040640A040252AD,Pemerintah Kab. Banyumas,D,Pemerintah Kab. Banyumas,Bupati Banyumas,KAB,1,6400
+A5EB03E23BABF6A0E040640A040252AD,A5EB03E21F60F6A0E040640A040252AD,Pemerintah Kab. Purbalingga,D,Pemerintah Kab. Purbalingga,Bupati Purbalingga,KAB,1,6400
+A5EB03E23BACF6A0E040640A040252AD,A5EB03E21FC7F6A0E040640A040252AD,Pemerintah Kab. Magelang,D,Pemerintah Kab. Magelang,Bupati Magelang,KAB,1,6400
+A5EB03E23BADF6A0E040640A040252AD,A5EB03E21FC5F6A0E040640A040252AD,Pemerintah Kab. Purworejo,D,Pemerintah Kab. Purworejo,Bupati Purworejo,KAB,1,6400
+A5EB03E23BAEF6A0E040640A040252AD,A5EB03E21FB3F6A0E040640A040252AD,Pemerintah Kab. Bolaang Mongondow,D,Pemerintah Kab. Bolaang Mongondow,Bupati Bolaang Mongondow,KAB,11,7000
+A5EB03E23BAFF6A0E040640A040252AD,A5EB03E21FB7F6A0E040640A040252AD,Pemerintah Kab. Minahasa Selatan,D,Pemerintah Kab. Minahasa Selatan,Bupati Minahasa Selatan,KAB,11,7000
+A5EB03E23BB0F6A0E040640A040252AD,A5EB03E21FB9F6A0E040640A040252AD,Pemerintah Kota Bitung,D,Pemerintah Kota Bitung,Walikota Bitung,KOT,11,7000
+A5EB03E23BB1F6A0E040640A040252AD,A5EB03E21F14F6A0E040640A040252AD,Pemerintah Provinsi Gorontalo,D,Pemerintah Provinsi Gorontalo,Gubernur Gorontalo,PROV,11,7100
+A5EB03E23BB2F6A0E040640A040252AD,A5EB03E220A0F6A0E040640A040252AD,Pemerintah Kab. Boalemo,D,Pemerintah Kab. Boalemo,Bupati Boalemo,KAB,11,7100
+A5EB03E23BB3F6A0E040640A040252AD,A5EB03E22090F6A0E040640A040252AD,Pemerintah Kab. Bone Bolango,D,Pemerintah Kab. Bone Bolango,Bupati Bone Bolango,KAB,11,7100
+A5EB03E23BB4F6A0E040640A040252AD,A5EB03E21F0FF6A0E040640A040252AD,Pemerintah Provinsi Sulawesi Tengah,D,Pemerintah Provinsi Sulawesi Tengah,Gubernur Sulawesi Tengah,PROV,4,7200
+A5EB03E23BB5F6A0E040640A040252AD,A5EB03E22051F6A0E040640A040252AD,Pemerintah Kab. Tolitoli,D,Pemerintah Kab. Tolitoli,Bupati Tolitoli,KAB,4,7200
+A5EB03E23BB6F6A0E040640A040252AD,A5EB03E22052F6A0E040640A040252AD,Pemerintah Kab. Buol,D,Pemerintah Kab. Buol,Bupati Buol,KAB,4,7200
+A5EB03E23BB7F6A0E040640A040252AD,A5EB03E22054F6A0E040640A040252AD,Pemerintah Kab. Banggai Kepulauan,D,Pemerintah Kab. Banggai Kepulauan,Bupati Banggai Kepulauan,KAB,4,7200
+A5EB03E23BB8F6A0E040640A040252AD,A5EB03E22055F6A0E040640A040252AD,Pemerintah Kota Palu,D,Pemerintah Kota Palu,Walikota Palu,KOT,4,7200
+A5EB03E23BB9F6A0E040640A040252AD,A5EB03E21F10F6A0E040640A040252AD,Pemerintah Provinsi Sulawesi Selatan,D,Pemerintah Provinsi Sulawesi Selatan,Gubernur Sulawesi Selatan,PROV,4,7300
+A5EB03E23BBAF6A0E040640A040252AD,A5EB03E21F2BF6A0E040640A040252AD,Pemerintah Kab. Bone,D,Pemerintah Kab. Bone,Bupati Bone,KAB,4,7300
+A5EB03E23BBBF6A0E040640A040252AD,A5EB03E21F28F6A0E040640A040252AD,Pemerintah Kab. Maros,D,Pemerintah Kab. Maros,Bupati Maros,KAB,4,7300
+A5EB03E23BBCF6A0E040640A040252AD,A5EB03E21F27F6A0E040640A040252AD,Pemerintah Kab. Sinjai,D,Pemerintah Kab. Sinjai,Bupati Sinjai,KAB,4,7300
+A5EB03E23BBDF6A0E040640A040252AD,A5EB03E22058F6A0E040640A040252AD,Pemerintah Kab. Bantaeng,D,Pemerintah Kab. Bantaeng,Bupati Bantaeng,KAB,4,7300
+A5EB03E23BBEF6A0E040640A040252AD,A5EB03E22056F6A0E040640A040252AD,Pemerintah Kab. Kepulauan Selayar,D,Pemerintah Kab. Kepulauan Selayar,Bupati Kepulauan Selayar,KAB,4,7300
+A5EB03E23BBFF6A0E040640A040252AD,A5EB03E21F2AF6A0E040640A040252AD,Pemerintah Kab. Barru,D,Pemerintah Kab. Barru,Bupati Barru,KAB,4,7300
+A5EB03E23BC0F6A0E040640A040252AD,A5EB03E22059F6A0E040640A040252AD,Pemerintah Kab. Sidenreng Rappang,D,Pemerintah Kab. Sidenreng Rappang,Bupati Sidenreng Rappang,KAB,4,7300
+A5EB03E23BC1F6A0E040640A040252AD,A5EB03E2205BF6A0E040640A040252AD,Pemerintah Kab. Enrekang,D,Pemerintah Kab. Enrekang,Bupati Enrekang,KAB,4,7300
+A5EB03E23BC2F6A0E040640A040252AD,A5EB03E22086F6A0E040640A040252AD,Pemerintah Kab. Luwu Timur,D,Pemerintah Kab. Luwu Timur,Bupati Luwu Timur,KAB,4,7300
+A5EB03E23BC3F6A0E040640A040252AD,A5EB03E22088F6A0E040640A040252AD,Pemerintah Kota Parepare,D,Pemerintah Kota Parepare,Walikota Parepare,KOT,4,7300
+A5EB03E23BC4F6A0E040640A040252AD,A5EB03E21F1DF6A0E040640A040252AD,Pemerintah Provinsi Sulawesi Tenggara,D,Pemerintah Provinsi Sulawesi Tenggara,Gubernur Sulawesi Tenggara,PROV,4,7400
+A5EB03E23BC5F6A0E040640A040252AD,A5EB03E2208AF6A0E040640A040252AD,Pemerintah Kab. Muna,D,Pemerintah Kab. Muna,Bupati Muna,KAB,4,7400
+A5EB03E23BC6F6A0E040640A040252AD,A5EB03E2209DF6A0E040640A040252AD,Pemerintah Kab. Konawe Selatan,D,Pemerintah Kab. Konawe Selatan,Bupati Konawe Selatan,KAB,4,7400
+A5EB03E23BC7F6A0E040640A040252AD,A5EB03E2209FF6A0E040640A040252AD,Pemerintah Kota Baubau,D,Pemerintah Kota Baubau,Walikota Baubau,KOT,4,7400
+A5EB03E23BC8F6A0E040640A040252AD,A5EB03E22132F6A0E040640A040252AD,Pemerintah Kab. Buleleng,D,Pemerintah Kab. Buleleng,Bupati Buleleng,KAB,10,7500
+A5EB03E23BC9F6A0E040640A040252AD,A5EB03E21FABF6A0E040640A040252AD,Pemerintah Kab. Klungkung,D,Pemerintah Kab. Klungkung,Bupati Klungkung,KAB,10,7500
+A5EB03E23BCAF6A0E040640A040252AD,A5EB03E21FADF6A0E040640A040252AD,Pemerintah Kab. Karangasem,D,Pemerintah Kab. Karangasem,Bupati Karangasem,KAB,10,7500
+A5EB03E23BCBF6A0E040640A040252AD,A5EB03E21FAEF6A0E040640A040252AD,Pemerintah Kota Denpasar,D,Pemerintah Kota Denpasar,Walikota Denpasar,KOT,10,7500
+A5EB03E23BCCF6A0E040640A040252AD,A5EB03E21FAFF6A0E040640A040252AD,Pemerintah Kab. Lombok Barat,D,Pemerintah Kab. Lombok Barat,Bupati Lombok Barat,KAB,10,7600
+A5EB03E23BCDF6A0E040640A040252AD,A5EB03E22013F6A0E040640A040252AD,Pemerintah Kab. Lombok Timur,D,Pemerintah Kab. Lombok Timur,Bupati Lombok Timur,KAB,10,7600
+A5EB03E23BCEF6A0E040640A040252AD,A5EB03E21F39F6A0E040640A040252AD,Pemerintah Kota Mataram,D,Pemerintah Kota Mataram,Walikota Mataram,KOT,10,7600
+A5EB03E23BCFF6A0E040640A040252AD,A5EB03E21F1FF6A0E040640A040252AD,Pemerintah Provinsi NTT,D,Pemerintah Provinsi NTT,Gubernur NTT,PROV,10,7700
+A5EB03E23BD0F6A0E040640A040252AD,A5EB03E21F15F6A0E040640A040252AD,Pemerintah Provinsi Maluku,D,Pemerintah Provinsi Maluku,Gubernur Maluku,PROV,4,7800
+A5EB03E23BD1F6A0E040640A040252AD,A5EB03E22091F6A0E040640A040252AD,Pemerintah Kab. Maluku Tenggara,D,Pemerintah Kab. Maluku Tenggara,Bupati Maluku Tenggara,KAB,4,7800
+A5EB03E23BD2F6A0E040640A040252AD,A5EB03E220A2F6A0E040640A040252AD,Pemerintah Kab. Kepulauan Tanimbar,D,Pemerintah Kab. Kepulauan Tanimbar,Bupati Kepulauan Tanimbar,KAB,4,7800
+A5EB03E23BD3F6A0E040640A040252AD,A5EB03E2216CF6A0E040640A040252AD,Pemerintah Kab. Halmahera Barat,D,Pemerintah Kab. Halmahera Barat,Bupati Halmahera Barat,KAB,11,7900
+A5EB03E23BD4F6A0E040640A040252AD,A5EB03E2216EF6A0E040640A040252AD,Pemerintah Kab. Kepulauan Sula,D,Pemerintah Kab. Kepulauan Sula,Bupati Kepulauan Sula,KAB,11,7900
+A5EB03E23BD5F6A0E040640A040252AD,A5EB03E22170F6A0E040640A040252AD,Pemerintah Kab. Halmahera Utara,D,Pemerintah Kab. Halmahera Utara,Bupati Halmahera Utara,KAB,11,7900
+A5EB03E23BD6F6A0E040640A040252AD,A5EB03E220EDF6A0E040640A040252AD,Pemerintah Kota Ternate,D,Pemerintah Kota Ternate,Walikota Ternate,KOT,11,7900
+A5EB03E23BD7F6A0E040640A040252AD,A5EB03E21F16F6A0E040640A040252AD,Pemerintah Provinsi Papua,D,Pemerintah Provinsi Papua,Gubernur Papua,PROV,9,8000
+A5EB03E23BD8F6A0E040640A040252AD,A5EB03E22035F6A0E040640A040252AD,Pemerintah Kab. Biak Numfor,D,Pemerintah Kab. Biak Numfor,Bupati Biak Numfor,KAB,9,8000
+A5EB03E23BD9F6A0E040640A040252AD,A5EB03E22166F6A0E040640A040252AD,Pemerintah Kab. Merauke,D,Pemerintah Kab. Merauke,Bupati Merauke,KAB,9,8500
+A5EB03E23BDAF6A0E040640A040252AD,A5EB03E22168F6A0E040640A040252AD,Pemerintah Kab. Nabire,D,Pemerintah Kab. Nabire,Bupati Nabire,KAB,9,8600
+A5EB03E23BDBF6A0E040640A040252AD,A5EB03E22037F6A0E040640A040252AD,Pemerintah Kab. Puncak Jaya,D,Pemerintah Kab. Puncak Jaya,Bupati Puncak Jaya,KAB,9,8600
+A5EB03E23BDCF6A0E040640A040252AD,A5EB03E22039F6A0E040640A040252AD,Pemerintah Kab. Boven Digoel,D,Pemerintah Kab. Boven Digoel,Bupati Boven Digoel,KAB,9,8500
+A5EB03E23BDDF6A0E040640A040252AD,A5EB03E22139F6A0E040640A040252AD,Pemerintah Kab. Kayong Utara,D,Pemerintah Kab. Kayong Utara,Bupati Kayong Utara,KAB,5,6600
+A5EB03E23BDEF6A0E040640A040252AD,A5EB03E22048F6A0E040640A040252AD,Pemerintah Kab. Aceh Singkil,D,Pemerintah Kab. Aceh Singkil,Bupati Aceh Singkil,KAB,13,5100
+A5EB03E23BDFF6A0E040640A040252AD,A5EB03E220D0F6A0E040640A040252AD,Pemerintah Kota Subulussalam,D,Pemerintah Kota Subulussalam,Walikota Subulussalam,KOT,13,5100
+A5EB03E23BE0F6A0E040640A040252AD,A5EB03E22083F6A0E040640A040252AD,Pemerintah Kab. Pidie Jaya,D,Pemerintah Kab. Pidie Jaya,Bupati Pidie Jaya,KAB,13,5100
+A5EB03E23BE1F6A0E040640A040252AD,A5EB03E22079F6A0E040640A040252AD,Pemerintah Kab. Padang Lawas,D,Pemerintah Kab. Padang Lawas,Bupati Padang Lawas,KAB,6,5200
+A5EB03E23BE2F6A0E040640A040252AD,A5EB03E2207AF6A0E040640A040252AD,Pemerintah Kab. Padang Lawas Utara,D,Pemerintah Kab. Padang Lawas Utara,Bupati Padang Lawas Utara,KAB,6,5200
+A5EB03E23BE3F6A0E040640A040252AD,A5EB03E2208CF6A0E040640A040252AD,Pemerintah Kab. Batu Bara,D,Pemerintah Kab. Batubara,Bupati Batubara,KAB,6,5200
+A5EB03E23BE4F6A0E040640A040252AD,,Kementerian Pariwisata dan Ekonomi Kreatif/Badan Pariwisata dan Ekonomi Kreatif,P,,Menteri Pariwisata dan Ekonomi Kreatif/Badan Pariwisata dan Ekonomi Kreatif,KEMENT,0,6000
+A5EB03E23BE5F6A0E040640A040252AD,,Kementerian Perumahan dan Kawasan Permukiman,P,Kementerian Perumahan dan Kawasan Permukiman,Menteri Perumahan dan Kawasan Permukiman,KEMENT,0,6000
+A5EB03E23BE6F6A0E040640A040252AD,,Kementerian Komunikasi dan Digital,P,Kementerian Komunikasi dan Informatika,Menteri Komunikasi dan Digital,KEMENT,0,6000
+A5EB03E23BE7F6A0E040640A040252AD,,Kementerian Perdagangan,P,Kementerian Perdagangan,Menteri Perdagangan,KEMENT,0,6000
+A5EB03E23BE8F6A0E040640A040252AD,,"Kementerian Koordinator Bidang Politik, Hukum, dan Keamanan",P,"Kementerian Koordinator Bidang Politik, Hukum dan Keamanan","Menteri Koordinator Bidang Politik, Hukum  dan  Keamanan",KO,0,6000
+A5EB03E23BE9F6A0E040640A040252AD,,Kementerian Koordinator Bidang Perekonomian,P,Kementerian Koordinator Bidang Perekonomian,Menteri Koordinator Bidang Perekonomian,KO,0,6000
+A5EB03E23BEAF6A0E040640A040252AD,,Kementerian Koordinator Bidang Pembangunan Manusia dan Kebudayaan,P,Kementerian Koordinator Bidang Pembangunan Manusia dan Kebudayaan,Menteri Koordinator Bidang Pembangunan Manusia dan Kebudayaan Republik Indonesia,KO,0,6000
+A5EB03E23BEBF6A0E040640A040252AD,,Kementerian Riset dan Teknologi/Badan Riset dan Inovasi Nasional,P,"Kementerian Riset, Teknologi, dan Pendidikan Tinggi",Menteri Riset dan Teknologi/Kepala Badan Riset dan Inovasi Nasional,KEMENT,0,6000
+A5EB03E23BECF6A0E040640A040252AD,,Kementerian Koperasi dan Usaha Kecil dan Menengah,P,Kementerian Koperasi dan Usaha Kecil dan Menengah,Menteri Koperasi dan Usaha Kecil dan Menengah,KEMENT,0,6000
+A5EB03E23BEDF6A0E040640A040252AD,,Kementerian Lingkungan Hidup/Badan Pengendalian Lingkungan Hidup,P,Kementerian Lingkungan Hidup/Badan Pengendalian Lingkungan Hidup,Menteri Lingkungan Hidup,KEMENT,0,6000
+A5EB03E23BEEF6A0E040640A040252AD,A5EB03E22082F6A0E040640A040252AD,Pemerintah Kab. Empat Lawang,D,Pemerintah Kab. Empat Lawang,Bupati Empat Lawang,KAB,7,5600
+A5EB03E23BEFF6A0E040640A040252AD,,Kementerian Badan Usaha Milik Negara,P,Kementerian Badan Usaha Milik Negara,Menteri Badan Usaha Milik Negara,KEMENT,0,6000
+A5EB03E23BF0F6A0E040640A040252AD,,Kementerian Pemberdayaan Perempuan dan Perlindungan Anak,P,Kementerian Pemberdayaan Perempuan dan Perlindungan Anak,Menteri Negara Pemberdayaan Perempuan dan Perlindungan Anak,KEMENT,0,6000
+A5EB03E23BF1F6A0E040640A040252AD,,Kementerian Pendayagunaan Aparatur Negara dan Reformasi Birokrasi,P,Kementerian Pendayagunaan Aparatur Negara dan Reformasi Birokrasi,MENTERI PENDAYAGUNAAN APARATUR NEGARA DAN REFORMASI BIROKRASI,KEMENT,0,6000
+A5EB03E23BF2F6A0E040640A040252AD,A5EB03E2213AF6A0E040640A040252AD,Pemerintah Kab. Tana Tidung,D,Pemerintah Kab. Tana Tidung,Bupati Tana Tidung,KAB,8,8400
+A5EB03E23BF3F6A0E040640A040252AD,,Kementerian Dalam Negeri,P,Kementerian Dalam Negeri,Menteri Dalam Negeri,KEMENT,0,6000
+A5EB03E23BF4F6A0E040640A040252AD,,Kementerian Luar Negeri,P,Kementerian Luar Negeri,Menteri Luar Negeri,KEMENT,0,6000
+A5EB03E23BF5F6A0E040640A040252AD,,Kementerian Pertahanan,P,Kementerian Pertahanan,Menteri Pertahanan,KEMENT,0,6000
+A5EB03E23BF6F6A0E040640A040252AD,,Kementerian Hukum dan Hak Asasi Manusia,P,Kementerian Hukum dan Hak Asasi Manusia,Menteri Hukum dan Hak Asasi Manusia Republik Indonesia,KEMENT,0,6000
+A5EB03E23BF7F6A0E040640A040252AD,,Kementerian Keuangan,P,Kementerian Keuangan,Menteri Keuangan,KEMENT,0,6000
+A5EB03E23BF8F6A0E040640A040252AD,,Kementerian Pertanian,P,Kementerian Pertanian,Menteri Pertanian,KEMENT,0,6000
+A5EB03E23BF9F6A0E040640A040252AD,,Kementerian Energi dan Sumber Daya Mineral,P,Kementerian Energi dan Sumber Daya Mineral,Menteri Energi Dan Sumber Daya Mineral,KEMENT,0,6000
+A5EB03E23BFAF6A0E040640A040252AD,,"Kementerian Pendidikan, Kebudayaan, Riset dan Teknologi",P,Kementerian Pendidikan dan Kebudayaan,Menteri Pendidikan dan Kebudayaan,KEMENT,0,6000
+A5EB03E23BFBF6A0E040640A040252AD,,Kementerian Agama,P,Kementerian Agama,Menteri Agama,KEMENT,0,6000
+A5EB03E23BFCF6A0E040640A040252AD,,Kementerian Sosial,P,Kementerian Sosial,Menteri Sosial,KEMENT,0,6000
+A5EB03E23BFDF6A0E040640A040252AD,,Kementerian Kelautan dan Perikanan,P,Kementerian Kelautan dan Perikanan,Menteri Kelautan dan Perikanan,KEMENT,0,6000
+A5EB03E23BFEF6A0E040640A040252AD,,Kejaksaan Agung,P,Kejaksaan Agung,Kepala Kejaksaan Agung,LPNK,0,6000
+A5EB03E23BFFF6A0E040640A040252AD,,Sekretariat Jenderal MPR,P,Sekretariat Jenderal MPR,Sekretaris Jenderal Majelis Permusyawaratan Rakyat Republik Indonesia,LPNK,0,6000
+A5EB03E23C00F6A0E040640A040252AD,,Setjen DPA,P,Setjen DPA,KETUA DEWAN PERTIMBANGAN AGUNG,,0,6000
+A5EB03E23C01F6A0E040640A040252AD,,Sekretariat Jenderal DPR RI,P,Sekretariat Jenderal DPR RI,Sekretaris Jendral DPR RI,LPNK,0,6000
+A5EB03E23C02F6A0E040640A040252AD,,Setjen WANTANNAS,P,Setjen WANTANNAS,Sekretaris Jenderal Dewan Ketahanan Nasional,LPNK,0,6000
+A5EB03E23C03F6A0E040640A040252AD,,Badan Siber dan Sandi Negara,P,Lembaga Sandi Negara,Kepala Lembaga  Sandi Negara,LPNK,0,6000
+A5EB03E23C04F6A0E040640A040252AD,,Lembaga Administrasi Negara,P,Lembaga Administrasi Negara ,Kepala Lembaga Administrasi Negara,LPNK,0,6000
+A5EB03E23C05F6A0E040640A040252AD,,Lembaga Ilmu Pengetahuan Indonesia,P,Lembaga Ilmu Pengetahuan Indonesia,Kepala Lembaga Ilmu Pengetahuan Indonesia,LPNK,0,6000
+A5EB03E23C06F6A0E040640A040252AD,,Badan Pusat Statistik,P,Badan Pusat Statistik ,Kepala Badan Pusat Statistik,LPNK,0,6000
+A5EB03E23C07F6A0E040640A040252AD,,Arsip Nasional Republik Indonesia,P,Arsip Nasional Republik Indonesia ,Kepala Arsip Nasional Republik Indonesia,LPNK,0,6000
+A5EB03E23C08F6A0E040640A040252AD,,Kementerian Investasi dan Hilirisasi/Badan Koordinasi Penanaman Modal,P,Badan Koordinasi Penanaman Modal ,Menteri Kementerian Investasi dan Hilirasi/Kepala Badan Koordinasi Penanaman Modal,KEMENT,0,6000
+A5EB03E23C09F6A0E040640A040252AD,,Badan Pengawasan Keuangan dan Pembangunan,P,Badan Pengawasan Keuangan dan Pembangunan,Kepala Badan Pengawasan Keuangan dan Pembangunan,LPNK,0,6000
+A5EB03E23C0AF6A0E040640A040252AD,,Perpustakaan Nasional RI,P,Perpustakaan Nasional RI,Kepala  Perpustakaan Nasional RI ,LPNK,0,6000
+A5EB03E23C0BF6A0E040640A040252AD,,Badan Pengawas Tenaga Nuklir,P,Badan Pengawas Tenaga Nuklir ,Kepala Badan Pengawas Tenaga Nuklir,LPNK,0,6000
+A5EB03E23C0CF6A0E040640A040252AD,,Lembaga Ketahanan Nasional RI,P,Lembaga Ketahanan Nasional RI,Gubernur Lembaga Ketahanan Nasional RI,LPNK,0,6000
+A5EB03E23C0DF6A0E040640A040252AD,,MABES TNI,P,MABES TNI,PANGLIMA TNI,,0,6000
+A5EB03E23C0EF6A0E040640A040252AD,,Sekretariat Kabinet,P,Sekretariat Kabinet ,Sekretaris Kabinet,LPNK,0,6000
+A5EB03E23C0FF6A0E040640A040252AD,,Sekretariat Presiden,P,Sekretariat Presiden,SEKRETARIS PRESIDEN,,0,6000
+A5EB03E23C10F6A0E040640A040252AD,,Sekretariat Militer,P,Sekretariat Militer,SEKRETARIS MILITER,,0,6000
+A5EB03E23C11F6A0E040640A040252AD,,Badan Narkotika Nasional,P,Badan Narkotika Nasional,Kepala Badan Narkotika Nasional,LPNK,0,6000
+A5EB03E23C12F6A0E040640A040252AD,A5EB03E22063F6A0E040640A040252AD,Pemerintah Kab. Aceh Besar,D,Pemerintah Kab. Aceh Besar,Bupati Aceh Besar,KAB,13,5100
+A5EB03E23C13F6A0E040640A040252AD,A5EB03E2203AF6A0E040640A040252AD,Pemerintah Kab. Pidie,D,Pemerintah Kab. Pidie,Bupati Pidie,KAB,13,5100
+A5EB03E23C14F6A0E040640A040252AD,A5EB03E22060F6A0E040640A040252AD,Pemerintah Kab. Aceh Timur,D,Pemerintah Kab. Aceh Timur,Bupati Aceh Timur,KAB,13,5100
+A5EB03E23C15F6A0E040640A040252AD,A5EB03E22062F6A0E040640A040252AD,Pemerintah Kab. Aceh Barat,D,Pemerintah Kab. Aceh Barat,Bupati Aceh Barat,KAB,13,5100
+A5EB03E23C16F6A0E040640A040252AD,A5EB03E2205FF6A0E040640A040252AD,Pemerintah Kab. Aceh Tenggara,D,Pemerintah Kab. Aceh Tenggara,Bupati Aceh Tenggara,KAB,13,5100
+A5EB03E23C17F6A0E040640A040252AD,A5EB03E220C2F6A0E040640A040252AD,Pemerintah Kab. Bireuen,D,Pemerintah Kab. Bireuen,Bupati Bireuen,KAB,13,5100
+A5EB03E23C18F6A0E040640A040252AD,A5EB03E22049F6A0E040640A040252AD,Pemerintah Kab. Gayo Lues,D,Pemerintah Kab. Gayo Lues,Bupati Gayo Lues,KAB,13,5100
+A5EB03E23C19F6A0E040640A040252AD,A5EB03E22160F6A0E040640A040252AD,Pemerintah Kab. Nagan Raya,D,Pemerintah Kab. Nagan Raya,Bupati Nagan Raya,KAB,13,5100
+A5EB03E23C1AF6A0E040640A040252AD,A5EB03E21F3EF6A0E040640A040252AD,Pemerintah Kota Sabang,D,Pemerintah Kota Sabang,Walikota Sabang,KOT,13,5100
+A5EB03E23C1CF6A0E040640A040252AD,A5EB03E22072F6A0E040640A040252AD,Pemerintah Kab. Nagekeo,D,Pemerintah Kab. Nagekeo,Bupati Nagekeo,KAB,10,7700
+A5EB03E23C1DF6A0E040640A040252AD,A5EB03E22073F6A0E040640A040252AD,Pemerintah Kab. Sumba Tengah,D,Pemerintah Kab. Sumba Tengah,Bupati Sumba Tengah,KAB,10,7700
+A5EB03E23C1EF6A0E040640A040252AD,A5EB03E220B4F6A0E040640A040252AD,Pemerintah Kab. Intan Jaya,D,Pemerintah Kab. Intan Jaya,Bupati Intan Jaya,KAB,9,8600
+A5EB03E23C1FF6A0E040640A040252AD,A5EB03E220B5F6A0E040640A040252AD,Pemerintah Kab. Deiyai,D,Pemerintah Kab. Deiyai,Bupati Deiyai,KAB,9,8600
+A5EB03E23C20F6A0E040640A040252AD,A5EB03E220B7F6A0E040640A040252AD,Pemerintah Kab. Sabu Raijua,D,Pemerintah Kab. Sabu Raijua,Bupati Sabu Raijua,KAB,10,7700
+A5EB03E23C21F6A0E040640A040252AD,A5EB03E220B8F6A0E040640A040252AD,Pemerintah Kab. Tulang Bawang Barat,D,Pemerintah Kab. Tulang Bawang Barat,Bupati Tulang Bawang Barat,KAB,5,5900
+A5EB03E23C22F6A0E040640A040252AD,A5EB03E220B9F6A0E040640A040252AD,Pemerintah Kota Gunung Sitoli,D,Pemerintah Kota Gunung Sitoli,Walikota Gunung Sitoli,KOT,6,5200
+A5EB03E23C23F6A0E040640A040252AD,A5EB03E220BAF6A0E040640A040252AD,Pemerintah Kab. Nias Barat,D,Pemerintah Kab. Nias Barat,Bupati Nias Barat,KAB,6,5200
+A5EB03E23C24F6A0E040640A040252AD,A5EB03E220BBF6A0E040640A040252AD,Pemerintah Kab. Nias Utara,D,Pemerintah Kab. Nias Utara,Bupati Nias Utara,KAB,6,5200
+A5EB03E23C25F6A0E040640A040252AD,A5EB03E220B6F6A0E040640A040252AD,Pemerintah Kab. Pulau Morotai,D,Pemerintah Kab. Pulau Morotai,Bupati Pulau Morotai,KAB,11,7900
+A5EB03E23C26F6A0E040640A040252AD,A5EB03E220BEF6A0E040640A040252AD,Pemerintah Kab. Tambrauw,D,Pemerintah Kab. Tambrauw,Bupati Tambrauw,KAB,14,8800
+A5EB03E23C27F6A0E040640A040252AD,A5EB03E220C4F6A0E040640A040252AD,Pemerintah Kota Banda Aceh,D,Pemerintah Kota Banda Aceh,Walikota Banda Aceh,KOT,13,5100
+A5EB03E23C28F6A0E040640A040252AD,A5EB03E21F3FF6A0E040640A040252AD,Pemerintah Kota Langsa,D,Pemerintah Kota Langsa,Walikota Langsa,KOT,13,5100
+A5EB03E23C29F6A0E040640A040252AD,A5EB03E21F40F6A0E040640A040252AD,Pemerintah Kota Lhokseumawe,D,Pemerintah Kota Lhokseumawe,Walikota Lhokseumawe,KOT,13,5100
+A5EB03E23C2AF6A0E040640A040252AD,A5EB03E21F17F6A0E040640A040252AD,Pemerintah Provinsi Sumatera Utara,D,Pemerintah Provinsi Sumatera Utara,Gubernur Sumatera Utara,PROV,6,5200
+A5EB03E23C2BF6A0E040640A040252AD,A5EB03E21F19F6A0E040640A040252AD,Pemerintah Provinsi Bengkulu,D,Pemerintah Provinsi Bengkulu,Gubernur Bengkulu,PROV,7,5800
+A5EB03E23C2CF6A0E040640A040252AD,A5EB03E21F8FF6A0E040640A040252AD,Pemerintah Kab. Bengkulu Utara,D,Pemerintah Kab. Bengkulu Utara,Bupati Bengkulu Utara,KAB,7,5800
+A5EB03E23C2DF6A0E040640A040252AD,A5EB03E220A9F6A0E040640A040252AD,Pemerintah Kab. Bengkulu Selatan,D,Pemerintah Kab. Bengkulu Selatan,Bupati Bengkulu Selatan,KAB,7,5800
+A5EB03E23C2EF6A0E040640A040252AD,A5EB03E21F8EF6A0E040640A040252AD,Pemerintah Kab. Rejang Lebong,D,Pemerintah Kab. Rejang Lebong,Bupati Rejang Lebong,KAB,7,5800
+A5EB03E23C2FF6A0E040640A040252AD,A5EB03E220C5F6A0E040640A040252AD,Pemerintah Kab. Kaur,D,Pemerintah Kab. Kaur,Bupati Kaur,KAB,7,5800
+A5EB03E23C30F6A0E040640A040252AD,A5EB03E220C6F6A0E040640A040252AD,Pemerintah Kab. Seluma,D,Pemerintah Kab. Seluma,Bupati Seluma,KAB,7,5800
+A5EB03E23C31F6A0E040640A040252AD,A5EB03E21F90F6A0E040640A040252AD,Pemerintah Kab. Mukomuko,D,Pemerintah Kab. Mukomuko,Bupati Mukomuko,KAB,7,5800
+A5EB03E23C32F6A0E040640A040252AD,A5EB03E21F91F6A0E040640A040252AD,Pemerintah Kota Bengkulu,D,Pemerintah Kota Bengkulu,Walikota Bengkulu,KOT,7,5800
+A5EB03E23C33F6A0E040640A040252AD,A5EB03E21F08F6A0E040640A040252AD,Pemerintah Provinsi Lampung,D,Pemerintah Provinsi Lampung,Gubernur Lampung,PROV,5,5900
+A5EB03E23C34F6A0E040640A040252AD,A5EB03E21F92F6A0E040640A040252AD,Pemerintah Kab. Lampung Selatan,D,Pemerintah Kab. Lampung Selatan,Bupati Lampung Selatan,KAB,5,5900
+A5EB03E23C35F6A0E040640A040252AD,A5EB03E21F93F6A0E040640A040252AD,Pemerintah Kab. Lampung Tengah,D,Pemerintah Kab. Lampung Tengah,Bupati Lampung Tengah,KAB,5,5900
+A5EB03E23C36F6A0E040640A040252AD,A5EB03E2205EF6A0E040640A040252AD,Pemerintah Kab. Lampung Utara,D,Pemerintah Kab. Lampung Utara,Bupati Lampung Utara,KAB,5,5900
+A5EB03E23C37F6A0E040640A040252AD,A5EB03E2200AF6A0E040640A040252AD,Pemerintah Kab. Lampung Barat,D,Pemerintah Kab. Lampung Barat,Bupati Lampung Barat,KAB,5,5900
+A5EB03E23C38F6A0E040640A040252AD,A5EB03E22032F6A0E040640A040252AD,Pemerintah Kab. Tulang Bawang,D,Pemerintah Kab. Tulang Bawang,Bupati Tulang Bawang,KAB,5,5900
+A5EB03E23C39F6A0E040640A040252AD,A5EB03E22042F6A0E040640A040252AD,Pemerintah Kab. Way Kanan,D,Pemerintah Kab. Way Kanan,Bupati Way Kanan,KAB,5,5900
+A5EB03E23C3AF6A0E040640A040252AD,A5EB03E22045F6A0E040640A040252AD,Pemerintah Kota Metro,D,Pemerintah Kota Metro,Walikota Metro,KOT,5,5900
+A5EB03E23C3BF6A0E040640A040252AD,A5EB03E21F05F6A0E040640A040252AD,Pemerintah Provinsi Daerah Khusus Ibukota Jakarta,D,Pemerintah Provinsi Daerah Khusus Ibukota Jakarta,Gubernur Daerah Khusus Ibukota Jakarta,PROV,5,6000
+A5EB03E23C3FF6A0E040640A040252AD,A5EB03E2200CF6A0E040640A040252AD,Pemerintah Kab. Bogor,D,Pemerintah Kab. Bogor,Bupati Bogor,KAB,3,6100
+A5EB03E23C40F6A0E040640A040252AD,A5EB03E2200DF6A0E040640A040252AD,Pemerintah Kab. Sukabumi,D,Pemerintah Kab. Sukabumi,Bupati Sukabumi,KAB,3,6100
+A5EB03E23C41F6A0E040640A040252AD,A5EB03E21F56F6A0E040640A040252AD,Pemerintah Kab. Bekasi,D,Pemerintah Kab. Bekasi,Bupati Bekasi,KAB,3,6100
+A5EB03E23C42F6A0E040640A040252AD,A5EB03E21F54F6A0E040640A040252AD,Pemerintah Kab. Purwakarta,D,Pemerintah Kab. Purwakarta,Bupati Purwakarta,KAB,3,6100
+A5EB03E23C43F6A0E040640A040252AD,A5EB03E220E8F6A0E040640A040252AD,Pemerintah Kab. Bandung,D,Pemerintah Kab. Bandung,Bupati Bandung,KAB,3,6100
+A5EB03E23C44F6A0E040640A040252AD,A5EB03E21F94F6A0E040640A040252AD,Pemerintah Kab. Garut,D,Pemerintah Kab. Garut,Bupati Garut,KAB,3,6100
+A5EB03E23C45F6A0E040640A040252AD,A5EB03E2204BF6A0E040640A040252AD,Pemerintah Kab. Cirebon,D,Pemerintah Kab. Cirebon,Bupati Cirebon,KAB,3,6100
+A5EB03E23C46F6A0E040640A040252AD,A5EB03E22022F6A0E040640A040252AD,Pemerintah Kab. Indramayu,D,Pemerintah Kab. Indramayu,Bupati Indramayu,KAB,3,6100
+A5EB03E23C47F6A0E040640A040252AD,A5EB03E21F69F6A0E040640A040252AD,Pemerintah Kota Bandung,D,Pemerintah Kota Bandung,Walikota Bandung,KOT,3,6100
+A5EB03E23C48F6A0E040640A040252AD,A5EB03E21F57F6A0E040640A040252AD,Pemerintah Kota Sukabumi,D,Pemerintah Kota Sukabumi,Walikota Sukabumi,KOT,3,6100
+A5EB03E23C49F6A0E040640A040252AD,A5EB03E21F59F6A0E040640A040252AD,Pemerintah Kota Bekasi,D,Pemerintah Kota Bekasi,Walikota Bekasi,KOT,3,6100
+A5EB03E23C4AF6A0E040640A040252AD,A5EB03E21F5BF6A0E040640A040252AD,Pemerintah Kota Cimahi,D,Pemerintah Kota Cimahi,Walikota Cimahi,KOT,3,6100
+A5EB03E23C4BF6A0E040640A040252AD,A5EB03E21F5DF6A0E040640A040252AD,Pemerintah Kota Banjar,D,Pemerintah Kota Banjar,Walikota Banjar,KOT,3,6100
+A5EB03E23C4CF6A0E040640A040252AD,A5EB03E2201FF6A0E040640A040252AD,Pemerintah Kab. Pandeglang,D,Pemerintah Kab. Pandeglang,Bupati Pandeglang,KAB,3,6200
+A5EB03E23C4DF6A0E040640A040252AD,A5EB03E21F51F6A0E040640A040252AD,Pemerintah Kab. Tangerang,D,Pemerintah Kab. Tangerang,Bupati Tangerang,KAB,3,6200
+A5EB03E23C4EF6A0E040640A040252AD,A5EB03E21FA6F6A0E040640A040252AD,Pemerintah Kota Cilegon,D,Pemerintah Kota Cilegon,Walikota Cilegon,KOT,3,6200
+A5EB03E23C4FF6A0E040640A040252AD,A5EB03E22009F6A0E040640A040252AD,Pemerintah Kab. Bantul,D,Pemerintah Kab. Bantul,Bupati Bantul,KAB,1,6300
+A5EB03E23C50F6A0E040640A040252AD,A5EB03E2203EF6A0E040640A040252AD,Pemerintah Kota Yogyakarta,D,Pemerintah Kota Yogyakarta,Walikota Yogyakarta,KOT,1,6300
+A5EB03E23C51F6A0E040640A040252AD,A5EB03E21FE6F6A0E040640A040252AD,Pemerintah Kab. Semarang,D,Pemerintah Kab. Semarang,Bupati Semarang,KAB,1,6400
+A5EB03E23C52F6A0E040640A040252AD,A5EB03E21FE8F6A0E040640A040252AD,Pemerintah Kab. Kendal,D,Pemerintah Kab. Kendal,Bupati Kendal,KAB,1,6400
+A5EB03E23C53F6A0E040640A040252AD,A5EB03E21FEFF6A0E040640A040252AD,Pemerintah Kab. Grobogan,D,Pemerintah Kab. Grobogan,Bupati Grobogan,KAB,1,6400
+A5EB03E23C54F6A0E040640A040252AD,A5EB03E21FE9F6A0E040640A040252AD,Pemerintah Kab. Batang,D,Pemerintah Kab. Batang,Bupati Batang,KAB,1,6400
+A5EB03E23C55F6A0E040640A040252AD,A5EB03E22001F6A0E040640A040252AD,Pemerintah Kab. Brebes,D,Pemerintah Kab. Brebes,Bupati Brebes,KAB,1,6400
+A5EB03E23C56F6A0E040640A040252AD,A5EB03E21FDDF6A0E040640A040252AD,Pemerintah Kab. Kudus,D,Pemerintah Kab. Kudus,Bupati Kudus,KAB,1,6400
+A5EB03E23C57F6A0E040640A040252AD,A5EB03E21FDEF6A0E040640A040252AD,Pemerintah Kab. Jepara,D,Pemerintah Kab. Jepara,Bupati Jepara,KAB,1,6400
+A5EB03E23C58F6A0E040640A040252AD,A5EB03E21FF0F6A0E040640A040252AD,Pemerintah Kab. Blora,D,Pemerintah Kab. Blora,Bupati Blora,KAB,1,6400
+A5EB03E23C59F6A0E040640A040252AD,A5EB03E21F5EF6A0E040640A040252AD,Pemerintah Kab. Cilacap,D,Pemerintah Kab. Cilacap,Bupati Cilacap,KAB,1,6400
+A5EB03E23C5AF6A0E040640A040252AD,A5EB03E21FC3F6A0E040640A040252AD,Pemerintah Kab. Banjarnegara,D,Pemerintah Kab. Banjarnegara,Bupati Banjarnegara,KAB,1,6400
+A5EB03E23C5BF6A0E040640A040252AD,A5EB03E21FE7F6A0E040640A040252AD,Pemerintah Kab. Temanggung,D,Pemerintah Kab. Temanggung,Bupati Temanggung,KAB,1,6400
+A5EB03E23C5CF6A0E040640A040252AD,A5EB03E21FC4F6A0E040640A040252AD,Pemerintah Kab. Kebumen,D,Pemerintah Kab. Kebumen,Bupati Kebumen,KAB,1,6400
+A5EB03E23C5DF6A0E040640A040252AD,A5EB03E21FC9F6A0E040640A040252AD,Pemerintah Kab. Klaten,D,Pemerintah Kab. Klaten,Bupati Klaten,KAB,1,6400
+A5EB03E23C5EF6A0E040640A040252AD,,Badan Nasional Pengelola Perbatasan,P,Badan Nasional Pengelola Perbatasan,Kepala Badan Nasional Pengelola Perbatasan,LNS,0,6000
+A5EB03E23C5FF6A0E040640A040252AD,,Badan Nasional Penanggulangan Terorisme,P,Badan Nasional Penanggulangan Terorisme,Kepala Badan Nasional Penanggulangan Terorisme,LPNK,0,6000
+A5EB03E23C60F6A0E040640A040252AD,A5EB03E2206AF6A0E040640A040252AD,Pemerintah Kab. Puncak,D,Pemerintah Kab. Puncak,Bupati Puncak,KAB,9,8600
+A5EB03E23C61F6A0E040640A040252AD,A5EB03E21F07F6A0E040640A040252AD,Pemerintah Provinsi Kalimantan Timur,D,Pemerintah Provinsi Kalimantan Timur,Gubernur Kalimantan Timur,PROV,8,6900
+A5EB03E23C62F6A0E040640A040252AD,A5EB03E21F84F6A0E040640A040252AD,Pemerintah Kab. Kutai Kartanegara,D,Pemerintah Kab. Kutai Kartanegara,Bupati Kutai Kartanegara,KAB,8,6900
+A5EB03E23C63F6A0E040640A040252AD,A5EB03E21F83F6A0E040640A040252AD,Pemerintah Kab. Paser,D,Pemerintah Kab. Paser,Bupati Paser,KAB,8,6900
+A5EB03E23C64F6A0E040640A040252AD,A5EB03E21F86F6A0E040640A040252AD,Pemerintah Kab. Bulungan,D,Pemerintah Kab. Bulungan,Bupati Bulungan,KAB,8,8400
+A5EB03E23C65F6A0E040640A040252AD,A5EB03E21F85F6A0E040640A040252AD,Pemerintah Kab. Berau,D,Pemerintah Kab. Berau,Bupati Berau,KAB,8,6900
+A5EB03E23C66F6A0E040640A040252AD,A5EB03E21F89F6A0E040640A040252AD,Pemerintah Kab. Malinau,D,Pemerintah Kab. Malinau,Bupati Malinau,KAB,8,8400
+A5EB03E23C67F6A0E040640A040252AD,A5EB03E220CDF6A0E040640A040252AD,Pemerintah Kab. Nunukan,D,Pemerintah Kab. Nunukan,Bupati Nunukan,KAB,8,8400
+A5EB03E23C68F6A0E040640A040252AD,A5EB03E21F88F6A0E040640A040252AD,Pemerintah Kab. Kutai Timur,D,Pemerintah Kab. Kutai Timur,Bupati Kutai Timur,KAB,8,6900
+A5EB03E23C69F6A0E040640A040252AD,A5EB03E21F8AF6A0E040640A040252AD,Pemerintah Kab. Penajam Paser Utara,D,Pemerintah Kab. Penajam Paser Utara,Bupati Penajam Paser Utara,KAB,8,6900
+A5EB03E23C6AF6A0E040640A040252AD,A5EB03E21F8CF6A0E040640A040252AD,Pemerintah Kota Samarinda,D,Pemerintah Kota Samarinda,Walikota Samarinda,KOT,8,6900
+A5EB03E23C6BF6A0E040640A040252AD,A5EB03E21F8BF6A0E040640A040252AD,Pemerintah Kota Balikpapan,D,Pemerintah Kota Balikpapan,Walikota Balikpapan,KOT,8,6900
+A5EB03E23C6CF6A0E040640A040252AD,A5EB03E21FB2F6A0E040640A040252AD,Pemerintah Kota Bontang,D,Pemerintah Kota Bontang,Walikota Bontang,KOT,8,6900
+A5EB03E23C6DF6A0E040640A040252AD,A5EB03E21F8DF6A0E040640A040252AD,Pemerintah Kota Tarakan,D,Pemerintah Kota Tarakan,Walikota Tarakan,KOT,8,8400
+A5EB03E23C6EF6A0E040640A040252AD,A5EB03E21F0BF6A0E040640A040252AD,Pemerintah Provinsi Sulawesi Utara,D,Pemerintah Provinsi Sulawesi Utara,Gubernur Sulawesi Utara,PROV,11,7000
+A5EB03E23C6FF6A0E040640A040252AD,A5EB03E21FB4F6A0E040640A040252AD,Pemerintah Kab. Minahasa,D,Pemerintah Kab. Minahasa,Bupati Minahasa,KAB,11,7000
+A5EB03E23C70F6A0E040640A040252AD,A5EB03E21FB5F6A0E040640A040252AD,Pemerintah Kab. Kepulauan Sangihe,D,Pemerintah Kab. Kepulauan Sangihe,Bupati Kepulauan Sangihe,KAB,11,7000
+A5EB03E23C71F6A0E040640A040252AD,A5EB03E21FB8F6A0E040640A040252AD,Pemerintah Kota Manado,D,Pemerintah Kota Manado,Walikota Manado,KOT,11,7000
+A5EB03E23C72F6A0E040640A040252AD,A5EB03E2204EF6A0E040640A040252AD,Pemerintah Kota Tomohon,D,Pemerintah Kota Tomohon,Walikota Tomohon,KOT,11,7000
+A5EB03E23C73F6A0E040640A040252AD,A5EB03E220A1F6A0E040640A040252AD,Pemerintah Kab. Gorontalo,D,Pemerintah Kab. Gorontalo,Bupati Gorontalo,KAB,11,7100
+A5EB03E23C74F6A0E040640A040252AD,A5EB03E2208FF6A0E040640A040252AD,Pemerintah Kab. Pohuwato,D,Pemerintah Kab. Pohuwato,Bupati Pohuwato,KAB,11,7100
+A5EB03E23C75F6A0E040640A040252AD,A5EB03E220DAF6A0E040640A040252AD,Pemerintah Kota Gorontalo,D,Pemerintah Kota Gorontalo,Walikota Gorontalo,KOT,11,7100
+A5EB03E23C76F6A0E040640A040252AD,A5EB03E22050F6A0E040640A040252AD,Pemerintah Kab. Poso,D,Pemerintah Kab. Poso,Bupati Poso,KAB,4,7200
+A5EB03E23C77F6A0E040640A040252AD,A5EB03E220D8F6A0E040640A040252AD,Pemerintah Kab. Donggala,D,Pemerintah Kab. Donggala,Bupati Donggala,KAB,4,7200
+A5EB03E23C78F6A0E040640A040252AD,A5EB03E2204FF6A0E040640A040252AD,Pemerintah Kab. Banggai,D,Pemerintah Kab. Banggai,Bupati Banggai,KAB,4,7200
+A5EB03E23C79F6A0E040640A040252AD,A5EB03E22053F6A0E040640A040252AD,Pemerintah Kab. Morowali,D,Pemerintah Kab. Morowali,Bupati Morowali,KAB,4,7200
+A5EB03E23C7AF6A0E040640A040252AD,A5EB03E220D9F6A0E040640A040252AD,Pemerintah Kab. Parigi Moutong,D,Pemerintah Kab. Parigi Moutong,Bupati Parigi Moutong,KAB,4,7200
+A5EB03E23C7BF6A0E040640A040252AD,A5EB03E2205AF6A0E040640A040252AD,Pemerintah Kab. Pinrang,D,Pemerintah Kab. Pinrang,Bupati Pinrang,KAB,4,7300
+A5EB03E23C7CF6A0E040640A040252AD,A5EB03E21F26F6A0E040640A040252AD,Pemerintah Kab. Gowa,D,Pemerintah Kab. Gowa,Bupati Gowa,KAB,4,7300
+A5EB03E23C7DF6A0E040640A040252AD,A5EB03E21F2DF6A0E040640A040252AD,Pemerintah Kab. Wajo,D,Pemerintah Kab. Wajo,Bupati Wajo,KAB,4,7300
+A5EB03E23C7EF6A0E040640A040252AD,A5EB03E220CEF6A0E040640A040252AD,Pemerintah Kab. Tana Toraja,D,Pemerintah Kab. Tana Toraja,Bupati Tana Toraja,KAB,4,7300
+A5EB03E23C7FF6A0E040640A040252AD,A5EB03E2205CF6A0E040640A040252AD,Pemerintah Kab. Luwu,D,Pemerintah Kab. Luwu,Bupati Luwu,KAB,4,7300
+A5EB03E23C80F6A0E040640A040252AD,A5EB03E21F24F6A0E040640A040252AD,Pemerintah Kab. Jeneponto,D,Pemerintah Kab. Jeneponto,Bupati Jeneponto,KAB,4,7300
+A5EB03E23C81F6A0E040640A040252AD,A5EB03E21F25F6A0E040640A040252AD,Pemerintah Kab. Takalar,D,Pemerintah Kab. Takalar,Bupati Takalar,KAB,4,7300
+A5EB03E23C82F6A0E040640A040252AD,A5EB03E21F29F6A0E040640A040252AD,Pemerintah Kab. Pangkajene dan Kepulauan,D,Pemerintah Kab. Pangkajene dan Kepulauan,Bupati Pangkajene dan Kepulauan,KAB,4,7300
+A5EB03E23C83F6A0E040640A040252AD,A5EB03E21F2CF6A0E040640A040252AD,Pemerintah Kab. Soppeng,D,Pemerintah Kab. Soppeng,Bupati Soppeng,KAB,4,7300
+A5EB03E23C84F6A0E040640A040252AD,A5EB03E2205DF6A0E040640A040252AD,Pemerintah Kab. Luwu Utara,D,Pemerintah Kab. Luwu Utara,Bupati Luwu Utara,KAB,4,7300
+A5EB03E23C85F6A0E040640A040252AD,A5EB03E22087F6A0E040640A040252AD,Pemerintah Kota Makassar,D,Pemerintah Kota Makassar,Walikota Makassar,KOT,4,7300
+A5EB03E23C86F6A0E040640A040252AD,A5EB03E220CFF6A0E040640A040252AD,Pemerintah Kota Palopo,D,Pemerintah Kota Palopo,Walikota Palopo,KOT,4,7300
+A5EB03E23C87F6A0E040640A040252AD,A5EB03E2208BF6A0E040640A040252AD,Pemerintah Kab. Konawe,D,Pemerintah Kab. Konawe,Bupati Konawe,KAB,4,7400
+A5EB03E23C88F6A0E040640A040252AD,A5EB03E22089F6A0E040640A040252AD,Pemerintah Kab. Buton,D,Pemerintah Kab. Buton,Bupati Buton,KAB,4,7400
+A5EB03E23C89F6A0E040640A040252AD,A5EB03E2209CF6A0E040640A040252AD,Pemerintah Kab. Kolaka,D,Pemerintah Kab. Kolaka,Bupati Kolaka,KAB,4,7400
+A5EB03E23C8AF6A0E040640A040252AD,A5EB03E2209EF6A0E040640A040252AD,Pemerintah Kota Kendari,D,Pemerintah Kota Kendari,Walikota Kendari,KOT,4,7400
+A5EB03E23C8BF6A0E040640A040252AD,A5EB03E21F09F6A0E040640A040252AD,Pemerintah Provinsi Bali,D,Pemerintah Provinsi Bali,Gubernur Bali,PROV,10,7500
+A5EB03E23C8CF6A0E040640A040252AD,A5EB03E21FA7F6A0E040640A040252AD,Pemerintah Kab. Jembrana,D,Pemerintah Kab. Jembrana,Bupati Jembrana,KAB,10,7500
+A5EB03E23C8DF6A0E040640A040252AD,A5EB03E21FAAF6A0E040640A040252AD,Pemerintah Kab. Gianyar,D,Pemerintah Kab. Gianyar,Bupati Gianyar,KAB,10,7500
+A5EB03E23C8EF6A0E040640A040252AD,A5EB03E21FACF6A0E040640A040252AD,Pemerintah Kab. Bangli,D,Pemerintah Kab. Bangli,Bupati Bangli,KAB,10,7500
+A5EB03E23C8FF6A0E040640A040252AD,A5EB03E21FA9F6A0E040640A040252AD,Pemerintah Kab. Badung,D,Pemerintah Kab. Badung,Bupati Badung,KAB,10,7500
+A5EB03E23C90F6A0E040640A040252AD,A5EB03E21F1EF6A0E040640A040252AD,Pemerintah Provinsi Nusa Tenggara Barat,D,Pemerintah Provinsi Nusa Tenggara Barat,Gubernur Nusa Tenggara Barat,PROV,10,7600
+A5EB03E23C91F6A0E040640A040252AD,A5EB03E22012F6A0E040640A040252AD,Pemerintah Kab. Lombok Tengah,D,Pemerintah Kab. Lombok Tengah,Bupati Lombok Tengah,KAB,10,7600
+A5EB03E23C92F6A0E040640A040252AD,A5EB03E21F38F6A0E040640A040252AD,Pemerintah Kab. Bima,D,Pemerintah Kab. Bima,Bupati Bima,KAB,10,7600
+A5EB03E23C93F6A0E040640A040252AD,A5EB03E2202AF6A0E040640A040252AD,Pemerintah Kab. Dompu,D,Pemerintah Kab. Dompu,Bupati Dompu,KAB,10,7600
+A5EB03E23C94F6A0E040640A040252AD,A5EB03E21F3AF6A0E040640A040252AD,Pemerintah Kota Bima,D,Pemerintah Kota Bima,Walikota Bima,KOT,10,7600
+A5EB03E23C95F6A0E040640A040252AD,A5EB03E21F72F6A0E040640A040252AD,Pemerintah Kab. Deli Serdang,D,Pemerintah Kab. Deli Serdang,Bupati Deli Serdang,KAB,6,5200
+A5EB03E23C96F6A0E040640A040252AD,A5EB03E21F71F6A0E040640A040252AD,Pemerintah Kab. Karo,D,Pemerintah Kab. Karo,Bupati Karo,KAB,6,5200
+A5EB03E23C97F6A0E040640A040252AD,A5EB03E21FBAF6A0E040640A040252AD,Pemerintah Kab. Langkat,D,Pemerintah Kab. Langkat,Bupati Langkat,KAB,6,5200
+A5EB03E23C98F6A0E040640A040252AD,A5EB03E21F52F6A0E040640A040252AD,Pemerintah Kab. Tapanuli Tengah,D,Pemerintah Kab. Tapanuli Tengah,Bupati Tapanuli Tengah,KAB,6,5200
+A5EB03E23C99F6A0E040640A040252AD,A5EB03E2206EF6A0E040640A040252AD,Pemerintah Kab. Simalungun,D,Pemerintah Kab. Simalungun,Bupati Simalungun,KAB,6,5200
+A5EB03E23C9AF6A0E040640A040252AD,A5EB03E21F53F6A0E040640A040252AD,Pemerintah Kab. Labuhanbatu,D,Pemerintah Kab. Labuhanbatu,Bupati Labuhanbatu,KAB,6,5200
+A5EB03E23C9BF6A0E040640A040252AD,A5EB03E2206CF6A0E040640A040252AD,Pemerintah Kab. Tapanuli Utara,D,Pemerintah Kab. Tapanuli Utara,Bupati Tapanuli Utara,KAB,6,5200
+A5EB03E23C9CF6A0E040640A040252AD,A5EB03E21F42F6A0E040640A040252AD,Pemerintah Kab. Tapanuli Selatan,D,Pemerintah Kab. Tapanuli Selatan,Bupati Tapanuli Selatan,KAB,6,5200
+A5EB03E23C9DF6A0E040640A040252AD,A5EB03E21F70F6A0E040640A040252AD,Pemerintah Kab. Asahan,D,Pemerintah Kab. Asahan,Bupati Asahan,KAB,6,5200
+A5EB03E23C9EF6A0E040640A040252AD,A5EB03E21F41F6A0E040640A040252AD,Pemerintah Kab. Nias,D,Pemerintah Kab. Nias,Bupati Nias,KAB,6,5200
+A5EB03E23C9FF6A0E040640A040252AD,A5EB03E21FBBF6A0E040640A040252AD,Pemerintah Kab. Toba,D,Pemerintah Kab. Toba Samosir,Bupati Toba Samosir,KAB,6,5200
+A5EB03E23CA0F6A0E040640A040252AD,A5EB03E21F73F6A0E040640A040252AD,Pemerintah Kab. Mandailing Natal,D,Pemerintah Kab. Mandailing Natal,Bupati Mandailing Natal,KAB,6,5200
+A5EB03E23CA1F6A0E040640A040252AD,A5EB03E21FBDF6A0E040640A040252AD,Pemerintah Kab. Humbang Hasundutan,D,Pemerintah Kab. Humbang Hasundutan,Bupati Humbang Hasundutan,KAB,6,5200
+A5EB03E23CA2F6A0E040640A040252AD,A5EB03E21FC2F6A0E040640A040252AD,Pemerintah Kota Medan,D,Pemerintah Kota Medan,Walikota Medan,KOT,6,5200
+A5EB03E23CA3F6A0E040640A040252AD,A5EB03E21FD0F6A0E040640A040252AD,Pemerintah Kota Binjai,D,Pemerintah Kota Binjai,Walikota Binjai,KOT,6,5200
+A5EB03E23CA4F6A0E040640A040252AD,A5EB03E21FC0F6A0E040640A040252AD,Pemerintah Kota Tanjungbalai,D,Pemerintah Kota Tanjung Balai,Walikota Tanjungbalai,KOT,6,5200
+A5EB03E23CA5F6A0E040640A040252AD,A5EB03E21FBFF6A0E040640A040252AD,Pemerintah Kota Sibolga,D,Pemerintah Kota Sibolga,Walikota Sibolga,KOT,6,5200
+A5EB03E23CA6F6A0E040640A040252AD,A5EB03E21F0DF6A0E040640A040252AD,Pemerintah Provinsi Riau,D,Pemerintah Provinsi Riau,Gubernur Riau,PROV,12,5300
+A5EB03E23CA7F6A0E040640A040252AD,A5EB03E21F99F6A0E040640A040252AD,Pemerintah Kab. Bengkalis,D,Pemerintah Kab. Bengkalis,Bupati Bengkalis,KAB,12,5300
+A5EB03E23CA8F6A0E040640A040252AD,A5EB03E21FDBF6A0E040640A040252AD,Pemerintah Kab. Indragiri Hilir,D,Pemerintah Kab. Indragiri Hilir,Bupati Indragiri Hilir,KAB,12,5300
+A5EB03E23CA9F6A0E040640A040252AD,A5EB03E21F9BF6A0E040640A040252AD,Pemerintah Kab. Rokan Hulu,D,Pemerintah Kab. Rokan Hulu,Bupati Rokan Hulu,KAB,12,5300
+A5EB03E23CAAF6A0E040640A040252AD,A5EB03E21F9DF6A0E040640A040252AD,Pemerintah Kab. Siak,D,Pemerintah Kab. Siak,Bupati Siak,KAB,12,5300
+A5EB03E23CABF6A0E040640A040252AD,A5EB03E220B1F6A0E040640A040252AD,Pemerintah Kota Pekanbaru,D,Pemerintah Kota Pekanbaru,Walikota Pekanbaru,KOT,12,5300
+A5EB03E23CACF6A0E040640A040252AD,A5EB03E220ABF6A0E040640A040252AD,Pemerintah Kota Dumai,D,Pemerintah Kota Dumai,Walikota Dumai,KOT,12,5300
+A5EB03E23CADF6A0E040640A040252AD,A5EB03E21FE3F6A0E040640A040252AD,Pemerintah Kab. Agam,D,Pemerintah Kab. Agam,Bupati Agam,KAB,12,5400
+A5EB03E23CAEF6A0E040640A040252AD,A5EB03E21FE2F6A0E040640A040252AD,Pemerintah Kab. Padang Pariaman,D,Pemerintah Kab. Padang Pariaman,Bupati Padang Pariaman,KAB,12,5400
+A5EB03E23CAFF6A0E040640A040252AD,A5EB03E21FE1F6A0E040640A040252AD,Pemerintah Kab. Tanah Datar,D,Pemerintah Kab. Tanah Datar,Bupati Tanah Datar,KAB,12,5400
+A5EB03E23CB0F6A0E040640A040252AD,A5EB03E220EAF6A0E040640A040252AD,Pemerintah Kab. Kep. Mentawai,D,Pemerintah Kab. Kep. Mentawai,Bupati Kep. Mentawai,KAB,12,5400
+A5EB03E23CB1F6A0E040640A040252AD,A5EB03E21FD7F6A0E040640A040252AD,Pemerintah Kota Padang Panjang,D,Pemerintah Kota Padang Panjang,Walikota Padang Panjang,KOT,12,5400
+A5EB03E23CB2F6A0E040640A040252AD,A5EB03E21FD5F6A0E040640A040252AD,Pemerintah Kota Solok,D,Pemerintah Kota Solok,Walikota Solok,KOT,12,5400
+A5EB03E23CB3F6A0E040640A040252AD,A5EB03E21FD9F6A0E040640A040252AD,Pemerintah Kota Payakumbuh,D,Pemerintah Kota Payakumbuh,Walikota Payakumbuh,KOT,12,5400
+A5EB03E23CB4F6A0E040640A040252AD,A5EB03E220ADF6A0E040640A040252AD,Pemerintah Kab. Tanjung Jabung Barat,D,Pemerintah Kab. Tanjung Jabung Barat,Bupati Tanjung Jabung Barat,KAB,7,5500
+A5EB03E23CB5F6A0E040640A040252AD,A5EB03E22017F6A0E040640A040252AD,Pemerintah Kab. Merangin,D,Pemerintah Kab. Merangin,Bupati Merangin,KAB,7,5500
+A5EB03E23CB6F6A0E040640A040252AD,A5EB03E220ACF6A0E040640A040252AD,Pemerintah Kab. Sarolangun,D,Pemerintah Kab. Sarolangun,Bupati Sarolangun,KAB,7,5500
+A5EB03E23CB7F6A0E040640A040252AD,A5EB03E22019F6A0E040640A040252AD,Pemerintah Kab. Muaro Jambi,D,Pemerintah Kab. Muaro Jambi,Bupati Muaro Jambi,KAB,7,5500
+A5EB03E23CB8F6A0E040640A040252AD,A5EB03E2201AF6A0E040640A040252AD,Pemerintah Kota Jambi,D,Pemerintah Kota Jambi,Walikota Jambi,KOT,7,5500
+A5EB03E23CB9F6A0E040640A040252AD,A5EB03E220A4F6A0E040640A040252AD,Pemerintah Kab. Musi Banyuasin,D,Pemerintah Kab. Musi Banyuasin,Bupati Musi Banyuasin,KAB,7,5600
+A5EB03E23CBAF6A0E040640A040252AD,A5EB03E2202BF6A0E040640A040252AD,Pemerintah Kab. Muara Enim,D,Pemerintah Kab. Muara Enim,Bupati Muara Enim,KAB,7,5600
+A5EB03E23CBBF6A0E040640A040252AD,A5EB03E2202CF6A0E040640A040252AD,Pemerintah Kab. Lahat,D,Pemerintah Kab. Lahat,Bupati Lahat,KAB,7,5600
+A5EB03E23CBCF6A0E040640A040252AD,A5EB03E2201CF6A0E040640A040252AD,Pemerintah Kab. Ogan Komering Ilir,D,Pemerintah Kab. Ogan Komering Ilir,Bupati Ogan Komering Ilir,KAB,7,5600
+A5EB03E23CBDF6A0E040640A040252AD,A5EB03E220A6F6A0E040640A040252AD,Pemerintah Kota Palembang,D,Pemerintah Kota Palembang,Walikota Palembang,KOT,7,5600
+A5EB03E23CBEF6A0E040640A040252AD,A5EB03E220A7F6A0E040640A040252AD,Pemerintah Kota Lubuk Linggau,D,Pemerintah Kota Lubuk Linggau,Walikota Lubuk Linggau,KOT,7,5600
+A5EB03E23CBFF6A0E040640A040252AD,A5EB03E21F20F6A0E040640A040252AD,Pemerintah Provinsi Kep. Bangka Belitung,D,Pemerintah Provinsi Kep. Bangka Belitung,Gubernur Kep. Bangka Belitung,PROV,7,5700
+A5EB03E23CC0F6A0E040640A040252AD,A5EB03E21F34F6A0E040640A040252AD,Pemerintah Kab. Bangka Tengah,D,Pemerintah Kab. Bangka Tengah,Bupati Bangka Tengah,KAB,7,5700
+A5EB03E23CC1F6A0E040640A040252AD,A5EB03E21F37F6A0E040640A040252AD,Pemerintah Kab. Belitung Timur,D,Pemerintah Kab. Belitung Timur,Bupati Belitung Timur,KAB,7,5700
+A5EB03E23CC2F6A0E040640A040252AD,A5EB03E21FC8F6A0E040640A040252AD,Pemerintah Kab. Boyolali,D,Pemerintah Kab. Boyolali,Bupati Boyolali,KAB,1,6400
+A5EB03E23CC3F6A0E040640A040252AD,A5EB03E21FEEF6A0E040640A040252AD,Pemerintah Kab. Sragen,D,Pemerintah Kab. Sragen,Bupati Sragen,KAB,1,6400
+A5EB03E23CC4F6A0E040640A040252AD,A5EB03E21FE4F6A0E040640A040252AD,Pemerintah Kab. Sukoharjo,D,Pemerintah Kab. Sukoharjo,Bupati Sukoharjo,KAB,1,6400
+A5EB03E23CC5F6A0E040640A040252AD,A5EB03E21FEDF6A0E040640A040252AD,Pemerintah Kab. Karanganyar,D,Pemerintah Kab. Karanganyar,Bupati Karanganyar,KAB,1,6400
+A5EB03E23CC6F6A0E040640A040252AD,A5EB03E21FE5F6A0E040640A040252AD,Pemerintah Kab. Wonogiri,D,Pemerintah Kab. Wonogiri,Bupati Wonogiri,KAB,1,6400
+A5EB03E23CC7F6A0E040640A040252AD,A5EB03E22005F6A0E040640A040252AD,Pemerintah Kota Semarang,D,Pemerintah Kota Semarang,Walikota Semarang,KOT,1,6400
+A5EB03E23CC8F6A0E040640A040252AD,A5EB03E22004F6A0E040640A040252AD,Pemerintah Kota Salatiga,D,Pemerintah Kota Salatiga,Walikota Salatiga,KOT,1,6400
+A5EB03E23CC9F6A0E040640A040252AD,A5EB03E22006F6A0E040640A040252AD,Pemerintah Kota Pekalongan,D,Pemerintah Kota Pekalongan,Walikota Pekalongan,KOT,1,6400
+A5EB03E23CCAF6A0E040640A040252AD,A5EB03E22007F6A0E040640A040252AD,Pemerintah Kota Tegal,D,Pemerintah Kota Tegal,Walikota Tegal,KOT,1,6400
+A5EB03E23CCBF6A0E040640A040252AD,A5EB03E22002F6A0E040640A040252AD,Pemerintah Kota Magelang,D,Pemerintah Kota Magelang,Walikota Magelang,KOT,1,6400
+A5EB03E23CCCF6A0E040640A040252AD,A5EB03E21F23F6A0E040640A040252AD,Pemerintah Provinsi Jawa Timur,D,Pemerintah Provinsi Jawa Timur,Gubernur Jawa Timur,PROV,2,6500
+A5EB03E23CCDF6A0E040640A040252AD,A5EB03E21F2EF6A0E040640A040252AD,Pemerintah Kab. Gresik,D,Pemerintah Kab. Gresik,Bupati Gresik,KAB,2,6500
+A5EB03E23CCEF6A0E040640A040252AD,A5EB03E21FA5F6A0E040640A040252AD,Pemerintah Kab. Mojokerto,D,Pemerintah Kab. Mojokerto,Bupati Mojokerto,KAB,2,6500
+A5EB03E23CCFF6A0E040640A040252AD,A5EB03E21FA4F6A0E040640A040252AD,Pemerintah Kab. Sidoarjo,D,Pemerintah Kab. Sidoarjo,Bupati Sidoarjo,KAB,2,6500
+A5EB03E23CD0F6A0E040640A040252AD,A5EB03E2200EF6A0E040640A040252AD,Pemerintah Kab. Jombang,D,Pemerintah Kab. Jombang,Bupati Jombang,KAB,2,6500
+A5EB03E23CD1F6A0E040640A040252AD,A5EB03E21F30F6A0E040640A040252AD,Pemerintah Kab. Sampang,D,Pemerintah Kab. Sampang,Bupati Sampang,KAB,2,6500
+A5EB03E23CD2F6A0E040640A040252AD,A5EB03E21F31F6A0E040640A040252AD,Pemerintah Kab. Pamekasan,D,Pemerintah Kab. Pamekasan,Bupati Pamekasan,KAB,2,6500
+A5EB03E23CD3F6A0E040640A040252AD,A5EB03E21F2FF6A0E040640A040252AD,Pemerintah Kab. Bangkalan,D,Pemerintah Kab. Bangkalan,Bupati Bangkalan,KAB,2,6500
+A5EB03E23CD4F6A0E040640A040252AD,A5EB03E21FA1F6A0E040640A040252AD,Pemerintah Kab. Situbondo,D,Pemerintah Kab. Situbondo,Bupati Situbondo,KAB,2,6500
+A5EB03E23CD5F6A0E040640A040252AD,A5EB03E21F46F6A0E040640A040252AD,Pemerintah Kab. Jember,D,Pemerintah Kab. Jember,Bupati Jember,KAB,2,6500
+A5EB03E23CD6F6A0E040640A040252AD,A5EB03E21FA3F6A0E040640A040252AD,Pemerintah Kab. Pasuruan,D,Pemerintah Kab. Pasuruan,Bupati Pasuruan,KAB,2,6500
+A5EB03E23CD7F6A0E040640A040252AD,A5EB03E21F45F6A0E040640A040252AD,Pemerintah Kab. Lumajang,D,Pemerintah Kab. Lumajang,Bupati Lumajang,KAB,2,6500
+A5EB03E23CD8F6A0E040640A040252AD,A5EB03E22163F6A0E040640A040252AD,Pemerintah Kab. Tulungagung,D,Pemerintah Kab. Tulungagung,Bupati Tulungagung,KAB,2,6500
+A5EB03E23CD9F6A0E040640A040252AD,A5EB03E22041F6A0E040640A040252AD,Pemerintah Kab. Trenggalek,D,Pemerintah Kab. Trenggalek,Bupati Trenggalek,KAB,2,6500
+A5EB03E23CDAF6A0E040640A040252AD,A5EB03E2201DF6A0E040640A040252AD,Pemerintah Kab. Madiun,D,Pemerintah Kab. Madiun,Bupati Madiun,KAB,2,6500
+A5EB03E23CDBF6A0E040640A040252AD,A5EB03E2202DF6A0E040640A040252AD,Pemerintah Kab. Magetan,D,Pemerintah Kab. Magetan,Bupati Magetan,KAB,2,6500
+A5EB03E23CDCF6A0E040640A040252AD,A5EB03E2203FF6A0E040640A040252AD,Pemerintah Kab. Pacitan,D,Pemerintah Kab. Pacitan,Bupati Pacitan,KAB,2,6500
+A5EB03E23CDDF6A0E040640A040252AD,A5EB03E22030F6A0E040640A040252AD,Pemerintah Kab. Tuban,D,Pemerintah Kab. Tuban,Bupati Tuban,KAB,2,6500
+A5EB03E23CDEF6A0E040640A040252AD,A5EB03E220E6F6A0E040640A040252AD,Pemerintah Kota Mojokerto,D,Pemerintah Kota Mojokerto,Walikota Mojokerto,KOT,2,6500
+A5EB03E23CDFF6A0E040640A040252AD,A5EB03E21F96F6A0E040640A040252AD,Pemerintah Kota Pasuruan,D,Pemerintah Kota Pasuruan,Walikota Pasuruan,KOT,2,6500
+A5EB03E23CE0F6A0E040640A040252AD,A5EB03E220E4F6A0E040640A040252AD,Pemerintah Kota Blitar,D,Pemerintah Kota Blitar,Walikota Blitar,KOT,2,6500
+A5EB03E23CE1F6A0E040640A040252AD,A5EB03E21F97F6A0E040640A040252AD,Pemerintah Kota Madiun,D,Pemerintah Kota Madiun,Walikota Madiun,KOT,2,6500
+A5EB03E23CE2F6A0E040640A040252AD,A5EB03E21F66F6A0E040640A040252AD,Pemerintah Kab. Sambas,D,Pemerintah Kab. Sambas,Bupati Sambas,KAB,5,6600
+A5EB03E23CE3F6A0E040640A040252AD,A5EB03E21F68F6A0E040640A040252AD,Pemerintah Kab. Sanggau,D,Pemerintah Kab. Sanggau,Bupati Sanggau,KAB,5,6600
+A5EB03E23CE4F6A0E040640A040252AD,A5EB03E21FCBF6A0E040640A040252AD,Pemerintah Kab. Sintang,D,Pemerintah Kab. Sintang,Bupati Sintang,KAB,5,6600
+A5EB03E23CE5F6A0E040640A040252AD,A5EB03E220B0F6A0E040640A040252AD,Pemerintah Kab. Kapuas Hulu,D,Pemerintah Kab. Kapuas Hulu,Bupati Kapuas Hulu,KAB,5,6600
+A5EB03E23CE6F6A0E040640A040252AD,A5EB03E21FCCF6A0E040640A040252AD,Pemerintah Kab. Bengkayang,D,Pemerintah Kab. Bengkayang,Bupati Bengkayang,KAB,5,6600
+A5EB03E23CE7F6A0E040640A040252AD,A5EB03E21FCFF6A0E040640A040252AD,Pemerintah Kota Singkawang,D,Pemerintah Kota Singkawang,Walikota Singkawang,KOT,5,6600
+A5EB03E23CE8F6A0E040640A040252AD,A5EB03E21FF5F6A0E040640A040252AD,Pemerintah Kab. Kapuas,D,Pemerintah Kab. Kapuas,Bupati Kapuas,KAB,8,6700
+A5EB03E23CE9F6A0E040640A040252AD,A5EB03E21FF7F6A0E040640A040252AD,Pemerintah Kab. Barito Utara,D,Pemerintah Kab. Barito Utara,Bupati Barito Utara,KAB,8,6700
+A5EB03E23CEAF6A0E040640A040252AD,A5EB03E21FF4F6A0E040640A040252AD,Pemerintah Kab. Kotawaringin Timur,D,Pemerintah Kab. Kotawaringin Timur,Bupati Kotawaringin Timur,KAB,8,6700
+A5EB03E23CEBF6A0E040640A040252AD,A5EB03E21F7AF6A0E040640A040252AD,Pemerintah Kab. Pulang Pisau,D,Pemerintah Kab. Pulang Pisau,Bupati Pulang Pisau,KAB,8,6700
+A5EB03E23CECF6A0E040640A040252AD,A5EB03E21F77F6A0E040640A040252AD,Pemerintah Kab. Lamandau,D,Pemerintah Kab. Lamandau,Bupati Lamandau,KAB,8,6700
+A5EB03E23CEDF6A0E040640A040252AD,A5EB03E21F7CF6A0E040640A040252AD,Pemerintah Kab. Murung Raya,D,Pemerintah Kab. Murung Raya,Bupati Murung Raya,KAB,8,6700
+A5EB03E23CEEF6A0E040640A040252AD,A5EB03E21F78F6A0E040640A040252AD,Pemerintah Kab. Seruyan,D,Pemerintah Kab. Seruyan,Bupati Seruyan,KAB,8,6700
+A5EB03E23CEFF6A0E040640A040252AD,A5EB03E21FEBF6A0E040640A040252AD,Pemerintah Kab. Banjar,D,Pemerintah Kab. Banjar,Bupati Banjar,KAB,8,6800
+A5EB03E23CF0F6A0E040640A040252AD,A5EB03E21F7EF6A0E040640A040252AD,Pemerintah Kab. Tanah Laut,D,Pemerintah Kab. Tanah Laut,Bupati Tanah Laut,KAB,8,6800
+A5EB03E23CF1F6A0E040640A040252AD,A5EB03E21FF8F6A0E040640A040252AD,Pemerintah Kab. Hulu Sungai Selatan,D,Pemerintah Kab. Hulu Sungai Selatan,Bupati Hulu Sungai Selatan,KAB,8,6800
+A5EB03E23CF2F6A0E040640A040252AD,A5EB03E21FECF6A0E040640A040252AD,Pemerintah Kab. Barito Kuala,D,Pemerintah Kab. Barito Kuala,Bupati Barito Kuala,KAB,8,6800
+A5EB03E23CF3F6A0E040640A040252AD,A5EB03E21F7FF6A0E040640A040252AD,Pemerintah Kab. Kotabaru,D,Pemerintah Kab. Kotabaru,Bupati Kotabaru,KAB,8,6800
+A5EB03E23CF4F6A0E040640A040252AD,A5EB03E21FFDF6A0E040640A040252AD,Pemerintah Kab. Balangan,D,Pemerintah Kab. Balangan,Bupati Balangan,KAB,8,6800
+A5EB03E23CF5F6A0E040640A040252AD,A5EB03E21FFEF6A0E040640A040252AD,Pemerintah Kota Banjarmasin,D,Pemerintah Kota Banjarmasin,Walikota Banjarmasin,KOT,8,6800
+A5EB03E23CF6F6A0E040640A040252AD,A5EB03E21FC6F6A0E040640A040252AD,Pemerintah Kab. Wonosobo,D,Pemerintah Kab. Wonosobo,Bupati Wonosobo,KAB,1,6400
+A5EB03E23CF7F6A0E040640A040252AD,A5EB03E21FFCF6A0E040640A040252AD,Pemerintah Kab. Tanah Bumbu,D,Pemerintah Kab. Tanah Bumbu,Bupati Tanah Bumbu,KAB,8,6800
+A5EB03E23CF8F6A0E040640A040252AD,A5EB03E21FA8F6A0E040640A040252AD,Pemerintah Kab. Tabanan,D,Pemerintah Kab. Tabanan,Bupati Tabanan,KAB,10,7500
+A5EB03E23CF9F6A0E040640A040252AD,A5EB03E22029F6A0E040640A040252AD,Pemerintah Kab. Sumbawa,D,Pemerintah Kab. Sumbawa,Bupati Sumbawa,KAB,10,7600
+A5EB03E23CFAF6A0E040640A040252AD,A5EB03E21F4AF6A0E040640A040252AD,Pemerintah Kab. Karimun,D,Pemerintah Kab. Karimun,Bupati Karimun,KAB,12,8100
+A5EB03E23CFBF6A0E040640A040252AD,A5EB03E22161F6A0E040640A040252AD,Pemerintah Kota Tanjungpinang,D,Pemerintah Kota Tanjungpinang,Walikota Tanjungpinang,KOT,12,8100
+A5EB03E23CFCF6A0E040640A040252AD,A5EB03E21F48F6A0E040640A040252AD,Pemerintah Kota Pangkal Pinang,D,Pemerintah Kota Pangkal Pinang,Walikota Pangkal Pinang,KOT,7,5700
+A5EB03E23CFDF6A0E040640A040252AD,,Ombudsman Republik Indonesia,P,Ombudsman Republik Indonesia,Kepala Ombudsman Republik Indonesia,LNS,0,6000
+A5EB03E23CFEF6A0E040640A040252AD,A5EB03E21F6AF6A0E040640A040252AD,Pemerintah Kab. Kupang,D,Pemerintah Kab. Kupang,Bupati Kupang,KAB,10,7700
+A5EB03E23CFFF6A0E040640A040252AD,A5EB03E21F6DF6A0E040640A040252AD,Pemerintah Kab. Belu,D,Pemerintah Kab. Belu,Bupati Belu,KAB,10,7700
+A5EB03E23D00F6A0E040640A040252AD,A5EB03E21F6CF6A0E040640A040252AD,Pemerintah Kab. Timor Tengah Utara,D,Pemerintah Kab. Timor Tengah Utara,Bupati Timor Tengah Utara,KAB,10,7700
+A5EB03E23D01F6A0E040640A040252AD,A5EB03E21F6BF6A0E040640A040252AD,Pemerintah Kab. Timor Tengah Selatan,D,Pemerintah Kab. Timor Tengah Selatan,Bupati Timor Tengah Selatan,KAB,10,7700
+A5EB03E23D02F6A0E040640A040252AD,A5EB03E21F61F6A0E040640A040252AD,Pemerintah Kab. Sikka,D,Pemerintah Kab. Sikka,Bupati Sikka,KAB,10,7700
+A5EB03E23D03F6A0E040640A040252AD,A5EB03E21F6FF6A0E040640A040252AD,Pemerintah Kab. Flores Timur,D,Pemerintah Kab. Flores Timur,Bupati Flores Timur,KAB,10,7700
+A5EB03E23D04F6A0E040640A040252AD,A5EB03E21F62F6A0E040640A040252AD,Pemerintah Kab. Ende,D,Pemerintah Kab. Ende,Bupati Ende,KAB,10,7700
+A5EB03E23D05F6A0E040640A040252AD,A5EB03E2215BF6A0E040640A040252AD,Pemerintah Kab. Ngada,D,Pemerintah Kab. Ngada,Bupati Ngada,KAB,10,7700
+A5EB03E23D06F6A0E040640A040252AD,A5EB03E2215CF6A0E040640A040252AD,Pemerintah Kab. Manggarai,D,Pemerintah Kab. Manggarai,Bupati Manggarai,KAB,10,7700
+A5EB03E23D07F6A0E040640A040252AD,A5EB03E21F3CF6A0E040640A040252AD,Pemerintah Kab. Sumba Timur,D,Pemerintah Kab. Sumba Timur,Bupati Sumba Timur,KAB,10,7700
+A5EB03E23D08F6A0E040640A040252AD,A5EB03E21F3BF6A0E040640A040252AD,Pemerintah Kab. Sumba Barat,D,Pemerintah Kab. Sumba Barat,Bupati Sumba Barat,KAB,10,7700
+A5EB03E23D09F6A0E040640A040252AD,A5EB03E2215DF6A0E040640A040252AD,Pemerintah Kab. Lembata,D,Pemerintah Kab. Lembata,Bupati Lembata,KAB,10,7700
+A5EB03E23D0AF6A0E040640A040252AD,A5EB03E21F63F6A0E040640A040252AD,Pemerintah Kab. Rote Ndao,D,Pemerintah Kab. Rote Ndao,Bupati Rote Ndao,KAB,10,7700
+A5EB03E23D0BF6A0E040640A040252AD,A5EB03E21F64F6A0E040640A040252AD,Pemerintah Kab. Manggarai Barat,D,Pemerintah Kab. Manggarai Barat,Bupati Manggarai Barat,KAB,10,7700
+A5EB03E23D0CF6A0E040640A040252AD,A5EB03E21F65F6A0E040640A040252AD,Pemerintah Kota Kupang,D,Pemerintah Kota Kupang,Walikota Kupang,KOT,10,7700
+A5EB03E23D0DF6A0E040640A040252AD,A5EB03E22092F6A0E040640A040252AD,Pemerintah Kab. Maluku Tengah,D,Pemerintah Kab. Maluku Tengah,Bupati Maluku Tengah,KAB,4,7800
+A5EB03E23D0EF6A0E040640A040252AD,A5EB03E22093F6A0E040640A040252AD,Pemerintah Kab. Buru,D,Pemerintah Kab. Buru,Bupati Buru,KAB,4,7800
+A5EB03E23D0FF6A0E040640A040252AD,A5EB03E22165F6A0E040640A040252AD,Pemerintah Kota Ambon,D,Pemerintah Kota Ambon,Walikota Ambon,KOT,4,7800
+A5EB03E23D10F6A0E040640A040252AD,A5EB03E2216DF6A0E040640A040252AD,Pemerintah Kab. Halmahera Tengah,D,Pemerintah Kab. Halmahera Tengah,Bupati Halmahera Tengah,KAB,11,7900
+A5EB03E23D11F6A0E040640A040252AD,A5EB03E2216FF6A0E040640A040252AD,Pemerintah Kab. Halmahera Selatan,D,Pemerintah Kab. Halmahera Selatan,Bupati Halmahera Selatan,KAB,11,7900
+A5EB03E23D12F6A0E040640A040252AD,A5EB03E220ECF6A0E040640A040252AD,Pemerintah Kab. Halmahera Timur,D,Pemerintah Kab. Halmahera Timur,Bupati Halmahera Timur,KAB,11,7900
+A5EB03E23D13F6A0E040640A040252AD,A5EB03E220EEF6A0E040640A040252AD,Pemerintah Kota Tidore Kepulauan,D,Pemerintah Kota Tidore Kepulauan,Walikota Tidore Kepulauan,KOT,11,7900
+A5EB03E23D14F6A0E040640A040252AD,A5EB03E22167F6A0E040640A040252AD,Pemerintah Kab. Jayapura,D,Pemerintah Kab. Jayapura,Bupati Jayapura,KAB,9,8000
+A5EB03E23D15F6A0E040640A040252AD,A5EB03E22034F6A0E040640A040252AD,Pemerintah Kab. Kepulauan Yapen,D,Pemerintah Kab. Kepulauan Yapen ,Bupati Kepulauan Yapen ,KAB,9,8000
+A5EB03E23D16F6A0E040640A040252AD,A5EB03E220E0F6A0E040640A040252AD,Pemerintah Kab. Jayawijaya,D,Pemerintah Kab. Jayawijaya,Bupati Jayawijaya,KAB,9,8700
+A5EB03E23D17F6A0E040640A040252AD,A5EB03E22036F6A0E040640A040252AD,Pemerintah Kab. Paniai,D,Pemerintah Kab. Paniai,Bupati Paniai,KAB,9,8600
+A5EB03E23D18F6A0E040640A040252AD,A5EB03E22038F6A0E040640A040252AD,Pemerintah Kab. Mimika,D,Pemerintah Kab. Mimika,Bupati Mimika,KAB,9,8600
+A5EB03E23D19F6A0E040640A040252AD,A5EB03E22024F6A0E040640A040252AD,Pemerintah Kab. Mappi,D,Pemerintah Kab. Mappi,Bupati Mappi,KAB,9,8500
+A5EB03E23D1AF6A0E040640A040252AD,A5EB03E220E1F6A0E040640A040252AD,Pemerintah Kab. Yahukimo,D,Pemerintah Kab. Yahukimo,Bupati Yahukimo,KAB,9,8700
+A5EB03E23D1BF6A0E040640A040252AD,A5EB03E220E2F6A0E040640A040252AD,Pemerintah Kab. Tolikara,D,Pemerintah Kab. Tolikara,Bupati Tolikara,KAB,9,8700
+A5EB03E23D1CF6A0E040640A040252AD,A5EB03E22027F6A0E040640A040252AD,Pemerintah Kab. Sarmi,D,Pemerintah Kab. Sarmi,Bupati Sarmi,KAB,9,8000
+A5EB03E23D1DF6A0E040640A040252AD,A5EB03E22169F6A0E040640A040252AD,Pemerintah Kab. Waropen,D,Pemerintah Kab. Waropen,Bupati Waropen,KAB,9,8000
+A5EB03E23D1EF6A0E040640A040252AD,A5EB03E21F21F6A0E040640A040252AD,Pemerintah Provinsi Kepulauan Riau,D,Pemerintah Provinsi Kepulauan Riau,Gubernur Kepulauan Riau,PROV,12,8100
+A5EB03E23D1FF6A0E040640A040252AD,A5EB03E21F4BF6A0E040640A040252AD,Pemerintah Kab. Natuna,D,Pemerintah Kab. Natuna,Bupati Natuna,KAB,12,8100
+A5EB03E23D20F6A0E040640A040252AD,,Luar Negeri,P,Luar Negeri,Luar Negeri,,0,6000
+A5EB03E23D21F6A0E040640A040252AD,,Lain-Lain,P,Lain-Lain,Lain-Lain,,0,6000
+A5EB03E23D22F6A0E040640A040252AD,A5EB03E21F22F6A0E040640A040252AD,Pemerintah Provinsi Papua Barat,D,Pemerintah Provinsi Papua Barat,Gubernur Papua Barat,PROV,14,8200
+A5EB03E23D23F6A0E040640A040252AD,A5EB03E21F1CF6A0E040640A040252AD,Pemerintah Provinsi Sulawesi Barat,D,Pemerintah Provinsi Sulawesi Barat,Gubernur Sulawesi Barat,PROV,4,8300
+A5EB03E23D24F6A0E040640A040252AD,,BUMD,P,BUMD,BUMD,,0,6000
+A5EB03E23D25F6A0E040640A040252AD,,SWASTA,P,SWASTA,SWASTA,,0,6000
+A5EB03E23D26F6A0E040640A040252AD,A5EB03E220EFF6A0E040640A040252AD,Pemerintah Kab. Sorong,D,Pemerintah Kab. Sorong,Bupati Sorong,KAB,14,8800
+A5EB03E23D27F6A0E040640A040252AD,A5EB03E22134F6A0E040640A040252AD,Pemerintah Kab. Raja Ampat,D,Pemerintah Kab. Raja Ampat,Bupati Raja Ampat,KAB,14,8800
+A5EB03E23D28F6A0E040640A040252AD,A5EB03E22135F6A0E040640A040252AD,Pemerintah Kab. Manokwari,D,Pemerintah Kab. Manokwari,Bupati Manokwari,KAB,14,8200
+A5EB03E23D29F6A0E040640A040252AD,A5EB03E22137F6A0E040640A040252AD,Pemerintah Kab. Teluk Wondama,D,Pemerintah Kab. Teluk Wondama,Bupati Teluk Wondama,KAB,14,8200
+A5EB03E23D2AF6A0E040640A040252AD,A5EB03E22162F6A0E040640A040252AD,Pemerintah Kab. Kaimana,D,Pemerintah Kab. Kaimana,Bupati Kaimana,KAB,14,8200
+A5EB03E23D2BF6A0E040640A040252AD,A5EB03E2212FF6A0E040640A040252AD,Pemerintah Kab. Samosir,D,Pemerintah Kab. Samosir,Bupati Samosir,KAB,6,5200
+A5EB03E23D2CF6A0E040640A040252AD,A5EB03E22095F6A0E040640A040252AD,Pemerintah Kab. Ogan Komering Ulu Sel.,D,Pemerintah Kab. Ogan Komering Ulu Sel.,Bupati Ogan Komering Ulu Sel.,KAB,7,5600
+A5EB03E23D2DF6A0E040640A040252AD,A5EB03E220C1F6A0E040640A040252AD,Pemerintah Kab. Kepahiang,D,Pemerintah Kab. Kepahiang,Bupati Kepahiang,KAB,7,5800
+A5EB03E23D2EF6A0E040640A040252AD,A5EB03E22099F6A0E040640A040252AD,Pemerintah Kab. Melawi,D,Pemerintah Kab. Melawi,Bupati Melawi,KAB,5,6600
+A5EB03E23D2FF6A0E040640A040252AD,A5EB03E2209BF6A0E040640A040252AD,Pemerintah Kab. Bener Meriah,D,Pemerintah Kab. Bener Meriah,Bupati Bener Meriah,KAB,13,5100
+A5EB03E23D30F6A0E040640A040252AD,A5EB03E220C0F6A0E040640A040252AD,Pemerintah Kab. Dharmasraya,D,Pemerintah Kab. Dharmasraya,Bupati Dharmasraya,KAB,12,5400
+A5EB03E23D31F6A0E040640A040252AD,A5EB03E21F75F6A0E040640A040252AD,Pemerintah Kab. Lingga,D,Pemerintah Kab. Lingga,Bupati Lingga,KAB,12,8100
+A5EB03E23D32F6A0E040640A040252AD,A5EB03E220DBF6A0E040640A040252AD,Pemerintah Kab. Buton Utara,D,Pemerintah Kab. Buton Utara,Bupati Buton Utara,KAB,4,7400
+A5EB03E23D33F6A0E040640A040252AD,A5EB03E22074F6A0E040640A040252AD,Pemerintah Kab. Konawe Utara,D,Pemerintah Kab. Konawe Utara,Bupati Konawe Utara,KAB,4,7400
+A5EB03E23D34F6A0E040640A040252AD,,Badan Nasional Pencarian dan Pertolongan,P,Badan SAR Nasional,Kepala Badan SAR Nasional,LPNK,0,6000
+A5EB03E23D35F6A0E040640A040252AD,A5EB03E2207DF6A0E040640A040252AD,Pemerintah Kab. Tojo Una Una,D,Pemerintah Kab. Tojo Una Una,Bupati Tojo Una Una,KAB,4,7200
+A5EB03E23D36F6A0E040640A040252AD,A5EB03E220F1F6A0E040640A040252AD,Pemerintah Kab. Kolaka Utara,D,Pemerintah Kab. Kolaka Utara,Bupati Kolaka Utara,KAB,4,7400
+A5EB03E23D37F6A0E040640A040252AD,A5EB03E220F2F6A0E040640A040252AD,Pemerintah Kab. Bombana,D,Pemerintah Kab. Bombana,Bupati Bombana,KAB,4,7400
+A5EB03E23D38F6A0E040640A040252AD,A5EB03E220F0F6A0E040640A040252AD,Pemerintah Kab. Wakatobi,D,Pemerintah Kab. Wakatobi,Bupati Wakatobi,KAB,4,7400
+A5EB03E23D39F6A0E040640A040252AD,A5EB03E2206BF6A0E040640A040252AD,Pemerintah Kab. Sumbawa Barat,D,Pemerintah Kab. Sumbawa Barat,Bupati Sumbawa Barat,KAB,10,7600
+A5EB03E23D3AF6A0E040640A040252AD,A5EB03E2207EF6A0E040640A040252AD,Pemerintah Kab. Kepulauan Aru,D,Pemerintah Kab. Kepulauan Aru,Bupati Kepulauan Aru,KAB,4,7800
+A5EB03E23D3BF6A0E040640A040252AD,A5EB03E2207FF6A0E040640A040252AD,Pemerintah Kab. Seram Bagian Barat,D,Pemerintah Kab. Seram Bagian Barat,Bupati Seram Bagian Barat,KAB,4,7800
+A5EB03E23D3CF6A0E040640A040252AD,A5EB03E2216AF6A0E040640A040252AD,Pemerintah Kab. Supiori,D,Pemerintah Kab. Supiori,Bupati Supiori,KAB,9,8000
+A5EB03E23D3DF6A0E040640A040252AD,,Kepaniteraan dan Sekretariat Jenderal Mahkamah Konstitusi RI,P,Kepaniteraan dan Sekretariat Jenderal Mahkamah Konstitusi RI,Ketua Mahkamah Konstitusi,LPNK,0,6000
+A5EB03E23D3EF6A0E040640A040252AD,A5EB03E220D4F6A0E040640A040252AD,Pemerintah Kab. Mamuju,D,Pemerintah Kab. Mamuju,Bupati Mamuju,KAB,4,8300
+A5EB03E23D3FF6A0E040640A040252AD,A5EB03E220D5F6A0E040640A040252AD,Pemerintah Kab. Mamasa,D,Pemerintah Kab. Mamasa,Bupati Mamasa,KAB,4,8300
+A5EB03E23D40F6A0E040640A040252AD,A5EB03E220D6F6A0E040640A040252AD,Pemerintah Kab. Polewali Mandar,D,Pemerintah Kab. Polewali Mandar,Bupati Polewali Mandar,KAB,4,8300
+A5EB03E23D41F6A0E040640A040252AD,A5EB03E220D7F6A0E040640A040252AD,Pemerintah Kab. Majene,D,Pemerintah Kab. Majene,Bupati Majene,KAB,4,8300
+A5EB03E23D42F6A0E040640A040252AD,A5EB03E22080F6A0E040640A040252AD,Pemerintah Kab. Seram Bagian Timur,D,Pemerintah Kab. Seram Bagian Timur,Bupati Seram Bagian Timur,KAB,4,7800
+A5EB03E23D43F6A0E040640A040252AD,,Komisi Pemberantasan Korupsi,P,Setjen Komisi Pemberantasan Korupsi,Ketua Komisi Pemberantasan Korupsi ( KPK ),LNS,0,6000
+A5EB03E23D44F6A0E040640A040252AD,A5EB03E22084F6A0E040640A040252AD,Pemerintah Kab. Minahasa Utara,D,Pemerintah Kab. Minahasa Utara,Bupati Minahasa Utara,KAB,11,7000
+A5EB03E23D45F6A0E040640A040252AD,,Badan Pengusahaan Kawasan Perdagangan Bebas dan Pelabuhan Bebas Batam,P,Badan Pengusahaan Kawasan Perdagangan Bebas dan Pelabuhan Bebas Batam,Kepala Badan Pengusahaan Kawasan Perdagangan Bebas dan Pelabuhan Bebas Batam,LNS,0,6000
+A5EB03E23D46F6A0E040640A040252AD,,Kementerian Pekerjaan Umum dan Perumahan Rakyat,P,Kementerian Pekerjaan Umum dan Perumahan Rakyat,Menteri Pekerjaan Umum dan Perumahan Rakyat,KEMENT,0,6000
+A5EB03E23D47F6A0E040640A040252AD,,Setjen KORPRI,P,Setjen KORPRI,SEKRETARIS JENDERAL KORPRI,,0,6000
+A5EB03E23D48F6A0E040640A040252AD,,Kementerian Pelindungan Pekerja Migran Indonesia,P,Badan Nasional Penempatan Perlindungan TKI,Menteri Pelindungan Pekerja Migran Indonesia,KEMENT,0,6000
+A5EB03E23D49F6A0E040640A040252AD,A5EB03E22071F6A0E040640A040252AD,Pemerintah Kab. Sumba Barat Daya,D,Pemerintah Kab. Sumba Barat Daya,Bupati Sumba Barat Daya,KAB,10,7700
+A5EB03E23D4AF6A0E040640A040252AD,A5EB03E220F3F6A0E040640A040252AD,Pemerintah Kab. Kubu Raya,D,Pemerintah Kab. Kubu Raya,Bupati Kubu Raya,KAB,5,6600
+A5EB03E23D4BF6A0E040640A040252AD,,Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah,P,Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah,Kepala Lembaga Kebijakan Pengadaan Barang / Jasa Pemerintah,LPNK,0,6000
+A5EB03E23D4CF6A0E040640A040252AD,A5EB03E220B3F6A0E040640A040252AD,Pemerintah Kab. Maybrat,D,Pemerintah Kab. Maybrat,Bupati Maybrat,KAB,14,8800
+A5EB03E23D4DF6A0E040640A040252AD,,Lembaga Penyiaran Publik Radio Republik Indonesia,P,RADIO REPUBLIK INDONESIA,DEWAN DIREKSI RADIO REPUBLIK INDONESIA,,0,6000
+A5EB03E23D4EF6A0E040640A040252AD,A5EB03E22026F6A0E040640A040252AD,Pemerintah Kab. Pegunungan Bintang,D,Pemerintah Kab. Pegunungan Bintang,Bupati Pegunungan Bintang,KAB,9,8700
+A5EB03E23D4FF6A0E040640A040252AD,A5EB03E22028F6A0E040640A040252AD,Pemerintah Kab. Keerom,D,Pemerintah Kab. Keerom,Bupati Keerom,KAB,9,8000
+A5EB03E23D50F6A0E040640A040252AD,A5EB03E2216BF6A0E040640A040252AD,Pemerintah Kota Jayapura,D,Pemerintah Kota Jayapura,Walikota Jayapura,KOT,9,8000
+A5EB03E23D51F6A0E040640A040252AD,A5EB03E21F49F6A0E040640A040252AD,Pemerintah Kab. Bintan,D,Pemerintah Kab. Bintan,Bupati Bintan,KAB,12,8100
+A5EB03E23D52F6A0E040640A040252AD,A5EB03E21F4CF6A0E040640A040252AD,Pemerintah Kota Batam,D,Pemerintah Kota Batam,Walikota Batam,KOT,12,8100
+A5EB03E23D53F6A0E040640A040252AD,,BUMN,P,BUMN,BUMN,,0,6000
+A5EB03E23D54F6A0E040640A040252AD,,Setjen Komisi Pemilihan Umum,P,Setjen Komisi Pemilihan Umum,Sekretaris Jendral Komisi Pemilihan Umum,LNS,0,6000
+A5EB03E23D55F6A0E040640A040252AD,,Badan Nasional Penanggulangan Bencana,P,Badan Nasional Penanggulangan Bencana,Kepala Badan Nasional Penanggulangan Bencana,LPNK,0,6000
+A5EB03E23D56F6A0E040640A040252AD,,Setjen KOMNAS HAM,P,Setjen KOMNAS HAM,Ketua Komnas HAM,LNS,0,6000
+A5EB03E23D57F6A0E040640A040252AD,A5EB03E22070F6A0E040640A040252AD,Pemerintah Kab. Manggarai Timur,D,Pemerintah Kab. Manggarai Timur,Bupati Manggarai Timur,KAB,10,7700
+A5EB03E23D58F6A0E040640A040252AD,A5EB03E22136F6A0E040640A040252AD,Pemerintah Kab. Teluk Bintuni,D,Pemerintah Kab. Teluk Bintuni,Bupati Teluk Bintuni,KAB,14,8200
+A5EB03E23D59F6A0E040640A040252AD,A5EB03E22138F6A0E040640A040252AD,Pemerintah Kab. Fak-Fak,D,Pemerintah Kab. Fak-Fak,Bupati Fak-Fak,KAB,14,8200
+A5EB03E23D5AF6A0E040640A040252AD,A5EB03E220F6F6A0E040640A040252AD,Pemerintah Kota Sorong,D,Pemerintah Kota Sorong,Walikota Sorong,KOT,14,8800
+A5EB03E23D5BF6A0E040640A040252AD,,Kementerian Pemuda dan Olahraga,P,Kementerian Pemuda Olahraga,Menteri Pemuda dan Olahraga,KEMENT,0,6000
+A5EB03E23D5CF6A0E040640A040252AD,A5EB03E22094F6A0E040640A040252AD,Pemerintah Kab. Ogan Komering Ulu Timur,D,Pemerintah Kab. Ogan Komering Ulu Timur,Bupati Ogan Komering Ulu Timur,KAB,7,5600
+A5EB03E23D5DF6A0E040640A040252AD,A5EB03E2209AF6A0E040640A040252AD,Pemerintah Kab. Sekadau,D,Pemerintah Kab. Sekadau,Bupati Sekadau,KAB,5,6600
+A5EB03E23D5EF6A0E040640A040252AD,A5EB03E22085F6A0E040640A040252AD,Pemerintah Kab. Solok Selatan,D,Pemerintah Kab. Solok Selatan,Bupati Solok Selatan,KAB,12,5400
+A5EB03E23D5FF6A0E040640A040252AD,A5EB03E22033F6A0E040640A040252AD,Pemerintah Kab. Pasaman Barat,D,Pemerintah Kab. Pasaman Barat,Bupati Pasaman Barat,KAB,12,5400
+A5EB03E23D60F6A0E040640A040252AD,A5EB03E22130F6A0E040640A040252AD,Pemerintah Kab. Pringsewu,D,Pemerintah Kab. Pringsewu,Bupati Pringsewu,KAB,5,5900
+A5EB03E23D61F6A0E040640A040252AD,A5EB03E22131F6A0E040640A040252AD,Pemerintah Kab. Mesuji,D,Pemerintah Kab. Mesuji,Bupati Mesuji,KAB,5,5900
+A5EB03E23D62F6A0E040640A040252AD,,Kementerian Perhubungan,P,Kementerian Perhubungan,Menteri Perhubungan,KEMENT,0,6000
+A5EB03E23D63F6A0E040640A040252AD,,Kementerian Kependudukan Dan Pembangunan Keluarga/Badan Kependudukan Dan Keluarga Berencana Nasional,P,Badan Kependudukan dan KB Nasional,Menteri Kependudukan Dan Pembangunan Keluarga/Kepala Badan Kependudukan dan Keluarga Berencana Nasional,KEMENT,0,6000
+A5EB03E23D64F6A0E040640A040252AD,,Pusat Pelaporan dan Analisis Transaksi Keuangan,P,Pusat Pelaporan dan Analisis Transaksi Keuangan,Kepala Pusat Pelaporan dan Analisis Transaksi Keuangan,LNS,0,6000
+A5EB03E23D65F6A0E040640A040252AD,A5EB03E220DDF6A0E040640A040252AD,Pemerintah Kota Tangerang Selatan,D,Pemerintah Kota Tangerang Selatan,Walikota Tangerang Selatan,KOT,3,6200
+A5EB03E23D66F6A0E040640A040252AD,A5EB03E220B2F6A0E040640A040252AD,Pemerintah Kab. Kepulauan Meranti,D,Pemerintah Kab. Kepulauan Meranti,Bupati Kepulauan Meranti,KAB,12,5300
+A5EB03E23D67F6A0E040640A040252AD,,Lembaga Penyiaran Publik Televisi Republik Indonesia,P,TELEVISI REPUBLIK INDONESIA,DEWAN DIREKSI TELEVISI REPUBLIK INDONESIA,,0,6000
+a92368bff9b3499fabac214121ae6a50,,Kementerian Koordinator Bidang Politik dan Keamanan,P,Kementerian Koordinator Bidang Politik dan Keamanan,Menteri Koordinator Bidang Politik dan Keamanan,KO,0,6000
+ac09ab43818c408a9a9d0ebd89e52afa,,Kementerian Hukum,P,Kementerian Hukum,Menteri Hukum,KEMENT,0,6000
+c22a969cacea490e9d0e75747416fd49,,Kementerian Hak Asasi Manusia,P,Kementerian Hak Asasi Manusia,Menteri Hak Asasi Manusia,KEMENT,0,6000
+c50e9888946f40a0ba9269a8ded536c9,,Kementerian Imigrasi dan Pemasyarakatan,P,Kementerian Imigrasi dan Pemasyarakatan,Menteri Imigrasi dan Pemasyarakatan,KEMENT,0,6000
+C5CD908671C69920E050640AF108625B,,Badan Riset dan Inovasi Nasional,P,Badan Riset dan Inovasi Nasional,Kepala Badan Riset dan Inovasi Nasional,LPNK,0,6000
+CE1DEAA62F83ECDFE050640AF1083757,,Badan Pangan Nasional,P,Badan Pangan Nasional,Kepala Badan Pangan Nasional,LPNK,0,6000
+d95f0f32324547a1906dd84efe4abe82,,"Kementerian Koordinator Bidang Hukum, Hak Asasi Manusia, Imigrasi, dan Pemasyarakatan",P,"Kementerian Koordinator Bidang Hukum, Hak Asasi Manusia, Imigrasi, dan Pemasyarakatan","Menteri Koordinator Bidang Hukum, Hak Asasi Manusia, Imigrasi, dan Pemasyarakatan",KO,0,6000
+dfb575c596e547baa4a18d29b02f99d4,,Kementerian Desa dan Pembangunan Daerah Tertinggal,P,Kementerian Desa dan Pembangunan Daerah Tertinggal,Menteri Desa dan Pembangunan Daerah Tertinggal,KEMENT,0,6000
+EB512F19A3992F79E050640AF1082DE3,EB486BAB8405E6FAE050640AF2084C4C,Pemerintah Provinsi Papua Tengah,D,Pemerintah Provinsi Papua Tengah,Gubernur Papua Tengah,PROV,9,8600
+EB512F19A39A2F79E050640AF1082DE3,EB486BAB8406E6FAE050640AF2084C4C,Pemerintah Provinsi Papua Pegunungan,D,Pemerintah Provinsi Papua Pegunungan,Gubernur Papua Pegunungan,PROV,9,8700
+EB512F19A39B2F79E050640AF1082DE3,EB486BAB8407E6FAE050640AF2084C4C,Pemerintah Provinsi Papua Selatan,D,Pemerintah Provinsi Papua Selatan,Gubernur Papua Selatan,PROV,9,8500
+ee3b55c7a5a24986afcfbe4adedb4ea8,,Kementerian Pariwisata,P,Kementerian Pariwisata,Menteri Pariwisata,KEMENT,0,6000
+F41980A2BAC289D7E050640AF1080584,8ae483c68610bbfd01862b27de96148d,Pemerintah Provinsi Papua Barat Daya,D,Pemerintah Provinsi Papua Barat Daya,Gubernur Papua Barat Daya,PROV,14,8800
+F5A9ECA412A82904E050640AF2081424,,Otorita Ibu Kota Nusantara,P,,Kepala Otorita Ibu Kota Nusantara,LNS,0,6000
+fd0d3fe35d6c417dbf73b28733df3fde,,Kementerian Koordinator Bidang Pangan,P,Kementerian Koordinator Bidang Pangan,Menteri Koordinator Bidang Pangan,KO,0,6000
+fd939f4b-5086-4736-835e-ef7e25704e7f,,Badan Gizi Nasional,P,Badan Gizi Nasional,Kepala Badan Gizi Nasional,LPNK,0,6000
+ff8080813ff0535b013ff0b296d924a7,ff8080813ff0535b013ff08f98301539,Pemerintah Kab. Mahakam Ulu,D,Pemerintah Kab. Mahakam Ulu,Bupati Mahakam Ulu,KAB,8,6900
+ff8080813ff0535b013ff0cb2abb2df5,ff8080813ff0535b013ff090abb6155c,Pemerintah Kab. Pegunungan Arfak,D,Pemerintah Kab. Pegunungan Arfak,Bupati Pegunungan Arfak,KAB,14,8200
+ff8080813ff0535b013ff0cd0e792e17,ff8080813ff0535b013ff09fdf3e1cc3,Pemerintah Kab. Pangandaran,D,Pemerintah Kab. Pangandaran,Bupati Pangandaran,KAB,3,6100
+ff8080813ff0535b013ff0ce7cd12e5c,ff8080813ff0535b013ff0a0d0ca1d03,Pemerintah Kab. Pulau Taliabu,D,Pemerintah Kab. Pulau Taliabu,Bupati Pulau Taliabu,KAB,11,7900
+ff8080813ff0535b013ff0cfe00e2e82,ff8080813ff0535b013ff0a8f88b212e,Pemerintah Kab. Malaka,D,Pemerintah Kab. Malaka,Bupati Malaka,KAB,10,7700
+ff8080813ff0535b013ff0d48c5e2efe,ff8080813ff0535b013ff0ace9d12318,Pemerintah Kab. Banggai Laut,D,Pemerintah Kab. Banggai Laut,Bupati Banggai Laut,KAB,4,7200
+ff80808140151b37014033f7fa9a4560,ff80808140151b37014033f528684517,Pemerintah Provinsi Kalimantan Utara,D,Pemerintah Provinsi Kalimantan Utara,Gubernur Kalimantan Utara,PROV,8,8400
+ff808081407013be0140718ae4665cb5,A5EB03E220DCF6A0E040640A040252AD,Pemerintah Kab. Kolaka Timur,D,Pemerintah Kab. Kolaka Timur,Bupati Kolaka Timur,KAB,4,7400
+ff80808140cec7d80140e1972df151c8,ff80808140cec7d80140e191901949e1,Pemerintah Kab. Penukal Abab Lematang Ilir,D,Pemerintah Kab. Penukal Abab Lematang Ilir,Bupati Penukal Abab Lematang Ilir,KAB,7,5600
+ff80808141007d280141071724a60046,ff80808141007d28014107105eca7ad3,Pemerintah Kab. Pesisir Barat,D,Pemerintah Kab. Pesisir Barat,Bupati Pesisir Barat,KAB,5,5900
+ff808081426f4d6801428ec9afb07ff2,ff808081426f4d6801428ec7497e7fd4,Pemerintah Kab. Mamuju Tengah,D,Pemerintah Kab. Mamuju Tengah,Bupati Mamuju Tengah,KAB,4,8300
+ff80808144245f0701442f61c90d5f00,ff80808144245f0701442f5f578d5c11,Pemerintah Kab. Manokwari Selatan,D,Pemerintah Kab. Manokwari Selatan,Bupati Manokwari Selatan,KAB,14,8200
+ff8080814449b7e401444ea883ac0829,ff8080814449b7e401444ea49da5061c,Pemerintah Kab. Morowali Utara,D,Pemerintah Kab. Morowali Utara,Bupati Morowali Utara,KAB,4,7200
+ff828d92f293459cab9d34789c42c1d5,,Kementerian Pekerjaan Umum,P,Kementerian Pekerjaan Umum,Menteri Pekerjaan Umum,KEMENT,0,6000

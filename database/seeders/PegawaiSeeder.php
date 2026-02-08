@@ -39,6 +39,12 @@ class PegawaiSeeder extends Seeder
                 continue;
             }
 
+            // Set default golongan jika kosong
+            if (empty($golongan)) {
+                $golongan = 'II/c';
+                $this->command->warn("Setting default golongan II/c for: $nama");
+            }
+
             // Tentukan role_id berdasarkan jabatan
             $role_id = 2; // Default: Pegawai
             if (stripos($jabatan, 'Pimpinan') !== false || stripos($jabatan, 'Direktur') !== false) {
