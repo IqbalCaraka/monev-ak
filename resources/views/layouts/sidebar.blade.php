@@ -1,9 +1,16 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <ul class="nav">
+        <li class="nav-item nav-category">Dashboard</li>
         <li class="nav-item">
             <a class="nav-link" href="{{ route('dashboard') }}">
-                <i class="mdi mdi-view-dashboard menu-icon"></i>
+                <i class="menu-icon mdi mdi-view-dashboard"></i>
                 <span class="menu-title">Dashboard Monev</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">
+                <i class="menu-icon mdi mdi-chart-bar"></i>
+                <span class="menu-title">Dashboard Skor Arsip</span>
             </a>
         </li>
         <li class="nav-item nav-category">Menu Utama</li>
@@ -13,13 +20,6 @@
                 <span class="menu-title">Pelaporan Monev</span>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">
-                <i class="menu-icon mdi mdi-chart-bar"></i>
-                <span class="menu-title">Dashboard Skor Arsip</span>
-            </a>
-        </li>
-        <li class="nav-item nav-category">Statistik</li>
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#statistik-menu" aria-expanded="false" aria-controls="statistik-menu">
                 <i class="menu-icon mdi mdi-chart-line"></i>
@@ -32,6 +32,12 @@
                         <a class="nav-link" href="{{ route('aktivitas-pegawai.index') }}">
                             <i class="mdi mdi-account-check"></i>
                             Aktivitas Pegawai
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('staging.index') }}">
+                            <i class="mdi mdi-account-alert"></i>
+                            Pegawai Belum Terdata
                         </a>
                     </li>
                 </ul>

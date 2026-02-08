@@ -259,6 +259,179 @@
     </div>
 </div>
 
+<!-- Mapping & Inject Dokumen Summary -->
+<div class="row">
+    <!-- Mapping Dokumen (Non-Inject) -->
+    <div class="col-md-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">
+                        <i class="ti-files text-info me-2"></i>Mapping Dokumen
+                    </h4>
+                    <span class="badge badge-info">Non-Inject</span>
+                </div>
+                <p class="text-muted small mb-3">Mapping dokumen manual (tanpa inject) - Semua Pegawai</p>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-info">
+                            <tr>
+                                <th width="40">#</th>
+                                <th>Nama Pegawai</th>
+                                <th class="text-center" width="100">Per Dok</th>
+                                <th class="text-center" width="100">Per PNS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($mappingDokumen as $index => $item)
+                                <tr>
+                                    <td>{{ $mappingDokumen->firstItem() + $index }}</td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 200px;" title="{{ $item->nama }}">
+                                            {{ $item->nama }}
+                                        </div>
+                                        <small class="text-muted">{{ $item->nip }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-primary">{{ number_format($item->total_per_dokumen) }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success">{{ number_format($item->total_per_object_pns) }}</span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">
+                                        Tidak ada data mapping dokumen
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if($mappingDokumen->hasPages())
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        Menampilkan {{ $mappingDokumen->firstItem() }} - {{ $mappingDokumen->lastItem() }} dari {{ $mappingDokumen->total() }} pegawai
+                    </div>
+                    <div>
+                        {{ $mappingDokumen->appends(['search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'inject_page' => request('inject_page')])->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
+                @endif
+
+                <!-- Summary -->
+                <div class="mt-3 pt-3 border-top">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Total Halaman Ini</small>
+                            <div>
+                                <strong class="text-primary">{{ number_format($mappingDokumen->sum('total_per_dokumen')) }}</strong>
+                                <span class="text-muted small">dok</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Per Object PNS</small>
+                            <div>
+                                <strong class="text-success">{{ number_format($mappingDokumen->sum('total_per_object_pns')) }}</strong>
+                                <span class="text-muted small">PNS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inject Dokumen (Inject - Unggah Dokumen) -->
+    <div class="col-md-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">
+                        <i class="ti-upload text-warning me-2"></i>Inject Dokumen
+                    </h4>
+                    <span class="badge badge-warning">Inject</span>
+                </div>
+                <p class="text-muted small mb-3">Inject - Unggah Dokumen (details ≠ "unggah_dokumen") - Semua Pegawai</p>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-warning">
+                            <tr>
+                                <th width="40">#</th>
+                                <th>Nama Pegawai</th>
+                                <th class="text-center" width="100">Per Dok</th>
+                                <th class="text-center" width="100">Per PNS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($injectDokumen as $index => $item)
+                                <tr>
+                                    <td>{{ $injectDokumen->firstItem() + $index }}</td>
+                                    <td>
+                                        <div class="text-truncate" style="max-width: 200px;" title="{{ $item->nama }}">
+                                            {{ $item->nama }}
+                                        </div>
+                                        <small class="text-muted">{{ $item->nip }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-primary">{{ number_format($item->total_per_dokumen) }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success">{{ number_format($item->total_per_object_pns) }}</span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">
+                                        Tidak ada data inject dokumen
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if($injectDokumen->hasPages())
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        Menampilkan {{ $injectDokumen->firstItem() }} - {{ $injectDokumen->lastItem() }} dari {{ $injectDokumen->total() }} pegawai
+                    </div>
+                    <div>
+                        {{ $injectDokumen->appends(['search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'mapping_page' => request('mapping_page')])->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
+                @endif
+
+                <!-- Summary -->
+                <div class="mt-3 pt-3 border-top">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Total Halaman Ini</small>
+                            <div>
+                                <strong class="text-primary">{{ number_format($injectDokumen->sum('total_per_dokumen')) }}</strong>
+                                <span class="text-muted small">dok</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Per Object PNS</small>
+                            <div>
+                                <strong class="text-success">{{ number_format($injectDokumen->sum('total_per_object_pns')) }}</strong>
+                                <span class="text-muted small">PNS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     .pagination .page-link {
         padding: 0.375rem 0.75rem;
