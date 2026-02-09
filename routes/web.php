@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\InstansiController;
+use App\Http\Controllers\PicController;
 use App\Http\Controllers\AktivitasPegawaiController;
 use App\Http\Controllers\StagingLogController;
 
@@ -15,6 +16,9 @@ Route::prefix('pengaturan')->group(function () {
     Route::post('pegawai/{pegawai}/toggle-active', [PegawaiController::class, 'toggleActive'])->name('pegawai.toggleActive');
 
     Route::resource('instansi', InstansiController::class);
+
+    Route::resource('pic', PicController::class);
+    Route::post('pic/{pic}/toggle-active', [PicController::class, 'toggleActive'])->name('pic.toggleActive');
 });
 
 // Statistik Routes

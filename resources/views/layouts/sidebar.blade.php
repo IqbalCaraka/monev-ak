@@ -71,7 +71,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('pic.index') }}">
                             <i class="mdi mdi-account-tie"></i>
                             Kelola PIC
                         </a>
