@@ -156,33 +156,104 @@
     </div>
 </div>
 
-<!-- Top 5 Kategori Aktivitas -->
+<!-- Top 5 Kategori & Statistik PIC DMS -->
 <div class="row">
-    <div class="col-12 grid-margin stretch-card">
+    <!-- Top 5 Kategori Aktivitas (col-4) -->
+    <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title mb-4">Top 5 Kategori Aktivitas</h4>
-                <div class="row">
-                    @foreach($topKategori as $index => $kategori)
-                    <div class="col-md-2-4 mb-3">
-                        <div class="text-center">
-                            <div class="mb-2">
-                                <span class="badge badge-{{ ['primary', 'success', 'info', 'warning', 'danger'][$index] }} badge-pill px-3 py-2">
-                                    #{{ $index + 1 }}
-                                </span>
-                            </div>
-                            <h5 class="mb-1">{{ number_format($kategori->total) }}</h5>
-                            <p class="text-muted text-small mb-2">{{ $kategori->kategori_aktivitas }}</p>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][$index] }}"
-                                     role="progressbar"
-                                     style="width: {{ ($kategori->total / $topKategori->first()->total) * 100 }}%">
-                                </div>
-                            </div>
+                @foreach($topKategori as $index => $kategori)
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-{{ ['primary', 'success', 'info', 'warning', 'danger'][$index] }} me-2">
+                                #{{ $index + 1 }}
+                            </span>
+                            <small class="text-muted">{{ $kategori->kategori_aktivitas }}</small>
+                        </div>
+                        <strong>{{ number_format($kategori->total) }}</strong>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][$index] }}"
+                             role="progressbar"
+                             style="width: {{ ($kategori->total / $topKategori->first()->total) * 100 }}%">
                         </div>
                     </div>
-                    @endforeach
                 </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistik Performa PIC DMS (col-8) -->
+    <div class="col-md-8 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Statistik Performa PIC DMS</h4>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="40">No</th>
+                                <th>Ketua PIC DMS</th>
+                                <th class="text-center">Anggota</th>
+                                <th class="text-end">Total Aktivitas</th>
+                                <th class="text-end">Mapping</th>
+                                <th class="text-end">Inject</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($picStats as $index => $pic)
+                                <tr>
+                                    <td>{{ $picStats->firstItem() + $index }}</td>
+                                    <td>
+                                        <strong>{{ $pic->ketua_nama ?: 'Tidak ada ketua' }}</strong>
+                                        @if($pic->ketua_nip)
+                                            <br><small class="text-muted">NIP: {{ $pic->ketua_nip }}</small>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-info">{{ $pic->total_anggota }}</span>
+                                    </td>
+                                    <td class="text-end">{{ number_format($pic->total_aktivitas) }}</td>
+                                    <td class="text-end">{{ number_format($pic->total_mapping) }}</td>
+                                    <td class="text-end">{{ number_format($pic->total_inject) }}</td>
+                                    <td class="text-center">
+                                        <a href="{{ route('pic.show', $pic->pic_id) }}"
+                                           class="btn btn-sm btn-outline-info"
+                                           title="Lihat Detail">
+                                            <i class="ti-eye"></i> Detail
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-3">
+                                        Belum ada data PIC DMS aktif
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                @if($picStats->hasPages())
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        {{ $picStats->firstItem() }} - {{ $picStats->lastItem() }} dari {{ $picStats->total() }}
+                    </div>
+                    <div>
+                        {{ $picStats->appends([
+                            'search' => $search,
+                            'date_from' => $dateFrom,
+                            'date_to' => $dateTo
+                        ])->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -250,7 +321,7 @@
                         Menampilkan {{ $aktivitas->firstItem() }} - {{ $aktivitas->lastItem() }} dari {{ $aktivitas->total() }} data
                     </div>
                     <div>
-                        {{ $aktivitas->appends(['search' => $search])->links('pagination::bootstrap-5') }}
+                        {{ $aktivitas->appends(['search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo])->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
                 @endif
@@ -502,4 +573,72 @@
         </div>
     </div>
 </div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="display: none;">
+    <div class="loading-content">
+        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-light mt-3 mb-0">Memuat data...</p>
+    </div>
+</div>
+
+<style>
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .loading-content {
+        text-align: center;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filterForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    // Show loading when filter form is submitted
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            loadingOverlay.style.display = 'flex';
+        });
+    }
+
+    // Show loading when reset button is clicked
+    const resetButtons = document.querySelectorAll('a[href*="aktivitas-pegawai"]');
+    resetButtons.forEach(button => {
+        if (button.textContent.includes('Reset')) {
+            button.addEventListener('click', function(e) {
+                loadingOverlay.style.display = 'flex';
+            });
+        }
+    });
+
+    // Show loading when pagination is clicked
+    document.querySelectorAll('.pagination a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            loadingOverlay.style.display = 'flex';
+        });
+    });
+
+    // Hide loading when page is fully loaded (backup in case something goes wrong)
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            loadingOverlay.style.display = 'none';
+        }, 500);
+    });
+});
+</script>
+
 @endsection

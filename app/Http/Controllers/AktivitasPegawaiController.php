@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PegawaiAktivitasSummary;
 use App\Models\Pegawai;
+use App\Models\Pic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,6 +30,7 @@ class AktivitasPegawaiController extends Controller
             $stats = $this->getStatsFiltered($dateFrom, $dateTo);
             $mappingDokumen = $this->getMappingDokumenSummary($dateFrom, $dateTo, $search);
             $injectDokumen = $this->getInjectDokumenSummary($dateFrom, $dateTo, $search);
+            $picStats = $this->getPicStatsSummary($dateFrom, $dateTo);
         } else {
             // Default: pakai summary table (sangat cepat)
             $aktivitas = $this->getActivitiesFromSummary($search);
@@ -36,9 +38,10 @@ class AktivitasPegawaiController extends Controller
             $stats = $this->getStatsFromSummary();
             $mappingDokumen = $this->getMappingDokumenSummary(null, null, $search);
             $injectDokumen = $this->getInjectDokumenSummary(null, null, $search);
+            $picStats = $this->getPicStatsSummary(null, null);
         }
 
-        return view('statistik.aktivitas-pegawai', compact('aktivitas', 'topKategori', 'stats', 'search', 'dateFrom', 'dateTo', 'mappingDokumen', 'injectDokumen'));
+        return view('statistik.aktivitas-pegawai', compact('aktivitas', 'topKategori', 'stats', 'search', 'dateFrom', 'dateTo', 'mappingDokumen', 'injectDokumen', 'picStats'));
     }
 
     /**
@@ -679,5 +682,42 @@ class AktivitasPegawaiController extends Controller
         return $query->groupBy('la.created_by_nip', 'p.nama', 'la.created_by_nama')
                      ->orderByDesc('total_per_dokumen')
                      ->paginate(20, ['*'], 'inject_page'); // Custom page parameter
+    }
+
+    /**
+     * Get PIC DMS Statistics Summary
+     */
+    private function getPicStatsSummary($dateFrom = null, $dateTo = null)
+    {
+        $query = DB::table('pic_dms as pd')
+            ->leftJoin('pegawai as ketua', 'pd.ketua_nip', '=', 'ketua.nip')
+            ->leftJoin('pic_dms_pegawai as pdp', 'pd.id', '=', 'pdp.pic_dms_id')
+            ->leftJoin('log_aktivitas as la', function($join) use ($dateFrom, $dateTo) {
+                $join->on('pdp.pegawai_nip', '=', 'la.created_by_nip');
+
+                if ($dateFrom) {
+                    $join->where('la.created_at_log', '>=', $dateFrom);
+                }
+                if ($dateTo) {
+                    $join->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+                }
+            })
+            ->select(
+                'pd.id as pic_id',
+                'ketua.nama as ketua_nama',
+                'ketua.nip as ketua_nip',
+                'pd.is_active',
+                DB::raw('COUNT(DISTINCT pdp.pegawai_nip) as total_anggota'),
+                DB::raw('COUNT(la.id) as total_aktivitas'),
+                DB::raw('COUNT(CASE WHEN la.event_name NOT LIKE "%inject%" AND la.event_name NOT LIKE "%Inject%" THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.event_name LIKE "%inject%" OR la.event_name LIKE "%Inject%" THEN 1 END) as total_inject'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
+            )
+            ->where('pd.is_active', true)
+            ->groupBy('pd.id', 'ketua.nama', 'ketua.nip', 'pd.is_active')
+            ->orderByDesc('total_aktivitas')
+            ->paginate(10, ['*'], 'pic_page');
+
+        return $query;
     }
 }
