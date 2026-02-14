@@ -4,7 +4,9 @@
       "Bash(git init:*)",
       "Bash(php artisan:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nAdd Kelola Pengguna feature\n\n- Create migration for roles and pegawai tables\n- Create Role and Pegawai models with relationships\n- Create PegawaiController with CRUD and toggle active\n- Add routes for pegawai management\n- Create views for list and edit pegawai\n- Add toggle active/inactive functionality via AJAX\n- Fix seeder to not auto-generate email and password\n- Update sidebar menu with Kelola Pengguna link\n- Add pagination styling for better UI\n- Add CSRF token meta tag for AJAX requests\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd Kelola Pengguna feature\n\n- Create migration for roles and pegawai tables\n- Create Role and Pegawai models with relationships\n- Create PegawaiController with CRUD and toggle active\n- Add routes for pegawai management\n- Create views for list and edit pegawai\n- Add toggle active/inactive functionality via AJAX\n- Fix seeder to not auto-generate email and password\n- Update sidebar menu with Kelola Pengguna link\n- Add pagination styling for better UI\n- Add CSRF token meta tag for AJAX requests\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(rm:*)",
+      "Bash(start http://127.0.0.1:8000/statistik/staging)"
     ],
     "deny": [],
     "ask": []

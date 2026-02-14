@@ -162,7 +162,7 @@ class AktivitasPegawaiController extends Controller
                 ->distinct('kategori_aktivitas')
                 ->count('kategori_aktivitas'),
             'total_inject' => DB::table('pegawai_aktivitas_summary')
-                ->where('kategori_aktivitas', 'LIKE', 'Inject%')
+                ->where('kategori_aktivitas', 'Inject - Unggah Dokumen')
                 ->sum('total_aktivitas'),
             'pegawai_belum_terdata' => DB::table('log_aktivitas_staging')
                 ->distinct('created_by_nip')
@@ -201,7 +201,8 @@ class AktivitasPegawaiController extends Controller
             ->get()
             ->count();
 
-        // Count inject activities
+        // Count inject activities (ONLY Inject - Unggah Dokumen)
+        // NOTE: Inject - Mapping Dokumen EXCLUDED
         $totalInject = DB::table('log_aktivitas')
             ->whereNotNull('created_by_nip')
             ->where(function($q) use ($dateFrom, $dateTo) {
@@ -212,17 +213,8 @@ class AktivitasPegawaiController extends Controller
                     $q->where('created_at_log', '<=', $dateTo . ' 23:59:59');
                 }
             })
-            ->where(function($q) {
-                $q->where(function($sub) {
-                    // Inject - Unggah Dokumen
-                    $sub->where('event_name', 'unggah_dokumen')
-                        ->where('details', '!=', 'unggah_dokumen');
-                })->orWhere(function($sub) {
-                    // Inject - Mapping Dokumen
-                    $sub->where('event_name', 'mapping_dokumen')
-                        ->where('details', 'LIKE', '%inject%');
-                });
-            })
+            ->where('event_name', 'unggah_dokumen')
+            ->where('details', '!=', 'unggah_dokumen')
             ->count();
 
         return [
@@ -240,6 +232,7 @@ class AktivitasPegawaiController extends Controller
 
     /**
      * Helper: Get CASE WHEN for category classification
+     * NOTE: Inject - Mapping Dokumen EXCLUDED from counting
      */
     private function getCategoryCase(): string
     {
@@ -247,8 +240,6 @@ class AktivitasPegawaiController extends Controller
             CASE
                 WHEN event_name = 'unggah_dokumen' AND details != 'unggah_dokumen'
                     THEN 'Inject - Unggah Dokumen'
-                WHEN event_name = 'mapping_dokumen' AND details LIKE '%inject%'
-                    THEN 'Inject - Mapping Dokumen'
                 WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
                     THEN 'Unggah Dokumen'
                 WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' OR details IS NULL)
@@ -375,10 +366,6 @@ class AktivitasPegawaiController extends Controller
             // Inject - Unggah Dokumen: unggah_dokumen dengan details != "unggah_dokumen"
             $query->where('event_name', 'unggah_dokumen')
                   ->where('details', '!=', 'unggah_dokumen');
-        } elseif ($kategori === 'Inject - Mapping Dokumen') {
-            // Inject - Mapping Dokumen: mapping_dokumen dengan details mengandung "inject"
-            $query->where('event_name', 'mapping_dokumen')
-                  ->where('details', 'LIKE', '%inject%');
         } elseif ($kategori === 'Unggah Dokumen') {
             // Unggah Dokumen (normal): unggah_dokumen dengan details = "unggah_dokumen"
             $query->where('event_name', 'unggah_dokumen')
@@ -433,12 +420,19 @@ class AktivitasPegawaiController extends Controller
         try {
             $file = $request->file('csv_file');
             $filename = 'log_activity_' . time() . '.csv';
-            $path = $file->storeAs('imports', $filename);
+
+            // Pastikan folder imports ada
+            $importPath = storage_path('app/imports');
+            if (!file_exists($importPath)) {
+                mkdir($importPath, 0775, true);
+            }
+
+            // Simpan file langsung ke storage/app/imports
+            $file->move($importPath, $filename);
+            $csvFile = $importPath . '/' . $filename;
 
             // Get all valid NIPs from pegawai table
             $validNips = DB::table('pegawai')->pluck('nip')->toArray();
-
-            $csvFile = storage_path('app/' . $path);
             $handle = fopen($csvFile, 'r');
             $header = true;
 
@@ -462,6 +456,21 @@ class AktivitasPegawaiController extends Controller
                 $nip = !empty($data[6]) ? trim($data[6]) : null;
                 if (empty($nip)) continue;
 
+                // Calculate day_name and work_category from created_at
+                $dayName = null;
+                $workCategory = null;
+                if (!empty($data[7])) {
+                    try {
+                        $createdAt = \Carbon\Carbon::parse(trim($data[7]));
+                        $dayName = $this->getDayNameFromDate($createdAt);
+                        $workCategory = $this->getWorkCategoryFromDay($dayName);
+                    } catch (\Exception $e) {
+                        // If parsing fails, use current date
+                        $dayName = $this->getDayNameFromDate(now());
+                        $workCategory = $this->getWorkCategoryFromDay($dayName);
+                    }
+                }
+
                 $record = [
                     'id' => $id,
                     'transaction_id' => !empty($data[1]) ? trim($data[1]) : null,
@@ -474,6 +483,8 @@ class AktivitasPegawaiController extends Controller
                     'object_pns_id' => !empty($data[8]) ? trim($data[8]) : null,
                     'created_at' => now(),
                     'updated_at' => now(),
+                    'day_name' => $dayName,
+                    'work_category' => $workCategory,
                 ];
 
                 if (in_array($nip, $validNips)) {
@@ -508,14 +519,60 @@ class AktivitasPegawaiController extends Controller
 
             fclose($handle);
 
-            // Regenerate summary for affected NIPs
-            $affectedNips = collect($batchMain)->pluck('created_by_nip')->unique();
-            foreach ($affectedNips as $nip) {
-                $this->regenerateSummaryForNip($nip);
+            // Regenerate summary for ALL affected NIPs (lebih efisien dengan query langsung)
+            if ($countMain > 0) {
+                // Hapus summary lama untuk NIP yang terpengaruh
+                $affectedNips = DB::table('log_aktivitas')
+                    ->select('created_by_nip')
+                    ->whereIn('id', collect($batchMain)->pluck('id'))
+                    ->distinct()
+                    ->pluck('created_by_nip');
+
+                DB::table('pegawai_aktivitas_summary')
+                    ->whereIn('nip', $affectedNips)
+                    ->delete();
+
+                // Regenerate summary untuk SEMUA NIP yang terpengaruh sekaligus
+                // NOTE: Inject - Mapping Dokumen EXCLUDED from counting
+                $sql = "
+                    INSERT INTO pegawai_aktivitas_summary (nip, kategori_aktivitas, total_aktivitas, last_activity_at, created_at, updated_at)
+                    SELECT
+                        created_by_nip,
+                        CASE
+                            WHEN event_name = 'unggah_dokumen' AND details != 'unggah_dokumen'
+                                THEN 'Inject - Unggah Dokumen'
+                            WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
+                                THEN 'Unggah Dokumen'
+                            WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' OR details IS NULL)
+                                THEN 'Mapping Dokumen'
+                            WHEN event_name = 'lock_arsip'
+                                THEN 'Lock Arsip'
+                            WHEN event_name = 'baca_arsip'
+                                THEN 'Baca Arsip'
+                            WHEN event_name = 'menambahkan_user'
+                                THEN 'Menambahkan User'
+                            WHEN event_name = 'menghapus_user'
+                                THEN 'Menghapus User'
+                            WHEN event_name = 'Laporan-Kekurangan-Riwayat'
+                                THEN 'Laporan Kekurangan Riwayat'
+                            ELSE CONCAT(UPPER(SUBSTRING(REPLACE(event_name, '_', ' '), 1, 1)),
+                                       LOWER(SUBSTRING(REPLACE(event_name, '_', ' '), 2)))
+                        END AS kategori_aktivitas,
+                        COUNT(*) as total_aktivitas,
+                        MAX(created_at_log) as last_activity_at,
+                        NOW() as created_at,
+                        NOW() as updated_at
+                    FROM log_aktivitas
+                    WHERE created_by_nip IN (" . implode(',', array_fill(0, count($affectedNips), '?')) . ")
+                        AND NOT (event_name = 'mapping_dokumen' AND details LIKE '%inject%')
+                    GROUP BY created_by_nip, kategori_aktivitas
+                ";
+
+                DB::statement($sql, $affectedNips->toArray());
             }
 
             return redirect()->route('aktivitas-pegawai.index')
-                ->with('success', "Upload berhasil! {$countMain} logs ditambahkan ke aktivitas, {$countStaging} logs masuk ke staging (pegawai belum terdata).");
+                ->with('success', "Upload berhasil! {$countMain} logs ditambahkan ke aktivitas, {$countStaging} logs masuk ke staging (pegawai belum terdata). Summary table telah di-update.");
 
         } catch (\Exception $e) {
             return redirect()->route('aktivitas-pegawai.index')
@@ -550,6 +607,7 @@ class AktivitasPegawaiController extends Controller
 
     /**
      * Helper: Regenerate summary for specific NIP
+     * NOTE: Inject - Mapping Dokumen EXCLUDED from counting
      */
     private function regenerateSummaryForNip(string $nip): void
     {
@@ -562,8 +620,6 @@ class AktivitasPegawaiController extends Controller
                 CASE
                     WHEN event_name = 'unggah_dokumen' AND details != 'unggah_dokumen'
                         THEN 'Inject - Unggah Dokumen'
-                    WHEN event_name = 'mapping_dokumen' AND details LIKE '%inject%'
-                        THEN 'Inject - Mapping Dokumen'
                     WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
                         THEN 'Unggah Dokumen'
                     WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' OR details IS NULL)
@@ -587,6 +643,7 @@ class AktivitasPegawaiController extends Controller
                 NOW() as updated_at
             FROM log_aktivitas
             WHERE created_by_nip = ?
+                AND NOT (event_name = 'mapping_dokumen' AND details LIKE '%inject%')
             GROUP BY created_by_nip, kategori_aktivitas
         ";
 
@@ -719,5 +776,385 @@ class AktivitasPegawaiController extends Controller
             ->paginate(10, ['*'], 'pic_page');
 
         return $query;
+    }
+
+    /**
+     * Export PDF report with work type categorization
+     */
+    public function exportPdf(Request $request)
+    {
+        $search = $request->get('search');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        // Get activities data
+        if ($dateFrom || $dateTo) {
+            $aktivitas = $this->getFilteredActivities($search, $dateFrom, $dateTo);
+            $topKategori = $this->getTopKategoriFiltered($dateFrom, $dateTo);
+            $stats = $this->getStatsFiltered($dateFrom, $dateTo);
+        } else {
+            $aktivitas = $this->getActivitiesFromSummary($search);
+            $topKategori = $this->getTopKategoriFromSummary();
+            $stats = $this->getStatsFromSummary();
+        }
+
+        // Add avg_aktivitas calculation
+        $stats['avg_aktivitas'] = $stats['total_pegawai'] > 0
+            ? round($stats['total_aktivitas'] / $stats['total_pegawai'], 1)
+            : 0;
+
+        // Calculate percentage for each category
+        $totalKategoriCount = $topKategori->sum('total');
+        foreach ($topKategori as $kategori) {
+            $kategori->percentage = $totalKategoriCount > 0
+                ? round(($kategori->total / $totalKategoriCount) * 100, 2)
+                : 0;
+        }
+
+        // Get daily activities breakdown with work type categorization
+        $dailyActivities = $this->getDailyActivitiesWithWorkType($dateFrom, $dateTo);
+
+        // Prepare date range text
+        $periodText = 'Semua Periode';
+        if ($dateFrom && $dateTo) {
+            $periodText = date('d M Y', strtotime($dateFrom)) . ' - ' . date('d M Y', strtotime($dateTo));
+        } elseif ($dateFrom) {
+            $periodText = 'Dari ' . date('d M Y', strtotime($dateFrom));
+        } elseif ($dateTo) {
+            $periodText = 'Sampai ' . date('d M Y', strtotime($dateTo));
+        }
+
+        // Load PDF
+        $pdf = \PDF::loadView('statistik.aktivitas-pegawai-pdf', compact(
+            'aktivitas',
+            'topKategori',
+            'stats',
+            'dailyActivities',
+            'periodText',
+            'dateFrom',
+            'dateTo',
+            'search'
+        ));
+
+        // Download PDF
+        $filename = 'Laporan_Aktivitas_Pegawai_' . date('Y-m-d_His') . '.pdf';
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Export PDF report for PIC DMS with work type breakdown per PIC
+     */
+    public function exportPicPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        // Get PIC Stats (all data, not paginated)
+        $picStats = $this->getPicStatsForPdf($dateFrom, $dateTo);
+
+        // Get work category breakdown for each PIC (Mapping vs Inject only)
+        $picWorkBreakdown = [];
+        $picMembers = [];
+        foreach ($picStats as $pic) {
+            $picWorkBreakdown[$pic->pic_id] = $this->getPicWorkCategoryBreakdownMappingInject($pic->pic_id, $dateFrom, $dateTo);
+            $picMembers[$pic->pic_id] = $this->getPicMembers($pic->pic_id, $dateFrom, $dateTo);
+        }
+
+        // Prepare date range text
+        $periodText = 'Semua Periode';
+        if ($dateFrom && $dateTo) {
+            $periodText = date('d M Y', strtotime($dateFrom)) . ' - ' . date('d M Y', strtotime($dateTo));
+        } elseif ($dateFrom) {
+            $periodText = 'Dari ' . date('d M Y', strtotime($dateFrom));
+        } elseif ($dateTo) {
+            $periodText = 'Sampai ' . date('d M Y', strtotime($dateTo));
+        }
+
+        // Load PDF
+        $pdf = \PDF::loadView('statistik.pic-dms-pdf', compact(
+            'picStats',
+            'picWorkBreakdown',
+            'picMembers',
+            'periodText',
+            'dateFrom',
+            'dateTo'
+        ));
+
+        // Portrait orientation (default A4)
+        $pdf->setPaper('a4');
+
+        // Download PDF
+        $filename = 'Laporan_PIC_DMS_' . date('Y-m-d_His') . '.pdf';
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Get PIC stats without pagination for PDF export
+     */
+    private function getPicStatsForPdf($dateFrom = null, $dateTo = null)
+    {
+        // Note: "mapping" is in event_name, "inject" is in details column (e.g., "via Inject")
+        $query = DB::table('pic_dms as pd')
+            ->leftJoin('pegawai as ketua', 'pd.ketua_nip', '=', 'ketua.nip')
+            ->leftJoin('pic_dms_pegawai as pdp', 'pd.id', '=', 'pdp.pic_dms_id')
+            ->leftJoin('log_aktivitas as la', function($join) use ($dateFrom, $dateTo) {
+                $join->on('pdp.pegawai_nip', '=', 'la.created_by_nip');
+
+                if ($dateFrom) {
+                    $join->where('la.created_at_log', '>=', $dateFrom);
+                }
+                if ($dateTo) {
+                    $join->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+                }
+            })
+            ->select(
+                'pd.id as pic_id',
+                'ketua.nama as ketua_nama',
+                'ketua.nip as ketua_nip',
+                'pd.is_active',
+                DB::raw('COUNT(DISTINCT pdp.pegawai_nip) as total_anggota'),
+                DB::raw('COUNT(la.id) as total_aktivitas'),
+                DB::raw('COUNT(CASE WHEN la.event_name LIKE "%mapping%" THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 END) as total_inject'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
+            )
+            ->where('pd.is_active', true)
+            ->groupBy('pd.id', 'ketua.nama', 'ketua.nip', 'pd.is_active')
+            ->orderByDesc('total_aktivitas')
+            ->get();
+
+        return $query;
+    }
+
+    /**
+     * Get work category breakdown (WFA/WFO/Libur) for specific PIC
+     */
+    private function getPicWorkCategoryBreakdown($picId, $dateFrom = null, $dateTo = null)
+    {
+        $query = DB::table('pic_dms_pegawai as pdp')
+            ->join('log_aktivitas as la', 'pdp.pegawai_nip', '=', 'la.created_by_nip')
+            ->where('pdp.pic_dms_id', $picId)
+            ->whereNotNull('la.work_category')
+            ->select(
+                'la.work_category',
+                'la.day_name',
+                DB::raw('COUNT(*) as total')
+            );
+
+        // Apply date filters
+        if ($dateFrom) {
+            $query->where('la.created_at_log', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        $data = $query->groupBy('la.work_category', 'la.day_name')->get();
+
+        // Initialize structure
+        $breakdown = [
+            'WFA' => ['Senin' => 0, 'Rabu' => 0],
+            'WFO' => ['Selasa' => 0, 'Kamis' => 0, 'Jumat' => 0],
+            'Libur' => ['Sabtu' => 0, 'Minggu' => 0]
+        ];
+
+        // Fill data
+        foreach ($data as $item) {
+            if (isset($breakdown[$item->work_category][$item->day_name])) {
+                $breakdown[$item->work_category][$item->day_name] = $item->total;
+            }
+        }
+
+        return $breakdown;
+    }
+
+    /**
+     * Get work category breakdown with Mapping vs Inject breakdown
+     * Only count Mapping and Inject activities
+     */
+    private function getPicWorkCategoryBreakdownMappingInject($picId, $dateFrom = null, $dateTo = null)
+    {
+        // Note: "mapping" is in event_name, "inject" is in details column (e.g., "via Inject")
+        $query = DB::table('pic_dms_pegawai as pdp')
+            ->join('log_aktivitas as la', 'pdp.pegawai_nip', '=', 'la.created_by_nip')
+            ->where('pdp.pic_dms_id', $picId)
+            ->whereNotNull('la.work_category')
+            ->whereNotNull('la.event_name')
+            ->select(
+                'la.work_category',
+                'la.day_name',
+                DB::raw('SUM(CASE WHEN la.event_name LIKE "%mapping%" THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
+            );
+
+        // Apply date filters
+        if ($dateFrom) {
+            $query->where('la.created_at_log', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        $data = $query->groupBy('la.work_category', 'la.day_name')->get();
+
+        // Initialize structure
+        $breakdown = [
+            'WFA' => [
+                'Senin' => ['mapping' => 0, 'inject' => 0],
+                'Rabu' => ['mapping' => 0, 'inject' => 0]
+            ],
+            'WFO' => [
+                'Selasa' => ['mapping' => 0, 'inject' => 0],
+                'Kamis' => ['mapping' => 0, 'inject' => 0],
+                'Jumat' => ['mapping' => 0, 'inject' => 0]
+            ],
+            'Libur' => [
+                'Sabtu' => ['mapping' => 0, 'inject' => 0],
+                'Minggu' => ['mapping' => 0, 'inject' => 0]
+            ]
+        ];
+
+        // Fill data
+        foreach ($data as $item) {
+            if (isset($breakdown[$item->work_category][$item->day_name])) {
+                $breakdown[$item->work_category][$item->day_name]['mapping'] = $item->mapping_count;
+                $breakdown[$item->work_category][$item->day_name]['inject'] = $item->inject_count;
+            }
+        }
+
+        return $breakdown;
+    }
+
+    /**
+     * Get PIC members with their activity stats
+     */
+    private function getPicMembers($picId, $dateFrom = null, $dateTo = null)
+    {
+        // Note: "mapping" is in event_name, "inject" is in details column (e.g., "via Inject")
+        $query = DB::table('pic_dms_pegawai as pdp')
+            ->join('pegawai as p', 'pdp.pegawai_nip', '=', 'p.nip')
+            ->leftJoin('log_aktivitas as la', function($join) use ($dateFrom, $dateTo) {
+                $join->on('pdp.pegawai_nip', '=', 'la.created_by_nip');
+
+                if ($dateFrom) {
+                    $join->where('la.created_at_log', '>=', $dateFrom);
+                }
+                if ($dateTo) {
+                    $join->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+                }
+            })
+            ->where('pdp.pic_dms_id', $picId)
+            ->select(
+                'p.nip',
+                'p.nama',
+                DB::raw('COUNT(la.id) as total_aktivitas'),
+                DB::raw('SUM(CASE WHEN la.event_name LIKE "%mapping%" THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
+            )
+            ->groupBy('p.nip', 'p.nama')
+            ->orderByDesc('total_aktivitas')
+            ->get();
+
+        return $query;
+    }
+
+    /**
+     * Get daily activities breakdown categorized by work type with Mapping vs Inject
+     * OPTIMIZED: Uses indexed columns day_name and work_category for fast querying
+     * WFA: Senin, Rabu
+     * WFO: Selasa, Kamis, Jumat
+     * Libur: Sabtu, Minggu
+     */
+    private function getDailyActivitiesWithWorkType($dateFrom = null, $dateTo = null)
+    {
+        // Query with Mapping vs Inject breakdown
+        // Note: "mapping" is in event_name, "inject" is in details column (e.g., "via Inject")
+        $query = DB::table('log_aktivitas')
+            ->select(
+                'day_name',
+                'work_category',
+                DB::raw('SUM(CASE WHEN event_name LIKE "%mapping%" THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN details LIKE "%inject%" OR details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
+            )
+            ->whereNotNull('day_name')
+            ->whereNotNull('work_category');
+
+        // Apply date filters
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        $dailyData = $query->groupBy('day_name', 'work_category')->get();
+
+        // Initialize categorized structure with Mapping vs Inject
+        $categorized = [
+            'WFA' => [
+                'Senin' => ['mapping' => 0, 'inject' => 0],
+                'Rabu' => ['mapping' => 0, 'inject' => 0]
+            ],
+            'WFO' => [
+                'Selasa' => ['mapping' => 0, 'inject' => 0],
+                'Kamis' => ['mapping' => 0, 'inject' => 0],
+                'Jumat' => ['mapping' => 0, 'inject' => 0]
+            ],
+            'Libur' => [
+                'Sabtu' => ['mapping' => 0, 'inject' => 0],
+                'Minggu' => ['mapping' => 0, 'inject' => 0]
+            ]
+        ];
+
+        // Fill in the data
+        foreach ($dailyData as $data) {
+            if (isset($categorized[$data->work_category][$data->day_name])) {
+                $categorized[$data->work_category][$data->day_name]['mapping'] = $data->mapping_count;
+                $categorized[$data->work_category][$data->day_name]['inject'] = $data->inject_count;
+            }
+        }
+
+        return $categorized;
+    }
+
+    /**
+     * Get day name in Indonesian from Carbon date
+     */
+    private function getDayNameFromDate($date): string
+    {
+        $days = [
+            0 => 'Minggu',
+            1 => 'Senin',
+            2 => 'Selasa',
+            3 => 'Rabu',
+            4 => 'Kamis',
+            5 => 'Jumat',
+            6 => 'Sabtu'
+        ];
+
+        return $days[$date->dayOfWeek] ?? 'Unknown';
+    }
+
+    /**
+     * Get work category based on day name
+     * WFA: Senin, Rabu
+     * WFO: Selasa, Kamis, Jumat
+     * Libur: Sabtu, Minggu
+     */
+    private function getWorkCategoryFromDay(string $dayName): string
+    {
+        $wfa = ['Senin', 'Rabu'];
+        $wfo = ['Selasa', 'Kamis', 'Jumat'];
+        $libur = ['Sabtu', 'Minggu'];
+
+        if (in_array($dayName, $wfa)) {
+            return 'WFA';
+        } elseif (in_array($dayName, $wfo)) {
+            return 'WFO';
+        } elseif (in_array($dayName, $libur)) {
+            return 'Libur';
+        }
+
+        return 'Unknown';
     }
 }

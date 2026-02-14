@@ -19,6 +19,64 @@ class PegawaiController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create(Request $request)
+    {
+        $roles = Role::all();
+        // Ambil parameter dari query string jika ada (dari staging)
+        $defaultNip = $request->query('nip');
+        $defaultNama = $request->query('nama');
+
+        return view('pengaturan.pegawai.create', compact('roles', 'defaultNip', 'defaultNama'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'nip' => 'required|string|max:18|unique:pegawai,nip',
+            'jabatan' => 'required|string|max:255',
+            'golongan' => 'required|string|max:10',
+            'email' => 'nullable|email|unique:pegawai,email',
+            'role_id' => 'nullable|exists:roles,id',
+            'photo' => 'nullable|image|max:2048',
+            'password' => 'nullable|min:6',
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/photos'), $filename);
+            $validated['photo'] = $filename;
+        }
+
+        // Hash password jika diisi
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']); // Jangan set password jika kosong
+        }
+
+        // Set default is_active
+        $validated['is_active'] = true;
+
+        $pegawai = Pegawai::create($validated);
+
+        // Jika ada parameter from_staging, redirect ke staging untuk proses logs
+        if ($request->has('from_staging')) {
+            return redirect()->route('staging.show', $pegawai->nip)
+                ->with('success', 'Pegawai berhasil ditambahkan! Silakan proses logs ke aktivitas.');
+        }
+
+        return redirect()->route('pegawai.index')
+            ->with('success', 'Pegawai berhasil ditambahkan');
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Pegawai $pegawai)

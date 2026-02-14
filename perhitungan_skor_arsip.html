@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perhitungan Skor Arsip ASN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+        }
+        .content {
+            padding: 40px;
+        }
+        .upload-section {
+            background: #f8f9fa;
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-section input[type="file"] {
+            display: none;
+        }
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .upload-btn:hover {
+            transform: scale(1.05);
+        }
+        .formula-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .formula-box h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .formula-section {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .formula-section h3 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        .formula-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .formula-section li {
+            padding: 5px 0;
+            padding-left: 20px;
+        }
+        .formula-section li:before {
+            content: "→ ";
+            font-weight: bold;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .table-container {
+            margin-top: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading.active {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .results {
+            display: none;
+        }
+        .results.active {
+            display: block;
+        }
+        .detail-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .detail-btn:hover {
+            background: #5568d3;
+        }
+        .scrollable {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .scrollable::-webkit-scrollbar {
+            width: 10px;
+        }
+        .scrollable::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .scrollable::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 1100px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .modal-header h2 {
+            color: #667eea;
+        }
+        .close-btn {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .close-btn:hover {
+            background: #e04556;
+        }
+        .detail-section {
+            margin-bottom: 25px;
+        }
+        .detail-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .detail-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .detail-item .label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .detail-item .value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+        .breakdown-table {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .breakdown-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .breakdown-table td:first-child {
+            font-weight: 500;
+        }
+        .check-icon {
+            color: #51cf66;
+            font-weight: bold;
+        }
+        .cross-icon {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .score-table th {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.85em;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .score-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+        .score-table tr:last-child td {
+            border-bottom: none;
+        }
+        .score-table .total-row {
+            background: #f0f4ff;
+            font-weight: bold;
+        }
+        .score-card-mini {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .score-card-mini .label {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .score-card-mini .value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        .kondisional-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        .kondisional-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        .item-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .item-badge {
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-badge.complete {
+            background: #d4edda;
+            color: #155724;
+        }
+        .item-badge.incomplete {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 Perhitungan Skor Arsip ASN</h1>
+        </div>
+
+        <div class="content">
+            <!-- Formula Explanation -->
+            <div class="formula-box">
+                <h2>📋 Ketentuan Perhitungan Skor</h2>
+
+                <div class="formula-section">
+                    <h3>1. ARSIP UTAMA (Maksimal 90 Poin)</h3>
+                    <ul>
+                        <li><strong>DRH:</strong> 7.5 poin (fixed)</li>
+                        <li><strong>D2NIP:</strong> 7.5 poin (jika ada dokumen)</li>
+                        <li><strong>SK CPNS:</strong> 7.5 poin (jika ada dokumen CPNS ATAU SPMT CPNS)</li>
+                        <li><strong>SK PNS:</strong> 7.5 poin (jika ada dokumen) - <em>Untuk CPNS tetap dihitung 7.5 meski file PNS = 0</em></li>
+                        <li><strong>Pendidikan:</strong> 15 poin × (Jumlah Dokumen Lengkap / Total Riwayat)</li>
+                        <li><strong>Golongan:</strong> 15 poin × (Jumlah Dokumen Lengkap / Total Riwayat)</li>
+                        <li><strong>Jabatan:</strong> 15 poin × (Jumlah Dokumen Lengkap / Total Riwayat)</li>
+                        <li><strong>Diklat:</strong> 15 poin × (Jumlah Dokumen Lengkap / Total Riwayat)</li>
+                    </ul>
+                    <p style="margin-top: 10px; font-style: italic;">
+                        * Jika Total Riwayat = 0 (tidak punya riwayat), maka skor = maksimal (15 poin)
+                    </p>
+                </div>
+
+                <div class="formula-section">
+                    <h3>2. ARSIP KONDISIONAL (Maksimal 10 Poin)</h3>
+                    <p style="margin-bottom: 15px;">6 Jenis Dokumen Kondisional:</p>
+                    <ul>
+                        <li><strong>Angka Kredit:</strong> angka_kredit</li>
+                        <li><strong>Pindah Instansi:</strong> pindah_instansi</li>
+                        <li><strong>PMK:</strong> pmk (Peninjauan Masa Kerja)</li>
+                        <li><strong>Penghargaan:</strong> penghargaan</li>
+                        <li><strong>CLTN:</strong> cltn (Cuti Luar Tanggungan Negara)</li>
+                        <li><strong>SKP/Kinerja:</strong> skp22</li>
+                    </ul>
+                    <p style="margin-top: 15px; background: rgba(255,255,255,0.3); padding: 15px; border-radius: 8px;">
+                        <strong>Formula:</strong><br>
+                        Skor Kondisional = 10 × (Total Dokumen Lengkap / Total Riwayat Kondisional)<br><br>
+                        <strong>⚠️ BONUS:</strong> Jika TIDAK memiliki riwayat kondisional sama sekali → Skor Utama + <strong>10 poin</strong>
+                    </p>
+                </div>
+
+                <div class="formula-section">
+                    <h3>3. SKOR FINAL</h3>
+                    <p style="font-size: 1.2em; font-weight: bold;">
+                        Skor Final = Skor Arsip Utama + Skor Arsip Kondisional (atau +10 jika tidak punya kondisional)
+                    </p>
+                    <p style="margin-top: 10px;">
+                        Maksimal: 90 + 10 = <strong>100 poin</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h2 style="margin-bottom: 20px; color: #333;">📁 Upload File CSV</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    File CSV harus mengandung kolom: nip, nama, status_cpns_pns, status_arsip, skor_arsip_2026
+                </p>
+                <input type="file" id="csvFile" accept=".csv" />
+                <label for="csvFile">
+                    <button class="upload-btn" onclick="document.getElementById('csvFile').click()">
+                        Pilih File CSV
+                    </button>
+                </label>
+                <p id="fileName" style="margin-top: 15px; color: #667eea; font-weight: bold;"></p>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 20px; color: #667eea; font-size: 1.1em;" id="loadingText">Memproses data...</p>
+                <div style="margin-top: 15px; width: 100%; max-width: 400px; background: #f0f0f0; border-radius: 10px; height: 20px; overflow: hidden; margin-left: auto; margin-right: auto;">
+                    <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); transition: width 0.3s;"></div>
+                </div>
+                <p id="progressText" style="margin-top: 10px; color: #667eea; font-size: 0.9em;">0%</p>
+            </div>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <!-- Stats Cards -->
+                <div class="stats-grid" id="statsGrid"></div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <div class="scrollable">
+                        <table id="resultTable">
+                            <thead>
+                                <tr>
+                                    <th width="4%">No</th>
+                                    <th width="12%">NIP</th>
+                                    <th width="18%">Nama</th>
+                                    <th width="6%">Status</th>
+                                    <th width="9%">Skor Utama</th>
+                                    <th width="9%">Skor Kond.</th>
+                                    <th width="9%">Skor Final (Hitung)</th>
+                                    <th width="9%">Skor CSV</th>
+                                    <th width="7%">Selisih</th>
+                                    <th width="10%">Kategori</th>
+                                    <th width="7%">Detail</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Detail Perhitungan Skor</h2>
+                <button class="close-btn" onclick="closeModal()">✕ Tutup</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let allResults = [];
+
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('fileName').textContent = `File: ${file.name}`;
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const csvData = event.target.result;
+                processCSV(csvData);
+            };
+            reader.readAsText(file);
+        });
+
+        function processCSV(csvData) {
+            const lines = csvData.split('\n');
+
+            // Auto-detect delimiter (comma or semicolon)
+            const firstLine = lines[0];
+            const commaCount = (firstLine.match(/,/g) || []).length;
+            const semicolonCount = (firstLine.match(/;/g) || []).length;
+            const delimiter = commaCount > semicolonCount ? ',' : ';';
+
+            console.log(`Detected delimiter: "${delimiter}" (commas: ${commaCount}, semicolons: ${semicolonCount})`);
+
+            const headers = lines[0].split(delimiter).map(h => h.trim().replace(/"/g, ''));
+
+            function findColumnIndex(possibleNames, defaultIndex = -1) {
+                for (let name of possibleNames) {
+                    const idx = headers.findIndex(h =>
+                        h.toLowerCase() === name.toLowerCase() ||
+                        h.toLowerCase().includes(name.toLowerCase())
+                    );
+                    if (idx !== -1) return idx;
+                }
+                return defaultIndex;
+            }
+
+            let nipIdx = findColumnIndex(['nip'], 1);
+            let namaIdx = findColumnIndex(['nama', 'name'], 2);
+            let statusIdx = findColumnIndex(['status_cpns_pns', 'status'], 3);
+            let statusArsipIdx = findColumnIndex(['status_arsip'], 10);
+            let skorCSVIdx = findColumnIndex(['skor_arsip_2026', 'skor_2026', 'skor_csv'], 62);
+
+            console.log('Column indices:', {
+                nip: nipIdx, nama: namaIdx, status: statusIdx,
+                status_arsip: statusArsipIdx, skor_csv: skorCSVIdx
+            });
+
+            if (nipIdx === -1 || namaIdx === -1 || statusIdx === -1 || statusArsipIdx === -1) {
+                nipIdx = 1; namaIdx = 2; statusIdx = 3;
+                statusArsipIdx = 10; skorCSVIdx = 62;
+            }
+
+            allResults = [];
+            let processedCount = 0;
+
+            // Function to parse CSV line with dynamic delimiter
+            function parseCSVLine(line, delim) {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    const nextChar = line[i + 1];
+
+                    if (char === '"') {
+                        if (inQuotes && nextChar === '"') {
+                            current += '"';
+                            i++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === delim && !inQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result.map(val => val.replace(/^"|"$/g, ''));
+            }
+
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+
+                const cols = parseCSVLine(lines[i], delimiter);
+                if (cols.length < 11) continue;
+
+                const nip = cols[nipIdx]?.trim();
+                const nama = cols[namaIdx]?.trim();
+                const status = cols[statusIdx]?.trim().toUpperCase();
+                const statusArsipJSON = cols[statusArsipIdx]?.trim();
+                const skorCSV = skorCSVIdx !== -1 && cols[skorCSVIdx] ? parseFloat(cols[skorCSVIdx]) : null;
+
+                if (!nip || !statusArsipJSON || statusArsipJSON === 'null') continue;
+                if (status !== 'P') continue;
+
+                try {
+                    const statusArsip = JSON.parse(statusArsipJSON);
+                    const skorData = hitungSkor(statusArsip, status);
+
+                    allResults.push({
+                        nip: nip,
+                        nama: nama,
+                        status: status,
+                        skorUtama: skorData.skorUtama,
+                        skorKondisional: skorData.skorKondisional,
+                        skorFinal: skorData.skorFinal,
+                        skorCSV: skorCSV,
+                        selisih: skorCSV !== null ? skorData.skorFinal - skorCSV : null,
+                        kategori: skorData.kategori,
+                        detail: skorData.detail,
+                        statusArsip: statusArsip
+                    });
+
+                    processedCount++;
+                } catch (error) {
+                    console.error(`Error NIP ${nip}:`, error);
+                }
+            }
+
+            if (allResults.length === 0) {
+                alert('Tidak ada data yang berhasil diproses!');
+                document.getElementById('loading').classList.remove('active');
+                return;
+            }
+
+            displayResults(allResults);
+        }
+
+        function hitungSkor(statusArsip, statusCPNS_PNS) {
+            let skorUtama = 0;
+            const detail = {
+                drh: 7.5,
+                d2nip: 0, cpns: 0, pns: 0,
+                pendidikan: { lengkap: 0, total: 0, skor: 0, items: {} },
+                golongan: { lengkap: 0, total: 0, skor: 0, items: {} },
+                jabatan: { lengkap: 0, total: 0, skor: 0, items: {} },
+                diklat: { lengkap: 0, total: 0, skor: 0, items: {} },
+                kondisional: { lengkap: 0, total: 0, items: {} }
+            };
+
+            skorUtama += 7.5; // DRH fixed
+
+            if (statusArsip.data_utama) {
+                if (statusArsip.data_utama.d2np === 1) {
+                    detail.d2nip = 7.5;
+                    skorUtama += 7.5;
+                }
+                if (statusArsip.data_utama.cpns === 1) {
+                    detail.cpns = 7.5;
+                    skorUtama += 7.5;
+                }
+                if (statusCPNS_PNS === 'C' || statusArsip.data_utama.pns === 1) {
+                    detail.pns = 7.5;
+                    skorUtama += 7.5;
+                }
+            }
+
+            // Pendidikan
+            if (statusArsip.pendidikan) {
+                const total = Object.keys(statusArsip.pendidikan).length;
+                const lengkap = Object.values(statusArsip.pendidikan).filter(v => v === 1).length;
+                detail.pendidikan = {
+                    lengkap, total,
+                    skor: total === 0 ? 15 : (lengkap / total) * 15,
+                    items: statusArsip.pendidikan
+                };
+                skorUtama += detail.pendidikan.skor;
+            } else {
+                detail.pendidikan.skor = 15;
+                skorUtama += 15;
+            }
+
+            // Golongan
+            if (statusArsip.golongan) {
+                const total = Object.keys(statusArsip.golongan).length;
+                const lengkap = Object.values(statusArsip.golongan).filter(v => v === 1).length;
+                detail.golongan = {
+                    lengkap, total,
+                    skor: total === 0 ? 15 : (lengkap / total) * 15,
+                    items: statusArsip.golongan
+                };
+                skorUtama += detail.golongan.skor;
+            } else {
+                detail.golongan.skor = 15;
+                skorUtama += 15;
+            }
+
+            // Jabatan
+            if (statusArsip.jabatan) {
+                const total = Object.keys(statusArsip.jabatan).length;
+                const lengkap = Object.values(statusArsip.jabatan).filter(v => v === 1).length;
+                detail.jabatan = {
+                    lengkap, total,
+                    skor: total === 0 ? 15 : (lengkap / total) * 15,
+                    items: statusArsip.jabatan
+                };
+                skorUtama += detail.jabatan.skor;
+            } else {
+                detail.jabatan.skor = 15;
+                skorUtama += 15;
+            }
+
+            // Diklat
+            if (statusArsip.diklat) {
+                const total = Object.keys(statusArsip.diklat).length;
+                const lengkap = Object.values(statusArsip.diklat).filter(v => v === 1).length;
+                detail.diklat = {
+                    lengkap, total,
+                    skor: total === 0 ? 15 : (lengkap / total) * 15,
+                    items: statusArsip.diklat
+                };
+                skorUtama += detail.diklat.skor;
+            } else {
+                detail.diklat.skor = 15;
+                skorUtama += 15;
+            }
+
+            // ARSIP KONDISIONAL
+            let totalRiwayat = 0;
+            let totalLengkap = 0;
+            const jenisKondisional = ['angka_kredit', 'pindah_instansi', 'pmk', 'penghargaan', 'cltn', 'skp22'];
+
+            jenisKondisional.forEach(jenis => {
+                if (statusArsip[jenis]) {
+                    const items = statusArsip[jenis];
+                    const total = Object.keys(items).length;
+                    const lengkap = Object.values(items).filter(v => v === 1).length;
+                    totalRiwayat += total;
+                    totalLengkap += lengkap;
+                    detail.kondisional.items[jenis] = items;
+                }
+            });
+
+            detail.kondisional.total = totalRiwayat;
+            detail.kondisional.lengkap = totalLengkap;
+
+            let skorKondisional = 0;
+            let adaKondisional = totalRiwayat > 0;
+
+            if (adaKondisional) {
+                skorKondisional = (totalLengkap / totalRiwayat) * 10;
+            } else {
+                // BONUS +10 jika tidak punya riwayat kondisional
+                skorKondisional = 10;
+            }
+
+            const skorFinal = skorUtama + skorKondisional;
+            const kategori = skorFinal >= 90 ? 'Lengkap' : 'Tidak Lengkap';
+
+            return {
+                skorUtama,
+                skorKondisional,
+                skorFinal,
+                kategori,
+                detail,
+                adaKondisional
+            };
+        }
+
+        function displayResults(results) {
+            document.getElementById('loading').classList.remove('active');
+            document.getElementById('results').classList.add('active');
+
+            const avgUtama = results.reduce((sum, r) => sum + r.skorUtama, 0) / results.length;
+            const avgKondisional = results.reduce((sum, r) => sum + r.skorKondisional, 0) / results.length;
+            const avgFinal = results.reduce((sum, r) => sum + r.skorFinal, 0) / results.length;
+
+            // Rata-rata dari CSV (skor_arsip_2026)
+            const resultsWithCSV = results.filter(r => r.skorCSV !== null);
+            const avgCSV = resultsWithCSV.length > 0
+                ? resultsWithCSV.reduce((sum, r) => sum + r.skorCSV, 0) / resultsWithCSV.length
+                : 0;
+
+            const avgSelisih = results.filter(r => r.selisih !== null).reduce((sum, r) => sum + r.selisih, 0) / results.filter(r => r.selisih !== null).length;
+            const totalLengkap = results.filter(r => r.skorFinal >= 90).length;
+
+            const statsHTML = `
+                <div class="stat-card">
+                    <h3>Total Data PNS</h3>
+                    <div class="value">${results.length}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);">
+                    <h3>Rata² Skor (Hitung)</h3>
+                    <div class="value">${avgFinal.toFixed(2)}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);">
+                    <h3>Rata² Skor CSV</h3>
+                    <div class="value">${avgCSV.toFixed(2)}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffd43b 0%, #fab005 100%);">
+                    <h3>Lengkap (≥90)</h3>
+                    <div class="value">${totalLengkap} <small style="font-size: 0.5em;">(${(totalLengkap/results.length*100).toFixed(1)}%)</small></div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #fa5252 100%);">
+                    <h3>Rata² Selisih</h3>
+                    <div class="value">${avgSelisih >= 0 ? '+' : ''}${avgSelisih.toFixed(2)}</div>
+                </div>
+            `;
+            document.getElementById('statsGrid').innerHTML = statsHTML;
+
+            let tableHTML = '';
+            results.forEach((r, idx) => {
+                const statusBadge = r.status === 'P' ? '<span class="badge badge-success">PNS</span>' : '<span class="badge badge-info">CPNS</span>';
+                const kategoriBadge = r.kategori === 'Lengkap' ? '<span class="badge badge-success">Lengkap</span>' : '<span class="badge badge-warning">Tidak Lengkap</span>';
+
+                let selisihBadge = '-';
+                if (r.selisih !== null) {
+                    const badgeClass = r.selisih > 0 ? 'badge-success' : (r.selisih < 0 ? 'badge-danger' : 'badge-info');
+                    selisihBadge = `<span class="badge ${badgeClass}">${r.selisih > 0 ? '+' : ''}${r.selisih.toFixed(2)}</span>`;
+                }
+
+                tableHTML += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${r.nip}</td>
+                        <td><strong>${r.nama}</strong></td>
+                        <td style="text-align: center;">${statusBadge}</td>
+                        <td style="text-align: center;">${r.skorUtama.toFixed(2)}</td>
+                        <td style="text-align: center;">${r.skorKondisional.toFixed(2)}</td>
+                        <td style="text-align: center;"><strong>${r.skorFinal.toFixed(2)}</strong></td>
+                        <td style="text-align: center;">${r.skorCSV !== null ? r.skorCSV.toFixed(2) : '-'}</td>
+                        <td style="text-align: center;">${selisihBadge}</td>
+                        <td style="text-align: center;">${kategoriBadge}</td>
+                        <td style="text-align: center;">
+                            <button class="detail-btn" onclick="showDetail(${idx})">Lihat</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('resultBody').innerHTML = tableHTML;
+        }
+
+        function showDetail(index) {
+            const data = allResults[index];
+            const d = data.detail;
+
+            // Helper untuk nama jenis kondisional
+            const jenisNama = {
+                'angka_kredit': 'Angka Kredit',
+                'pindah_instansi': 'Pindah Instansi',
+                'pmk': 'PMK (Peninjauan Masa Kerja)',
+                'penghargaan': 'Penghargaan',
+                'cltn': 'CLTN (Cuti Luar Tanggungan Negara)',
+                'skp22': 'SKP/Kinerja'
+            };
+
+            let modalHTML = `
+                <div class="detail-section">
+                    <h3>👤 Informasi Pegawai</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td width="150" style="padding: 8px; font-weight: 500;">NIP</td><td style="padding: 8px;">: ${data.nip}</td></tr>
+                        <tr style="background: #f8f9fa;"><td style="padding: 8px; font-weight: 500;">Nama</td><td style="padding: 8px;">: <strong>${data.nama}</strong></td></tr>
+                        <tr><td style="padding: 8px; font-weight: 500;">Status</td><td style="padding: 8px;">: <span class="badge ${data.status === 'P' ? 'badge-success' : 'badge-info'}">${data.status === 'P' ? 'PNS' : 'CPNS'}</span></td></tr>
+                    </table>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📋 Dokumen Arsip Utama (Maksimal 90 Poin)</h3>
+                    <table class="score-table">
+                        <thead>
+                            <tr>
+                                <th>Jenis Dokumen</th>
+                                <th style="text-align: center;">Kondisi</th>
+                                <th style="text-align: right;">Skor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>DRH</td>
+                                <td style="text-align: center;"><span class="badge badge-success">Fixed</span></td>
+                                <td style="text-align: right;"><strong>${d.drh.toFixed(2)}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>D2NIP</td>
+                                <td style="text-align: center;">
+                                    ${d.d2nip > 0 ? '<span class="badge badge-success">✓ Lengkap</span>' : '<span class="badge badge-danger">✗ Tidak Lengkap</span>'}
+                                </td>
+                                <td style="text-align: right;"><strong>${d.d2nip.toFixed(2)}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>SK CPNS</td>
+                                <td style="text-align: center;">
+                                    ${d.cpns > 0 ? '<span class="badge badge-success">✓ Lengkap</span>' : '<span class="badge badge-danger">✗ Tidak Lengkap</span>'}
+                                </td>
+                                <td style="text-align: right;"><strong>${d.cpns.toFixed(2)}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>SK PNS</td>
+                                <td style="text-align: center;">
+                                    ${d.pns > 0 ? '<span class="badge badge-success">✓ Lengkap</span>' : (data.status === 'C' ? '<span class="badge badge-info">CPNS - Auto 7.5</span>' : '<span class="badge badge-danger">✗ Tidak Lengkap</span>')}
+                                </td>
+                                <td style="text-align: right;"><strong>${d.pns.toFixed(2)}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Pendidikan</td>
+                                <td style="text-align: center;">
+                                    <span class="badge ${d.pendidikan.skor >= 15 ? 'badge-success' : 'badge-warning'}">${d.pendidikan.lengkap}/${d.pendidikan.total} Lengkap</span>
+                                </td>
+                                <td style="text-align: right;"><strong>${d.pendidikan.skor.toFixed(2)}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Golongan</td>
+                                <td style="text-align: center;">
+                                    <span class="badge ${d.golongan.skor >= 15 ? 'badge-success' : 'badge-warning'}">${d.golongan.lengkap}/${d.golongan.total} Lengkap</span>
+                                </td>
+                                <td style="text-align: right;"><strong>${d.golongan.skor.toFixed(2)}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Jabatan</td>
+                                <td style="text-align: center;">
+                                    <span class="badge ${d.jabatan.skor >= 15 ? 'badge-success' : 'badge-warning'}">${d.jabatan.lengkap}/${d.jabatan.total} Lengkap</span>
+                                </td>
+                                <td style="text-align: right;"><strong>${d.jabatan.skor.toFixed(2)}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Diklat</td>
+                                <td style="text-align: center;">
+                                    <span class="badge ${d.diklat.skor >= 15 ? 'badge-success' : 'badge-warning'}">${d.diklat.lengkap}/${d.diklat.total} Lengkap</span>
+                                </td>
+                                <td style="text-align: right;"><strong>${d.diklat.skor.toFixed(2)}</strong></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="2"><strong>TOTAL SKOR ARSIP UTAMA</strong></td>
+                                <td style="text-align: right; color: #667eea; font-size: 1.1em;"><strong>${data.skorUtama.toFixed(2)}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📦 Riwayat Arsip Kondisional (Maksimal 10 Poin)</h3>
+                    ${d.kondisional.total > 0 ? `
+                        <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+                            <strong>Total Riwayat:</strong> ${d.kondisional.total} |
+                            <strong>Lengkap:</strong> ${d.kondisional.lengkap} |
+                            <strong>Rumus:</strong> 10 × (${d.kondisional.lengkap}/${d.kondisional.total}) =
+                            <strong style="color: #667eea; font-size: 1.1em;">${data.skorKondisional.toFixed(2)}</strong>
+                        </div>
+                        ${Object.keys(d.kondisional.items).map(jenis => {
+                            const items = d.kondisional.items[jenis];
+                            const totalItems = Object.keys(items).length;
+                            const lengkapItems = Object.values(items).filter(v => v === 1).length;
+                            return `
+                                <div class="kondisional-item">
+                                    <h4>${jenisNama[jenis] || jenis.toUpperCase()}
+                                        <span class="badge ${lengkapItems === totalItems ? 'badge-success' : 'badge-warning'}" style="float: right;">
+                                            ${lengkapItems}/${totalItems} Lengkap
+                                        </span>
+                                    </h4>
+                                    <div class="item-list">
+                                        ${Object.entries(items).map(([key, value]) => `
+                                            <div class="item-badge ${value === 1 ? 'complete' : 'incomplete'}">
+                                                <span>${key}</span>
+                                                <span>${value === 1 ? '✓' : '✗'}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    ` : `
+                        <div style="padding: 25px; background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border-radius: 10px; text-align: center; border: 2px solid #ffc107;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">🎉</div>
+                            <strong style="font-size: 1.2em; color: #856404;">Tidak memiliki riwayat kondisional</strong><br>
+                            <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.7); border-radius: 8px;">
+                                <span style="color: #667eea; font-size: 1.5em; font-weight: bold;">BONUS +10 poin</span>
+                            </div>
+                        </div>
+                    `}
+                </div>
+
+                <div class="detail-section">
+                    <h3>🎯 Ringkasan Skor Final</h3>
+                    <div class="summary-grid">
+                        <div class="score-card-mini">
+                            <div class="label">Skor Arsip Utama</div>
+                            <div class="value">${data.skorUtama.toFixed(2)}</div>
+                        </div>
+                        <div class="score-card-mini">
+                            <div class="label">Skor Arsip Kondisional</div>
+                            <div class="value">${data.skorKondisional.toFixed(2)}</div>
+                        </div>
+                    </div>
+
+                    <table class="score-table" style="margin-top: 20px;">
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 500;">Skor Final (Perhitungan)</td>
+                                <td style="text-align: right;"><span class="badge badge-success" style="font-size: 1.2em; padding: 8px 15px;">${data.skorFinal.toFixed(2)}</span></td>
+                            </tr>
+                            <tr style="background: #f8f9fa;">
+                                <td style="font-weight: 500;">Skor CSV (skor_arsip_2026)</td>
+                                <td style="text-align: right;"><span class="badge badge-info" style="font-size: 1.2em; padding: 8px 15px;">${data.skorCSV !== null ? data.skorCSV.toFixed(2) : '-'}</span></td>
+                            </tr>
+                            ${data.selisih !== null ? `
+                                <tr style="background: ${data.selisih >= 0 ? '#d4edda' : '#f8d7da'};">
+                                    <td style="font-weight: bold;">Selisih</td>
+                                    <td style="text-align: right;">
+                                        <span style="font-size: 1.3em; font-weight: bold; color: ${data.selisih >= 0 ? '#155724' : '#721c24'};">
+                                            ${data.selisih > 0 ? '+' : ''}${data.selisih.toFixed(2)}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ` : ''}
+                            <tr>
+                                <td style="font-weight: 500;">Kategori Kelengkapan</td>
+                                <td style="text-align: right;">
+                                    <span class="badge ${data.kategori === 'Lengkap' ? 'badge-success' : 'badge-warning'}" style="font-size: 1em; padding: 6px 12px;">
+                                        ${data.kategori}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = modalHTML;
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

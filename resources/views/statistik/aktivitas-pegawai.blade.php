@@ -162,7 +162,16 @@
     <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title mb-4">Top 5 Kategori Aktivitas</h4>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title mb-0">Top 5 Kategori Aktivitas</h4>
+                    <button type="button"
+                            class="btn btn-danger btn-sm"
+                            id="btnExportPdf"
+                            onclick="exportPdf()"
+                            title="Export PDF">
+                        <i class="ti-printer me-1"></i> Print Report
+                    </button>
+                </div>
                 @foreach($topKategori as $index => $kategori)
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
@@ -190,7 +199,16 @@
     <div class="col-md-8 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title mb-3">Statistik Performa PIC DMS</h4>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">Statistik Performa PIC DMS</h4>
+                    <button type="button"
+                            class="btn btn-danger btn-sm"
+                            id="btnExportPicPdf"
+                            onclick="exportPicPdf()"
+                            title="Export PDF PIC DMS">
+                        <i class="ti-printer me-1"></i> Print Report
+                    </button>
+                </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -606,12 +624,36 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const filterForm = document.getElementById('filterForm');
+    const uploadForm = document.querySelector('#uploadModal form');
     const loadingOverlay = document.getElementById('loadingOverlay');
 
     // Show loading when filter form is submitted
     if (filterForm) {
         filterForm.addEventListener('submit', function(e) {
             loadingOverlay.style.display = 'flex';
+        });
+    }
+
+    // Show loading when upload form is submitted
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('csv_file');
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                alert('Pilih file CSV terlebih dahulu!');
+                return false;
+            }
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+            if (modal) {
+                modal.hide();
+            }
+
+            // Show loading overlay
+            loadingOverlay.style.display = 'flex';
+            const loadingText = loadingOverlay.querySelector('p');
+            loadingText.textContent = 'Mengupload dan memproses file CSV... Mohon tunggu, ini mungkin memakan waktu beberapa menit.';
         });
     }
 
@@ -639,6 +681,86 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     });
 });
+
+// Export PDF function with loading
+function exportPdf() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingText = loadingOverlay.querySelector('p');
+    const btnExportPdf = document.getElementById('btnExportPdf');
+
+    // Show loading
+    loadingOverlay.style.display = 'flex';
+    loadingText.textContent = 'Generating PDF Report... Mohon tunggu, sedang memproses data aktivitas pegawai.';
+
+    // Disable button
+    btnExportPdf.disabled = true;
+    btnExportPdf.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating...';
+
+    // Get current filter values
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+    const search = '{{ $search ?? '' }}';
+
+    // Build URL with parameters
+    let url = '{{ route("aktivitas-pegawai.export-pdf") }}';
+    const params = new URLSearchParams();
+    if (dateFrom) params.append('date_from', dateFrom);
+    if (dateTo) params.append('date_to', dateTo);
+    if (search) params.append('search', search);
+
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+
+    // Trigger download directly
+    window.location.href = url;
+
+    // Hide loading after 3 seconds (give time for PDF generation)
+    setTimeout(function() {
+        loadingOverlay.style.display = 'none';
+        btnExportPdf.disabled = false;
+        btnExportPdf.innerHTML = '<i class="ti-printer me-1"></i> Print Report';
+    }, 3000);
+}
+
+// Export PIC PDF function with loading
+function exportPicPdf() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingText = loadingOverlay.querySelector('p');
+    const btnExportPicPdf = document.getElementById('btnExportPicPdf');
+
+    // Show loading
+    loadingOverlay.style.display = 'flex';
+    loadingText.textContent = 'Generating PDF Report PIC DMS... Mohon tunggu, sedang memproses data performa PIC.';
+
+    // Disable button
+    btnExportPicPdf.disabled = true;
+    btnExportPicPdf.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating...';
+
+    // Get current filter values
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+
+    // Build URL with parameters
+    let url = '{{ route("aktivitas-pegawai.export-pic-pdf") }}';
+    const params = new URLSearchParams();
+    if (dateFrom) params.append('date_from', dateFrom);
+    if (dateTo) params.append('date_to', dateTo);
+
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+
+    // Trigger download directly
+    window.location.href = url;
+
+    // Hide loading after 5 seconds (PIC PDF takes longer)
+    setTimeout(function() {
+        loadingOverlay.style.display = 'none';
+        btnExportPicPdf.disabled = false;
+        btnExportPicPdf.innerHTML = '<i class="ti-printer me-1"></i> Print Report';
+    }, 5000);
+}
 </script>
 
 @endsection

@@ -41,6 +41,34 @@
                     </ol>
                 </div>
 
+                <!-- Search Form -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <form action="{{ route('staging.index') }}" method="GET" id="searchForm">
+                            <div class="input-group">
+                                <input type="text"
+                                       class="form-control"
+                                       name="search"
+                                       placeholder="Cari NIP atau Nama..."
+                                       value="{{ request('search') }}">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti-search"></i> Cari
+                                </button>
+                                @if(request('search'))
+                                    <a href="{{ route('staging.index') }}" class="btn btn-outline-secondary">
+                                        <i class="ti-close"></i> Reset
+                                    </a>
+                                @endif
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="text-muted small mt-2">
+                            Total: <strong>{{ $stagingNips->total() }}</strong> pegawai belum terdata
+                        </div>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead class="table-warning">

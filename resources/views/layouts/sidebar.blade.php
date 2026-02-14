@@ -8,9 +8,9 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">
-                <i class="menu-icon mdi mdi-chart-bar"></i>
-                <span class="menu-title">Dashboard Skor Arsip</span>
+            <a class="nav-link" href="{{ route('skor-arsip.index') }}">
+                <i class="menu-icon mdi mdi-calculator"></i>
+                <span class="menu-title">Perhitungan Skor Arsip</span>
             </a>
         </li>
         <li class="nav-item nav-category">Menu Utama</li>

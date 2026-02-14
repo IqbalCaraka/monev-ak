@@ -53,8 +53,35 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="golongan">Golongan <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('golongan') is-invalid @enderror"
-                                       id="golongan" name="golongan" value="{{ old('golongan', $pegawai->golongan) }}" required>
+                                <select class="form-control @error('golongan') is-invalid @enderror"
+                                        id="golongan" name="golongan" required>
+                                    <option value="">Pilih Golongan</option>
+                                    <optgroup label="Golongan I">
+                                        <option value="I/a" {{ old('golongan', $pegawai->golongan) == 'I/a' ? 'selected' : '' }}>I/a</option>
+                                        <option value="I/b" {{ old('golongan', $pegawai->golongan) == 'I/b' ? 'selected' : '' }}>I/b</option>
+                                        <option value="I/c" {{ old('golongan', $pegawai->golongan) == 'I/c' ? 'selected' : '' }}>I/c</option>
+                                        <option value="I/d" {{ old('golongan', $pegawai->golongan) == 'I/d' ? 'selected' : '' }}>I/d</option>
+                                    </optgroup>
+                                    <optgroup label="Golongan II">
+                                        <option value="II/a" {{ old('golongan', $pegawai->golongan) == 'II/a' ? 'selected' : '' }}>II/a</option>
+                                        <option value="II/b" {{ old('golongan', $pegawai->golongan) == 'II/b' ? 'selected' : '' }}>II/b</option>
+                                        <option value="II/c" {{ old('golongan', $pegawai->golongan) == 'II/c' ? 'selected' : '' }}>II/c</option>
+                                        <option value="II/d" {{ old('golongan', $pegawai->golongan) == 'II/d' ? 'selected' : '' }}>II/d</option>
+                                    </optgroup>
+                                    <optgroup label="Golongan III">
+                                        <option value="III/a" {{ old('golongan', $pegawai->golongan) == 'III/a' ? 'selected' : '' }}>III/a</option>
+                                        <option value="III/b" {{ old('golongan', $pegawai->golongan) == 'III/b' ? 'selected' : '' }}>III/b</option>
+                                        <option value="III/c" {{ old('golongan', $pegawai->golongan) == 'III/c' ? 'selected' : '' }}>III/c</option>
+                                        <option value="III/d" {{ old('golongan', $pegawai->golongan) == 'III/d' ? 'selected' : '' }}>III/d</option>
+                                    </optgroup>
+                                    <optgroup label="Golongan IV">
+                                        <option value="IV/a" {{ old('golongan', $pegawai->golongan) == 'IV/a' ? 'selected' : '' }}>IV/a</option>
+                                        <option value="IV/b" {{ old('golongan', $pegawai->golongan) == 'IV/b' ? 'selected' : '' }}>IV/b</option>
+                                        <option value="IV/c" {{ old('golongan', $pegawai->golongan) == 'IV/c' ? 'selected' : '' }}>IV/c</option>
+                                        <option value="IV/d" {{ old('golongan', $pegawai->golongan) == 'IV/d' ? 'selected' : '' }}>IV/d</option>
+                                        <option value="IV/e" {{ old('golongan', $pegawai->golongan) == 'IV/e' ? 'selected' : '' }}>IV/e</option>
+                                    </optgroup>
+                                </select>
                                 @error('golongan')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
