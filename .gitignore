@@ -26,3 +26,7 @@ Thumbs.db
 # CSV data files
 *.csv
 DataPNSKeseluruhan*.csv
+
+# Allow seeder CSV files
+!Instansi*.csv
+!List\ Pegawai*.csv
