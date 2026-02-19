@@ -554,10 +554,11 @@
                         <strong>Petunjuk Upload:</strong>
                         <ul class="mb-0 mt-2">
                             <li>Format file: CSV (.csv, .txt)</li>
-                            <li>Maksimal ukuran: 50 MB</li>
+                            <li>Maksimal ukuran: 100 MB</li>
+                            <li>File akan diproses di background (queue)</li>
                             <li>Logs dengan NIP terdaftar akan masuk ke aktivitas utama</li>
                             <li>Logs dengan NIP belum terdaftar akan masuk ke staging</li>
-                            <li>Summary akan otomatis di-update setelah upload</li>
+                            <li>Summary akan otomatis di-update setelah proses selesai</li>
                         </ul>
                     </div>
 

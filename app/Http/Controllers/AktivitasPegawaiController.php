@@ -414,6 +414,41 @@ class AktivitasPegawaiController extends Controller
     public function uploadCsv(Request $request)
     {
         $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:102400', // Max 100MB
+        ]);
+
+        try {
+            $file = $request->file('csv_file');
+            $filename = 'log_activity_' . time() . '.csv';
+
+            // Pastikan folder imports ada
+            $importPath = storage_path('app/imports');
+            if (!file_exists($importPath)) {
+                mkdir($importPath, 0775, true);
+            }
+
+            // Simpan file langsung ke storage/app/imports
+            $file->move($importPath, $filename);
+            $csvFile = $importPath . '/' . $filename;
+
+            // Dispatch job untuk background processing
+            \App\Jobs\ImportLogAktivitasJob::dispatch($csvFile, $filename);
+
+            return redirect()->route('aktivitas-pegawai.index')
+                ->with('success', 'Upload berhasil! File sedang diproses di background. Refresh halaman setelah beberapa saat untuk melihat hasilnya.');
+
+        } catch (\Exception $e) {
+            return redirect()->route('aktivitas-pegawai.index')
+                ->with('error', 'Upload gagal: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * OLD METHOD - Kept as backup, now using queue job
+     */
+    private function uploadCsvOld(Request $request)
+    {
+        $request->validate([
             'csv_file' => 'required|file|mimes:csv,txt|max:51200', // Max 50MB
         ]);
 
