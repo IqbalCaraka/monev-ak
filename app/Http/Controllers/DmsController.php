@@ -19,7 +19,7 @@ class DmsController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt|max:512000', // Max 500MB
+            'csv_file' => 'required|file|mimes:csv,txt|max:1024000', // Max 1GB (1000MB)
         ]);
 
         $file = $request->file('csv_file');

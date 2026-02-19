@@ -9,8 +9,11 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="card-title mb-0">Kelola Pengguna</h4>
-                    <div>
-                        <input type="text" id="searchInput" class="form-control" placeholder="Cari pegawai...">
+                    <div class="d-flex gap-2">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Cari pegawai..." style="max-width: 250px;">
+                        <a href="{{ route('pegawai.create') }}" class="btn btn-primary">
+                            <i class="ti-plus"></i> Tambah Pegawai
+                        </a>
                     </div>
                 </div>
 
