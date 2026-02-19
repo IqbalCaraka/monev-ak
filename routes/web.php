@@ -8,8 +8,10 @@ use App\Http\Controllers\PicController;
 use App\Http\Controllers\AktivitasPegawaiController;
 use App\Http\Controllers\StagingLogController;
 use App\Http\Controllers\PerhitunganSkorArsipController;
+use App\Http\Controllers\DmsController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard-dms', [DashboardController::class, 'dms'])->name('dashboard.dms');
 
 // Pengaturan Routes
 Route::prefix('pengaturan')->group(function () {
@@ -41,4 +43,16 @@ Route::prefix('statistik')->group(function () {
 Route::prefix('skor-arsip')->group(function () {
     Route::get('/', [PerhitunganSkorArsipController::class, 'index'])->name('skor-arsip.index');
     Route::post('/process', [PerhitunganSkorArsipController::class, 'process'])->name('skor-arsip.process');
+});
+
+// DMS Routes
+Route::prefix('dms')->group(function () {
+    Route::post('/upload', [DmsController::class, 'upload'])->name('dms.upload');
+    Route::get('/instansi', [DmsController::class, 'allInstansi'])->name('dms.instansi.all');
+    Route::get('/instansi/{instansiId}/detail', [DmsController::class, 'instansiDetailFull'])->name('dms.instansi.detail-full');
+    Route::get('/{uploadId}', [DmsController::class, 'show'])->name('dms.show');
+    Route::get('/{uploadId}/progress', [DmsController::class, 'progress'])->name('dms.progress');
+    Route::post('/calculate-instansi', [DmsController::class, 'calculateInstansi'])->name('dms.calculate-instansi');
+    Route::post('/{uploadId}/calculate-all', [DmsController::class, 'calculateAll'])->name('dms.calculate-all');
+    Route::get('/{uploadId}/instansi/{instansiId}', [DmsController::class, 'instansiDetail'])->name('dms.instansi-detail');
 });

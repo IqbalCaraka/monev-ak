@@ -8,6 +8,12 @@
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" href="{{ route('dashboard.dms') }}">
+                <i class="menu-icon mdi mdi-chart-arc"></i>
+                <span class="menu-title">Dashboard DMS</span>
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="{{ route('skor-arsip.index') }}">
                 <i class="menu-icon mdi mdi-calculator"></i>
                 <span class="menu-title">Perhitungan Skor Arsip</span>

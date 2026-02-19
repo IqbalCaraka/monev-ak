@@ -22,3 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# CSV data files
+*.csv
+DataPNSKeseluruhan*.csv
