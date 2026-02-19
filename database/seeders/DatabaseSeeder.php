@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             InstansiSeeder::class,
             PegawaiSeeder::class,
-            LogAktivitasSeeder::class,
+            // LogAktivitasSeeder::class, // Removed - log aktivitas will be uploaded via dashboard
         ]);
     }
 }
