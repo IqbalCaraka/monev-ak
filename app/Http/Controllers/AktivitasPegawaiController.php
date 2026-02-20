@@ -46,6 +46,7 @@ class AktivitasPegawaiController extends Controller
 
     /**
      * Get activities from summary table (no date filter)
+     * OPTIMIZED: Hitung unique PNS per pegawai menggunakan subquery
      */
     private function getActivitiesFromSummary($search = null)
     {
@@ -56,7 +57,7 @@ class AktivitasPegawaiController extends Controller
                 DB::raw('COALESCE(p.nama, pas.nip) as nama'),
                 DB::raw('SUM(pas.total_aktivitas) as total_aktivitas'),
                 DB::raw('MAX(pas.last_activity_at) as last_activity'),
-                DB::raw('COUNT(DISTINCT pas.kategori_aktivitas) as jenis_aktivitas')
+                DB::raw('(SELECT COUNT(DISTINCT la.object_pns_id) FROM log_aktivitas la WHERE la.created_by_nip = pas.nip) as jenis_aktivitas')
             )
             ->groupBy('pas.nip', 'p.nama');
 
@@ -201,8 +202,8 @@ class AktivitasPegawaiController extends Controller
             ->get()
             ->count();
 
-        // Count inject activities (ONLY Inject - Unggah Dokumen)
-        // NOTE: Inject - Mapping Dokumen EXCLUDED
+        // Count inject activities (details LIKE '%inject%')
+        // Inject bisa di mapping_dokumen atau unggah_dokumen
         $totalInject = DB::table('log_aktivitas')
             ->whereNotNull('created_by_nip')
             ->where(function($q) use ($dateFrom, $dateTo) {
@@ -213,8 +214,7 @@ class AktivitasPegawaiController extends Controller
                     $q->where('created_at_log', '<=', $dateTo . ' 23:59:59');
                 }
             })
-            ->where('event_name', 'unggah_dokumen')
-            ->where('details', '!=', 'unggah_dokumen')
+            ->where('details', 'LIKE', '%inject%')
             ->count();
 
         return [
@@ -232,17 +232,17 @@ class AktivitasPegawaiController extends Controller
 
     /**
      * Helper: Get CASE WHEN for category classification
-     * NOTE: Inject - Mapping Dokumen EXCLUDED from counting
+     * UPDATED: Inject detected via details LIKE '%inject%'
      */
     private function getCategoryCase(): string
     {
         return "
             CASE
-                WHEN event_name = 'unggah_dokumen' AND details != 'unggah_dokumen'
-                    THEN 'Inject - Unggah Dokumen'
+                WHEN details LIKE '%inject%' OR details LIKE '%Inject%'
+                    THEN 'Inject Dokumen'
                 WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
                     THEN 'Unggah Dokumen'
-                WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' OR details IS NULL)
+                WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' AND details NOT LIKE '%Inject%')
                     THEN 'Mapping Dokumen'
                 WHEN event_name = 'lock_arsip'
                     THEN 'Lock Arsip'
@@ -362,10 +362,12 @@ class AktivitasPegawaiController extends Controller
             $query->where('created_at_log', '<=', $dateTo . ' 23:59:59');
         }
 
-        if ($kategori === 'Inject - Unggah Dokumen') {
-            // Inject - Unggah Dokumen: unggah_dokumen dengan details != "unggah_dokumen"
-            $query->where('event_name', 'unggah_dokumen')
-                  ->where('details', '!=', 'unggah_dokumen');
+        if ($kategori === 'Inject Dokumen' || $kategori === 'Inject - Unggah Dokumen') {
+            // Inject Dokumen: details contains 'inject' atau 'Inject'
+            $query->where(function($q) {
+                $q->where('details', 'LIKE', '%inject%')
+                  ->orWhere('details', 'LIKE', '%Inject%');
+            });
         } elseif ($kategori === 'Unggah Dokumen') {
             // Unggah Dokumen (normal): unggah_dokumen dengan details = "unggah_dokumen"
             $query->where('event_name', 'unggah_dokumen')
@@ -374,8 +376,10 @@ class AktivitasPegawaiController extends Controller
             // Mapping Dokumen (non-inject): mapping_dokumen tanpa inject
             $query->where('event_name', 'mapping_dokumen')
                   ->where(function($q) {
-                      $q->where('details', 'NOT LIKE', '%inject%')
-                        ->orWhereNull('details');
+                      $q->where(function($q2) {
+                          $q2->where('details', 'NOT LIKE', '%inject%')
+                             ->where('details', 'NOT LIKE', '%Inject%');
+                      })->orWhereNull('details');
                   });
         } else {
             // Kategori lain: convert Title Case ke event_name asli
@@ -691,7 +695,7 @@ class AktivitasPegawaiController extends Controller
      *
      * Counts:
      * - Total mapping per dokumen (COUNT(*))
-     * - Total mapping per unique object_pns_id (COUNT DISTINCT)
+     * - Total unique PNS yang dipetakan (COUNT DISTINCT object_pns_id)
      */
     private function getMappingDokumenSummary($dateFrom = null, $dateTo = null, $search = null)
     {
@@ -733,12 +737,12 @@ class AktivitasPegawaiController extends Controller
     }
 
     /**
-     * Get Inject Dokumen Summary (Inject - Unggah Dokumen) - ALL PEGAWAI
-     * HIGHLY OPTIMIZED: Using composite index and efficient aggregation
+     * Get Inject Dokumen Summary - ALL PEGAWAI
+     * OPTIMIZED: Inject detected via details LIKE '%inject%'
      *
      * Counts:
      * - Total inject per dokumen (COUNT(*))
-     * - Total inject per unique object_pns_id (COUNT DISTINCT)
+     * - Total unique PNS yang di-inject (COUNT DISTINCT object_pns_id)
      */
     private function getInjectDokumenSummary($dateFrom = null, $dateTo = null, $search = null)
     {
@@ -750,8 +754,7 @@ class AktivitasPegawaiController extends Controller
                 DB::raw('COUNT(*) as total_per_dokumen'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
             )
-            ->where('la.event_name', 'unggah_dokumen')
-            ->where('la.details', '!=', 'unggah_dokumen')
+            ->where('la.details', 'LIKE', '%inject%')
             ->whereNotNull('la.created_by_nip');
 
         // Date filter

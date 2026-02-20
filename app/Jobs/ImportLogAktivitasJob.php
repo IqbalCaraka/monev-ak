@@ -74,6 +74,10 @@ class ImportLogAktivitasJob implements ShouldQueue
                     }
                 }
 
+                // CSV Format:
+                // 0:id, 1:transaction_id, 2:event_name, 3:details, 4:created_by_id,
+                // 5:created_by_nama, 6:created_by_nip, 7:created_at, 8:kanreg_id,
+                // 9:object_pns_id, 10:created_at_real
                 $record = [
                     'id' => $id,
                     'transaction_id' => !empty($data[1]) ? trim($data[1]) : null,
@@ -83,7 +87,7 @@ class ImportLogAktivitasJob implements ShouldQueue
                     'created_by_nama' => !empty($data[5]) ? trim($data[5]) : null,
                     'created_by_nip' => $nip,
                     'created_at_log' => !empty($data[7]) ? trim($data[7]) : null,
-                    'object_pns_id' => !empty($data[8]) ? trim($data[8]) : null,
+                    'object_pns_id' => !empty($data[9]) ? trim($data[9]) : null, // FIXED: was $data[8]
                     'created_at' => now(),
                     'updated_at' => now(),
                     'day_name' => $dayName,
