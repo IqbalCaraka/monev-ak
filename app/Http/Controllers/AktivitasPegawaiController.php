@@ -804,8 +804,8 @@ class AktivitasPegawaiController extends Controller
                 'pd.is_active',
                 DB::raw('COUNT(DISTINCT pdp.pegawai_nip) as total_anggota'),
                 DB::raw('COUNT(la.id) as total_aktivitas'),
-                DB::raw('COUNT(CASE WHEN la.event_name NOT LIKE "%inject%" AND la.event_name NOT LIKE "%Inject%" THEN 1 END) as total_mapping'),
-                DB::raw('COUNT(CASE WHEN la.event_name LIKE "%inject%" OR la.event_name LIKE "%Inject%" THEN 1 END) as total_inject'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 END) as total_inject'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
             ->where('pd.is_active', true)
@@ -952,7 +952,7 @@ class AktivitasPegawaiController extends Controller
                 'pd.is_active',
                 DB::raw('COUNT(DISTINCT pdp.pegawai_nip) as total_anggota'),
                 DB::raw('COUNT(la.id) as total_aktivitas'),
-                DB::raw('COUNT(CASE WHEN la.event_name LIKE "%mapping%" THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 END) as total_mapping'),
                 DB::raw('COUNT(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 END) as total_inject'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
@@ -1021,7 +1021,7 @@ class AktivitasPegawaiController extends Controller
             ->select(
                 'la.work_category',
                 'la.day_name',
-                DB::raw('SUM(CASE WHEN la.event_name LIKE "%mapping%" THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 ELSE 0 END) as mapping_count'),
                 DB::raw('SUM(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
             );
 
@@ -1086,7 +1086,7 @@ class AktivitasPegawaiController extends Controller
                 'p.nip',
                 'p.nama',
                 DB::raw('COUNT(la.id) as total_aktivitas'),
-                DB::raw('SUM(CASE WHEN la.event_name LIKE "%mapping%" THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 ELSE 0 END) as mapping_count'),
                 DB::raw('SUM(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
             )
             ->groupBy('p.nip', 'p.nama')
@@ -1111,7 +1111,7 @@ class AktivitasPegawaiController extends Controller
             ->select(
                 'day_name',
                 'work_category',
-                DB::raw('SUM(CASE WHEN event_name LIKE "%mapping%" THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN event_name = "mapping_dokumen" AND (details NOT LIKE "%inject%" AND details NOT LIKE "%Inject%") THEN 1 ELSE 0 END) as mapping_count'),
                 DB::raw('SUM(CASE WHEN details LIKE "%inject%" OR details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
             )
             ->whereNotNull('day_name')
