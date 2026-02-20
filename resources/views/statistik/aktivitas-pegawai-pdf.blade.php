@@ -59,7 +59,7 @@
 <body>
     <div class="header">
         <h1>LAPORAN AKTIVITAS PEGAWAI</h1>
-        <h2>Monitoring Direktorat Teknologi Informasi dan Arsip Kepegawaian</h2>
+        <h2>Direktorat Arsip Kepegawaian Aparatur Sipil Negara</h2>
     </div>
 
     <div class="period-info">
@@ -265,7 +265,7 @@
 
     <div class="footer">
         <p>Laporan ini digenerate secara otomatis pada {{ date('d F Y H:i:s') }}</p>
-        <p>Sistem Monitoring Direktorat Teknologi Informasi dan Arsip Kepegawaian</p>
+        <p>Direktorat Arsip Kepegawaian Aparatur Sipil Negara</p>
     </div>
 </body>
 </html>
