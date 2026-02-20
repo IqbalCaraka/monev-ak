@@ -202,8 +202,8 @@ class AktivitasPegawaiController extends Controller
             ->get()
             ->count();
 
-        // Count inject activities (details LIKE '%inject%')
-        // Inject bisa di mapping_dokumen atau unggah_dokumen
+        // Count inject activities (ONLY inject_type = 'unggah' for optimal performance)
+        // HANYA hitung Inject Unggah, bukan Inject Mapping
         $totalInject = DB::table('log_aktivitas')
             ->whereNotNull('created_by_nip')
             ->where(function($q) use ($dateFrom, $dateTo) {
@@ -214,7 +214,7 @@ class AktivitasPegawaiController extends Controller
                     $q->where('created_at_log', '<=', $dateTo . ' 23:59:59');
                 }
             })
-            ->where('details', 'LIKE', '%inject%')
+            ->where('inject_type', 'unggah')
             ->count();
 
         return [
@@ -232,17 +232,17 @@ class AktivitasPegawaiController extends Controller
 
     /**
      * Helper: Get CASE WHEN for category classification
-     * UPDATED: Inject detected via details LIKE '%inject%'
+     * UPDATED: ONLY count inject_type = 'unggah' as Inject Dokumen
      */
     private function getCategoryCase(): string
     {
         return "
             CASE
-                WHEN details LIKE '%inject%' OR details LIKE '%Inject%'
+                WHEN inject_type = 'unggah'
                     THEN 'Inject Dokumen'
                 WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
                     THEN 'Unggah Dokumen'
-                WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' AND details NOT LIKE '%Inject%')
+                WHEN event_name = 'mapping_dokumen' AND inject_type IS NULL
                     THEN 'Mapping Dokumen'
                 WHEN event_name = 'lock_arsip'
                     THEN 'Lock Arsip'
@@ -578,11 +578,11 @@ class AktivitasPegawaiController extends Controller
                     SELECT
                         created_by_nip,
                         CASE
-                            WHEN event_name = 'unggah_dokumen' AND details != 'unggah_dokumen'
-                                THEN 'Inject - Unggah Dokumen'
+                            WHEN inject_type = 'unggah'
+                                THEN 'Inject Dokumen'
                             WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
                                 THEN 'Unggah Dokumen'
-                            WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' OR details IS NULL)
+                            WHEN event_name = 'mapping_dokumen' AND inject_type IS NULL
                                 THEN 'Mapping Dokumen'
                             WHEN event_name = 'lock_arsip'
                                 THEN 'Lock Arsip'
@@ -603,7 +603,6 @@ class AktivitasPegawaiController extends Controller
                         NOW() as updated_at
                     FROM log_aktivitas
                     WHERE created_by_nip IN (" . implode(',', array_fill(0, count($affectedNips), '?')) . ")
-                        AND NOT (event_name = 'mapping_dokumen' AND details LIKE '%inject%')
                     GROUP BY created_by_nip, kategori_aktivitas
                 ";
 
@@ -657,11 +656,11 @@ class AktivitasPegawaiController extends Controller
             SELECT
                 created_by_nip,
                 CASE
-                    WHEN event_name = 'unggah_dokumen' AND details != 'unggah_dokumen'
-                        THEN 'Inject - Unggah Dokumen'
+                    WHEN inject_type = 'unggah'
+                        THEN 'Inject Dokumen'
                     WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
                         THEN 'Unggah Dokumen'
-                    WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' OR details IS NULL)
+                    WHEN event_name = 'mapping_dokumen' AND inject_type IS NULL
                         THEN 'Mapping Dokumen'
                     WHEN event_name = 'lock_arsip'
                         THEN 'Lock Arsip'
@@ -682,7 +681,6 @@ class AktivitasPegawaiController extends Controller
                 NOW() as updated_at
             FROM log_aktivitas
             WHERE created_by_nip = ?
-                AND NOT (event_name = 'mapping_dokumen' AND details LIKE '%inject%')
             GROUP BY created_by_nip, kategori_aktivitas
         ";
 

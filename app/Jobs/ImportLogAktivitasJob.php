@@ -78,16 +78,35 @@ class ImportLogAktivitasJob implements ShouldQueue
                 // 0:id, 1:transaction_id, 2:event_name, 3:details, 4:created_by_id,
                 // 5:created_by_nama, 6:created_by_nip, 7:created_at, 8:kanreg_id,
                 // 9:object_pns_id, 10:created_at_real
+
+                $details = !empty($data[3]) ? trim($data[3]) : null;
+                $eventName = !empty($data[2]) ? trim($data[2]) : null;
+
+                // Detect inject: check if details contains 'inject' or 'Inject'
+                $isInject = $details && (stripos($details, 'inject') !== false);
+
+                // Determine inject type: 'unggah' or 'mapping'
+                $injectType = null;
+                if ($isInject) {
+                    if ($eventName === 'unggah_dokumen') {
+                        $injectType = 'unggah';
+                    } elseif ($eventName === 'mapping_dokumen') {
+                        $injectType = 'mapping';
+                    }
+                }
+
                 $record = [
                     'id' => $id,
                     'transaction_id' => !empty($data[1]) ? trim($data[1]) : null,
-                    'event_name' => !empty($data[2]) ? trim($data[2]) : null,
-                    'details' => !empty($data[3]) ? trim($data[3]) : null,
+                    'event_name' => $eventName,
+                    'details' => $details,
                     'created_by_id' => !empty($data[4]) ? trim($data[4]) : null,
                     'created_by_nama' => !empty($data[5]) ? trim($data[5]) : null,
                     'created_by_nip' => $nip,
                     'created_at_log' => !empty($data[7]) ? trim($data[7]) : null,
                     'object_pns_id' => !empty($data[9]) ? trim($data[9]) : null, // FIXED: was $data[8]
+                    'is_inject' => $isInject,
+                    'inject_type' => $injectType,
                     'created_at' => now(),
                     'updated_at' => now(),
                     'day_name' => $dayName,

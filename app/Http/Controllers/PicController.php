@@ -132,18 +132,12 @@ class PicController extends Controller
             'total_mapping' => DB::table('log_aktivitas')
                 ->whereIn('created_by_nip', $anggotaNips)
                 ->where('event_name', 'mapping_dokumen')
-                ->where(function($q) {
-                    $q->where('details', 'NOT LIKE', '%inject%')
-                      ->where('details', 'NOT LIKE', '%Inject%');
-                })
+                ->whereNull('inject_type')
                 ->count(),
 
             'total_inject' => DB::table('log_aktivitas')
                 ->whereIn('created_by_nip', $anggotaNips)
-                ->where(function($q) {
-                    $q->where('details', 'LIKE', '%inject%')
-                      ->orWhere('details', 'LIKE', '%Inject%');
-                })
+                ->where('inject_type', 'unggah')
                 ->count(),
 
             'unique_pns' => DB::table('log_aktivitas')
@@ -160,8 +154,8 @@ class PicController extends Controller
                 'p.nip',
                 'p.nama',
                 DB::raw('COUNT(la.id) as total_aktivitas'),
-                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 END) as total_mapping'),
-                DB::raw('COUNT(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 END) as total_inject'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND la.inject_type IS NULL THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.inject_type = "unggah" THEN 1 END) as total_inject'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
             ->whereIn('p.nip', $anggotaNips)
