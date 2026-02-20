@@ -1119,10 +1119,10 @@ class AktivitasPegawaiController extends Controller
 
         // Apply date filters
         if ($dateFrom) {
-            $query->whereDate('created_at', '>=', $dateFrom);
+            $query->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
         }
         if ($dateTo) {
-            $query->whereDate('created_at', '<=', $dateTo);
+            $query->where('created_at_log', '<=', $dateTo . ' 23:59:59');
         }
 
         $dailyData = $query->groupBy('day_name', 'work_category')->get();
