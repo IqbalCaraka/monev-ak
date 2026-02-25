@@ -9,6 +9,8 @@ use App\Models\DmsPns;
 use App\Models\DmsPnsScoreLog;
 use App\Models\DmsInstansiScore;
 use App\Models\DmsNasional;
+use App\Models\MonevDmsInstansiScore;
+use App\Models\MonevDmsNasional;
 
 class DashboardController extends Controller
 {
@@ -118,6 +120,72 @@ class DashboardController extends Controller
             ->orderBy('calculated_at', 'desc')
             ->first();
 
-        return view('dashboard.dms', compact('uploads', 'stats', 'calculatedInstansi', 'scoreDistribution', 'kelengkapanDistribution', 'search', 'topInstansi', 'bottomInstansi', 'nasionalScore'));
+        // Get Monev data (from manual CSV upload)
+        // Check if user selected a specific date
+        $selectedMonevDate = $request->input('monev_date');
+
+        // Get all monev upload dates for dropdown
+        $monevUploads = MonevDmsNasional::orderBy('upload_date', 'desc')->get();
+
+        $monevNasionalScore = null;
+        $monevTopInstansi = collect();
+        $monevBottomInstansi = collect();
+
+        // If user selected a date, use that, otherwise use the latest
+        if ($selectedMonevDate) {
+            $monevNasionalScore = MonevDmsNasional::where('upload_date', $selectedMonevDate)->first();
+        } else {
+            $monevNasionalScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+        }
+
+        // Get search parameter for monev instansi
+        $monevSearch = $request->input('monev_search');
+
+        if ($monevNasionalScore) {
+            // Get top 5 for summary
+            $monevTopInstansi = MonevDmsInstansiScore::where('upload_date', $monevNasionalScore->upload_date)
+                ->orderBy('monev_skor_instansi', 'desc')
+                ->limit(5)
+                ->get();
+
+            // Get bottom 5 for summary
+            $monevBottomInstansi = MonevDmsInstansiScore::where('upload_date', $monevNasionalScore->upload_date)
+                ->orderBy('monev_skor_instansi', 'asc')
+                ->limit(5)
+                ->get();
+
+            // Get all instansi with pagination and search for detailed table
+            $monevAllInstansiQuery = MonevDmsInstansiScore::where('upload_date', $monevNasionalScore->upload_date);
+
+            if ($monevSearch) {
+                $monevAllInstansiQuery->where('nama_instansi', 'like', '%' . $monevSearch . '%');
+            }
+
+            $monevAllInstansi = $monevAllInstansiQuery
+                ->orderBy('monev_skor_instansi', 'desc')
+                ->paginate(10)
+                ->appends(['monev_date' => $selectedMonevDate, 'monev_search' => $monevSearch]);
+        } else {
+            $monevAllInstansi = collect();
+        }
+
+        return view('dashboard.dms', compact(
+            'uploads',
+            'stats',
+            'calculatedInstansi',
+            'scoreDistribution',
+            'kelengkapanDistribution',
+            'search',
+            'topInstansi',
+            'bottomInstansi',
+            'nasionalScore',
+            'monevNasionalScore',
+            'monevTopInstansi',
+            'monevBottomInstansi',
+            'monevUploads',
+            'selectedMonevDate',
+            'monevAllInstansi',
+            'monevSearch'
+        ));
     }
 }

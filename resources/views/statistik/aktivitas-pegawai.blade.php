@@ -45,9 +45,11 @@
                             <label class="form-label mb-1 small"><i class="ti-search me-1"></i> Cari NIP/Nama</label>
                             <input type="text"
                                    name="search"
+                                   id="searchInput"
                                    class="form-control"
                                    placeholder="Cari NIP/Nama..."
-                                   value="{{ $search ?? '' }}">
+                                   value="{{ $search ?? '' }}"
+                                   autocomplete="off">
                         </div>
                         <div class="col-md-3 d-flex gap-2">
                             <button type="submit" class="btn btn-primary flex-fill">
@@ -284,65 +286,77 @@
             <div class="card-body">
                 <h4 class="card-title mb-3">Aktivitas Pegawai</h4>
 
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>NIP</th>
-                                <th>Nama</th>
-                                <th class="text-center">Jenis Aktivitas</th>
-                                <th class="text-center">Total Aktivitas</th>
-                                <th class="text-center">Last Activity</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($aktivitas as $index => $a)
-                                <tr>
-                                    <td>{{ $aktivitas->firstItem() + $index }}</td>
-                                    <td><code>{{ $a->nip }}</code></td>
-                                    <td>{{ $a->nama }}</td>
-                                    <td class="text-center">
-                                        <span class="badge badge-info">{{ $a->jenis_aktivitas }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <strong>{{ number_format($a->total_aktivitas) }}</strong>
-                                    </td>
-                                    <td class="text-center">
-                                        <small class="text-muted">{{ $a->last_activity ?? '-' }}</small>
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="{{ route('aktivitas-pegawai.show', $a->nip) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="ti-eye"></i> Detail
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted">
-                                        @if($search)
-                                            Tidak ada data yang ditemukan untuk "{{ $search }}"
-                                        @else
-                                            Belum ada data aktivitas
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <!-- Loading Indicator -->
+                <div id="tableLoading" style="display: none;" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Mencari data...</p>
                 </div>
 
-                @if($aktivitas->hasPages())
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted small">
-                        Menampilkan {{ $aktivitas->firstItem() }} - {{ $aktivitas->lastItem() }} dari {{ $aktivitas->total() }} data
+                <div id="tableContainer">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>NIP</th>
+                                    <th>Nama</th>
+                                    <th class="text-center">Jenis Aktivitas</th>
+                                    <th class="text-center">Total Aktivitas</th>
+                                    <th class="text-center">Last Activity</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                @forelse($aktivitas as $index => $a)
+                                    <tr>
+                                        <td>{{ $aktivitas->firstItem() + $index }}</td>
+                                        <td><code>{{ $a->nip }}</code></td>
+                                        <td>{{ $a->nama }}</td>
+                                        <td class="text-center">
+                                            <span class="badge badge-info">{{ $a->jenis_aktivitas }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <strong>{{ number_format($a->total_aktivitas) }}</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <small class="text-muted">{{ $a->last_activity ?? '-' }}</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route('aktivitas-pegawai.show', $a->nip) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="ti-eye"></i> Detail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">
+                                            @if($search)
+                                                Tidak ada data yang ditemukan untuk "{{ $search }}"
+                                            @else
+                                                Belum ada data aktivitas
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
-                    <div>
-                        {{ $aktivitas->appends(['search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo])->links('pagination::bootstrap-5') }}
+
+                    <div id="paginationContainer">
+                        @if($aktivitas->hasPages())
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted small" id="paginationInfo">
+                                Menampilkan {{ $aktivitas->firstItem() }} - {{ $aktivitas->lastItem() }} dari {{ $aktivitas->total() }} data
+                            </div>
+                            <div id="paginationLinks">
+                                {{ $aktivitas->appends(['search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo])->links('pagination::bootstrap-5') }}
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
-                @endif
             </div>
         </div>
     </div>
@@ -682,6 +696,185 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     });
 });
+
+// AJAX Search for Aktivitas Pegawai
+const searchInput = document.getElementById('searchInput');
+const tableBody = document.getElementById('tableBody');
+const tableContainer = document.getElementById('tableContainer');
+const tableLoading = document.getElementById('tableLoading');
+const paginationContainer = document.getElementById('paginationContainer');
+
+if (searchInput) {
+    let searchTimeout;
+
+    // Function to perform AJAX search
+    function performSearch(page = 1) {
+        const searchValue = searchInput.value;
+        const dateFrom = document.querySelector('input[name="date_from"]').value;
+        const dateTo = document.querySelector('input[name="date_to"]').value;
+
+        // Show loading
+        tableContainer.style.opacity = '0.5';
+        tableLoading.style.display = 'block';
+
+        // Build URL with parameters
+        const params = new URLSearchParams({
+            search: searchValue,
+            page: page
+        });
+
+        if (dateFrom) params.append('date_from', dateFrom);
+        if (dateTo) params.append('date_to', dateTo);
+
+        // Perform AJAX request
+        fetch(`{{ route('api.aktivitas-pegawai.search') }}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update table body
+            updateTableBody(data.data, searchValue);
+
+            // Update pagination
+            updatePagination(data.pagination, searchValue, dateFrom, dateTo);
+
+            // Hide loading
+            tableContainer.style.opacity = '1';
+            tableLoading.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tableContainer.style.opacity = '1';
+            tableLoading.style.display = 'none';
+        });
+    }
+
+    // Function to update table body
+    function updateTableBody(data, searchValue) {
+        if (data.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-muted">
+                        ${searchValue ?
+                            `Tidak ada data yang ditemukan untuk "${searchValue}"` :
+                            'Belum ada data aktivitas'
+                        }
+                    </td>
+                </tr>
+            `;
+        } else {
+            let rows = '';
+            data.forEach(item => {
+                rows += `
+                    <tr>
+                        <td>${item.no}</td>
+                        <td><code>${item.nip}</code></td>
+                        <td>${item.nama}</td>
+                        <td class="text-center">
+                            <span class="badge badge-info">${item.jenis_aktivitas}</span>
+                        </td>
+                        <td class="text-center">
+                            <strong>${item.total_aktivitas}</strong>
+                        </td>
+                        <td class="text-center">
+                            <small class="text-muted">${item.last_activity}</small>
+                        </td>
+                        <td class="text-center">
+                            <a href="${item.detail_url}" class="btn btn-sm btn-outline-primary">
+                                <i class="ti-eye"></i> Detail
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = rows;
+        }
+    }
+
+    // Function to update pagination
+    function updatePagination(pagination, searchValue, dateFrom, dateTo) {
+        if (pagination.last_page <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        let paginationHTML = `
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted small">
+                    Menampilkan ${pagination.from || 0} - ${pagination.to || 0} dari ${pagination.total} data
+                </div>
+                <div>
+                    <nav>
+                        <ul class="pagination mb-0">
+        `;
+
+        // Previous button
+        if (pagination.current_page > 1) {
+            paginationHTML += `
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="searchPage(${pagination.current_page - 1}); return false;">Previous</a>
+                </li>
+            `;
+        }
+
+        // Page numbers
+        for (let i = 1; i <= pagination.last_page; i++) {
+            if (i === 1 || i === pagination.last_page || (i >= pagination.current_page - 2 && i <= pagination.current_page + 2)) {
+                paginationHTML += `
+                    <li class="page-item ${i === pagination.current_page ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="searchPage(${i}); return false;">${i}</a>
+                    </li>
+                `;
+            } else if (i === pagination.current_page - 3 || i === pagination.current_page + 3) {
+                paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+        }
+
+        // Next button
+        if (pagination.current_page < pagination.last_page) {
+            paginationHTML += `
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="searchPage(${pagination.current_page + 1}); return false;">Next</a>
+                </li>
+            `;
+        }
+
+        paginationHTML += `
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        `;
+
+        paginationContainer.innerHTML = paginationHTML;
+    }
+
+    // Expose search function to window for pagination clicks
+    window.searchPage = function(page) {
+        performSearch(page);
+    };
+
+    // Debounced search on input
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            performSearch(1);
+        }, 500);
+    });
+
+    // Enter key support
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            clearTimeout(searchTimeout);
+            performSearch(1);
+        }
+    });
+}
 
 // Export PDF function with loading
 function exportPdf() {

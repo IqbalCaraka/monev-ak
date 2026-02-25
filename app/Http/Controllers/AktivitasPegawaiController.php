@@ -46,7 +46,7 @@ class AktivitasPegawaiController extends Controller
 
     /**
      * Get activities from summary table (no date filter)
-     * OPTIMIZED: Hitung unique PNS per pegawai menggunakan subquery
+     * OPTIMIZED: Hitung jumlah jenis aktivitas (distinct kategori)
      */
     private function getActivitiesFromSummary($search = null)
     {
@@ -57,7 +57,7 @@ class AktivitasPegawaiController extends Controller
                 DB::raw('COALESCE(p.nama, pas.nip) as nama'),
                 DB::raw('SUM(pas.total_aktivitas) as total_aktivitas'),
                 DB::raw('MAX(pas.last_activity_at) as last_activity'),
-                DB::raw('(SELECT COUNT(DISTINCT la.object_pns_id) FROM log_aktivitas la WHERE la.created_by_nip = pas.nip) as jenis_aktivitas')
+                DB::raw('COUNT(DISTINCT pas.kategori_aktivitas) as jenis_aktivitas')
             )
             ->groupBy('pas.nip', 'p.nama');
 
@@ -362,24 +362,30 @@ class AktivitasPegawaiController extends Controller
             $query->where('created_at_log', '<=', $dateTo . ' 23:59:59');
         }
 
-        if ($kategori === 'Inject Dokumen' || $kategori === 'Inject - Unggah Dokumen') {
-            // Inject Dokumen: details contains 'inject' atau 'Inject'
-            $query->where(function($q) {
-                $q->where('details', 'LIKE', '%inject%')
-                  ->orWhere('details', 'LIKE', '%Inject%');
-            });
+        if ($kategori === 'Inject Dokumen' || $kategori === 'Inject - Unggah Dokumen' || $kategori === 'Inject - Mapping Dokumen') {
+            // OPTIMIZED: Use indexed column is_inject
+            $query->where('is_inject', 1);
+
+            // Additional filter for specific inject types
+            if ($kategori === 'Inject - Unggah Dokumen') {
+                $query->where('event_name', 'unggah_dokumen');
+            } elseif ($kategori === 'Inject - Mapping Dokumen') {
+                $query->where('event_name', 'mapping_dokumen');
+            }
         } elseif ($kategori === 'Unggah Dokumen') {
-            // Unggah Dokumen (normal): unggah_dokumen dengan details = "unggah_dokumen"
+            // Unggah Dokumen (normal): unggah_dokumen TANPA inject
             $query->where('event_name', 'unggah_dokumen')
-                  ->where('details', 'unggah_dokumen');
+                  ->where(function($q) {
+                      $q->where('is_inject', 0)
+                        ->orWhereNull('is_inject');
+                  });
         } elseif ($kategori === 'Mapping Dokumen') {
             // Mapping Dokumen (non-inject): mapping_dokumen tanpa inject
+            // OPTIMIZED: Use indexed column is_inject
             $query->where('event_name', 'mapping_dokumen')
                   ->where(function($q) {
-                      $q->where(function($q2) {
-                          $q2->where('details', 'NOT LIKE', '%inject%')
-                             ->where('details', 'NOT LIKE', '%Inject%');
-                      })->orWhereNull('details');
+                      $q->where('is_inject', 0)
+                        ->orWhereNull('is_inject');
                   });
         } else {
             // Kategori lain: convert Title Case ke event_name asli
@@ -689,11 +695,12 @@ class AktivitasPegawaiController extends Controller
 
     /**
      * Get Mapping Dokumen Summary (Non-Inject) - ALL PEGAWAI
-     * HIGHLY OPTIMIZED: Using composite index and efficient aggregation
+     * HIGHLY OPTIMIZED: Using composite index and indexed is_inject column
      *
      * Counts:
      * - Total mapping per dokumen (COUNT(*))
      * - Total unique PNS yang dipetakan (COUNT DISTINCT object_pns_id)
+     * - Filters: is_inject = 0 OR NULL (uses index for fast filtering)
      */
     private function getMappingDokumenSummary($dateFrom = null, $dateTo = null, $search = null)
     {
@@ -706,9 +713,11 @@ class AktivitasPegawaiController extends Controller
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
             )
             ->where('la.event_name', 'mapping_dokumen')
+            // OPTIMIZED: Use indexed column is_inject instead of LIKE on details
+            // This is MUCH FASTER and more accurate
             ->where(function($q) {
-                $q->where('la.details', 'NOT LIKE', '%inject%')
-                  ->orWhereNull('la.details');
+                $q->where('la.is_inject', 0)
+                  ->orWhereNull('la.is_inject');
             })
             ->whereNotNull('la.created_by_nip');
 
@@ -736,7 +745,7 @@ class AktivitasPegawaiController extends Controller
 
     /**
      * Get Inject Dokumen Summary - ALL PEGAWAI
-     * OPTIMIZED: Inject detected via details LIKE '%inject%'
+     * OPTIMIZED: Inject detected via indexed column is_inject = 1
      *
      * Counts:
      * - Total inject per dokumen (COUNT(*))
@@ -752,7 +761,9 @@ class AktivitasPegawaiController extends Controller
                 DB::raw('COUNT(*) as total_per_dokumen'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
             )
-            ->where('la.details', 'LIKE', '%inject%')
+            // OPTIMIZED: Use indexed column is_inject instead of LIKE on details
+            // This is MUCH FASTER and more accurate
+            ->where('la.is_inject', 1)
             ->whereNotNull('la.created_by_nip');
 
         // Date filter
@@ -802,8 +813,8 @@ class AktivitasPegawaiController extends Controller
                 'pd.is_active',
                 DB::raw('COUNT(DISTINCT pdp.pegawai_nip) as total_anggota'),
                 DB::raw('COUNT(la.id) as total_aktivitas'),
-                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 END) as total_mapping'),
-                DB::raw('COUNT(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 END) as total_inject'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) as total_inject'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
             ->where('pd.is_active', true)
@@ -929,7 +940,7 @@ class AktivitasPegawaiController extends Controller
      */
     private function getPicStatsForPdf($dateFrom = null, $dateTo = null)
     {
-        // Note: "mapping" is in event_name, "inject" is in details column (e.g., "via Inject")
+        // Note: "mapping" is in event_name, "inject" detected via indexed is_inject column
         $query = DB::table('pic_dms as pd')
             ->leftJoin('pegawai as ketua', 'pd.ketua_nip', '=', 'ketua.nip')
             ->leftJoin('pic_dms_pegawai as pdp', 'pd.id', '=', 'pdp.pic_dms_id')
@@ -950,8 +961,8 @@ class AktivitasPegawaiController extends Controller
                 'pd.is_active',
                 DB::raw('COUNT(DISTINCT pdp.pegawai_nip) as total_anggota'),
                 DB::raw('COUNT(la.id) as total_aktivitas'),
-                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 END) as total_mapping'),
-                DB::raw('COUNT(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 END) as total_inject'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) as total_inject'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
             ->where('pd.is_active', true)
@@ -1010,7 +1021,7 @@ class AktivitasPegawaiController extends Controller
      */
     private function getPicWorkCategoryBreakdownMappingInject($picId, $dateFrom = null, $dateTo = null)
     {
-        // Note: "mapping" is in event_name, "inject" is in details column (e.g., "via Inject")
+        // Note: "mapping" is in event_name, "inject" detected via indexed is_inject column
         $query = DB::table('pic_dms_pegawai as pdp')
             ->join('log_aktivitas as la', 'pdp.pegawai_nip', '=', 'la.created_by_nip')
             ->where('pdp.pic_dms_id', $picId)
@@ -1019,8 +1030,8 @@ class AktivitasPegawaiController extends Controller
             ->select(
                 'la.work_category',
                 'la.day_name',
-                DB::raw('SUM(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 ELSE 0 END) as mapping_count'),
-                DB::raw('SUM(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
+                DB::raw('SUM(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN la.is_inject = 1 THEN 1 ELSE 0 END) as inject_count')
             );
 
         // Apply date filters
@@ -1066,7 +1077,7 @@ class AktivitasPegawaiController extends Controller
      */
     private function getPicMembers($picId, $dateFrom = null, $dateTo = null)
     {
-        // Note: "mapping" is in event_name, "inject" is in details column (e.g., "via Inject")
+        // Note: "mapping" is in event_name, "inject" detected via indexed is_inject column
         $query = DB::table('pic_dms_pegawai as pdp')
             ->join('pegawai as p', 'pdp.pegawai_nip', '=', 'p.nip')
             ->leftJoin('log_aktivitas as la', function($join) use ($dateFrom, $dateTo) {
@@ -1084,8 +1095,8 @@ class AktivitasPegawaiController extends Controller
                 'p.nip',
                 'p.nama',
                 DB::raw('COUNT(la.id) as total_aktivitas'),
-                DB::raw('SUM(CASE WHEN la.event_name = "mapping_dokumen" AND (la.details NOT LIKE "%inject%" AND la.details NOT LIKE "%Inject%") THEN 1 ELSE 0 END) as mapping_count'),
-                DB::raw('SUM(CASE WHEN la.details LIKE "%inject%" OR la.details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
+                DB::raw('SUM(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN la.is_inject = 1 THEN 1 ELSE 0 END) as inject_count')
             )
             ->groupBy('p.nip', 'p.nama')
             ->orderByDesc('total_aktivitas')
@@ -1104,13 +1115,13 @@ class AktivitasPegawaiController extends Controller
     private function getDailyActivitiesWithWorkType($dateFrom = null, $dateTo = null)
     {
         // Query with Mapping vs Inject breakdown
-        // Note: "mapping" is in event_name, "inject" is in details column (e.g., "via Inject")
+        // Note: "mapping" is in event_name, "inject" detected via indexed is_inject column
         $query = DB::table('log_aktivitas')
             ->select(
                 'day_name',
                 'work_category',
-                DB::raw('SUM(CASE WHEN event_name = "mapping_dokumen" AND (details NOT LIKE "%inject%" AND details NOT LIKE "%Inject%") THEN 1 ELSE 0 END) as mapping_count'),
-                DB::raw('SUM(CASE WHEN details LIKE "%inject%" OR details LIKE "%Inject%" THEN 1 ELSE 0 END) as inject_count')
+                DB::raw('SUM(CASE WHEN event_name = "mapping_dokumen" AND (is_inject = 0 OR is_inject IS NULL) THEN 1 ELSE 0 END) as mapping_count'),
+                DB::raw('SUM(CASE WHEN is_inject = 1 THEN 1 ELSE 0 END) as inject_count')
             )
             ->whereNotNull('day_name')
             ->whereNotNull('work_category');

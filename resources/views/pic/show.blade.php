@@ -145,9 +145,9 @@
                         <div class="col-md-3">
                             <div class="card text-white bg-primary">
                                 <div class="card-body">
-                                    <h6 class="card-title text-white">Total Aktivitas</h6>
+                                    <h6 class="card-title text-white">Total Aktivitas Mapping dan Inject</h6>
                                     <h2 class="mb-0">{{ number_format($stats['total_aktivitas']) }}</h2>
-                                    <small>Log aktivitas</small>
+                                    <small>Mapping + Inject saja</small>
                                 </div>
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                                 <tr>
                                     <th width="50">No</th>
                                     <th>Nama</th>
-                                    <th class="text-end">Total Aktivitas</th>
+                                    <th class="text-end">Total (Map+Inj)</th>
                                     <th class="text-end">Mapping</th>
                                     <th class="text-end">Inject</th>
                                     <th class="text-end">Unique PNS</th>

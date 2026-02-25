@@ -132,12 +132,15 @@ class PicController extends Controller
             'total_mapping' => DB::table('log_aktivitas')
                 ->whereIn('created_by_nip', $anggotaNips)
                 ->where('event_name', 'mapping_dokumen')
-                ->whereNull('inject_type')
+                ->where(function($q) {
+                    $q->where('is_inject', 0)
+                      ->orWhereNull('is_inject');
+                })
                 ->count(),
 
             'total_inject' => DB::table('log_aktivitas')
                 ->whereIn('created_by_nip', $anggotaNips)
-                ->where('inject_type', 'unggah')
+                ->where('is_inject', 1)
                 ->count(),
 
             'unique_pns' => DB::table('log_aktivitas')
@@ -153,9 +156,9 @@ class PicController extends Controller
             ->select(
                 'p.nip',
                 'p.nama',
-                DB::raw('COUNT(la.id) as total_aktivitas'),
-                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND la.inject_type IS NULL THEN 1 END) as total_mapping'),
-                DB::raw('COUNT(CASE WHEN la.inject_type = "unggah" THEN 1 END) as total_inject'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) as total_inject'),
+                DB::raw('(COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) + COUNT(CASE WHEN la.is_inject = 1 THEN 1 END)) as total_aktivitas'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
             ->whereIn('p.nip', $anggotaNips)

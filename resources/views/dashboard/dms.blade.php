@@ -9,15 +9,520 @@
             <div class="d-sm-flex align-items-center justify-content-between border-bottom">
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active ps-0" id="home-tab" data-bs-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="true">Overview</a>
+                        <a class="nav-link active ps-0" id="monev-skor-tab" data-bs-toggle="tab" href="#monev-skor" role="tab" aria-controls="monev-skor" aria-selected="true">Monev Skor</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="dms-tab" data-bs-toggle="tab" href="#kelola-dms" role="tab" aria-selected="false">Kelola DMS Instansi</a>
+                        <a class="nav-link" id="detail-skor-tab" data-bs-toggle="tab" href="#detail-skor" role="tab" aria-controls="detail-skor" aria-selected="false">Detail Skor Perorang dan Instansi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="kelola-dms-tab" data-bs-toggle="tab" href="#kelola-dms" role="tab" aria-selected="false">Kelola Statistik Instansi</a>
                     </li>
                 </ul>
             </div>
             <div class="tab-content tab-content-basic">
-                <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview">
+                <!-- Tab: Monev Skor -->
+                <div class="tab-pane fade show active" id="monev-skor" role="tabpanel" aria-labelledby="monev-skor">
+
+                    <!-- Filter Tanggal Upload -->
+                    @if($monevUploads->count() > 0)
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <form method="GET" action="{{ route('dashboard.dms') }}" class="d-flex align-items-center">
+                                        <label class="mb-0 me-3 fw-bold">
+                                            <i class="mdi mdi-filter-variant"></i> Filter Tanggal Data:
+                                        </label>
+                                        <select name="monev_date" class="form-select me-3" style="width: 250px;" onchange="this.form.submit()">
+                                            <option value="">-- Pilih Tanggal --</option>
+                                            @foreach($monevUploads as $upload)
+                                                <option value="{{ $upload->upload_date }}"
+                                                    {{ ($selectedMonevDate ?? '') == $upload->upload_date || (!$selectedMonevDate && $loop->first) ? 'selected' : '' }}>
+                                                    {{ \Carbon\Carbon::parse($upload->upload_date)->format('d M Y') }}
+                                                    @if($loop->first && !$selectedMonevDate)
+                                                        (Terbaru)
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @if($selectedMonevDate)
+                                            <a href="{{ route('dashboard.dms') }}" class="btn btn-secondary btn-sm">
+                                                <i class="mdi mdi-reload"></i> Reset
+                                            </a>
+                                        @endif
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Summary Statistics Cards (FROM MONEV DATA) -->
+                    <div class="row">
+                        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-9">
+                                            <div class="d-flex align-items-center align-self-start">
+                                                <h3 class="mb-0">{{ $monevUploads->count() }}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="icon icon-box-primary">
+                                                <span class="mdi mdi-cloud-upload icon-item"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted font-weight-normal">Total Upload Monev</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-9">
+                                            <div class="d-flex align-items-center align-self-start">
+                                                <h3 class="mb-0">{{ $monevNasionalScore ? number_format($monevNasionalScore->total_instansi) : '0' }}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="icon icon-box-success">
+                                                <span class="mdi mdi-office-building icon-item"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted font-weight-normal">Total Instansi</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-9">
+                                            <div class="d-flex align-items-center align-self-start">
+                                                <h3 class="mb-0">{{ $monevNasionalScore ? number_format($monevNasionalScore->monev_skor_nasional, 1) : '0' }}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="icon icon-box-info">
+                                                <span class="mdi mdi-chart-line icon-item"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted font-weight-normal">Rata-rata Skor Nasional</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-9">
+                                            <div class="d-flex align-items-center align-self-start">
+                                                <h3 class="mb-0">{{ $monevNasionalScore ? \Carbon\Carbon::parse($monevNasionalScore->upload_date)->format('d M') : '-' }}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="icon icon-box-warning">
+                                                <span class="mdi mdi-calendar icon-item"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted font-weight-normal">Data Terakhir</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- National Statistics Card (FROM MONEV DATA) -->
+                    @if($monevNasionalScore)
+                    <div class="row">
+                        <div class="col-lg-12 grid-margin stretch-card">
+                            <div class="card card-rounded">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h4 class="card-title card-title-dash mb-0">
+                                            <i class="mdi mdi-flag-checkered text-primary"></i> Monitoring Skor Nasional
+                                        </h4>
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-calendar"></i>
+                                            Data per: {{ \Carbon\Carbon::parse($monevNasionalScore->upload_date)->format('d M Y') }}
+                                        </small>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-3 col-md-6 mb-3">
+                                            <div class="p-3 bg-gradient-primary text-white rounded">
+                                                <p class="mb-1 opacity-75">Rata-rata Skor Nasional</p>
+                                                <h2 class="mb-0 fw-bold">{{ number_format($monevNasionalScore->monev_skor_nasional, 2) }}</h2>
+                                                <small class="opacity-75">Dari {{ number_format($monevNasionalScore->total_instansi) }} instansi</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6 mb-3">
+                                            <div class="p-3 bg-success text-white rounded">
+                                                <p class="mb-1 opacity-75 small">Sangat Lengkap</p>
+                                                <h2 class="mb-0 fw-bold">{{ number_format($monevNasionalScore->count_sangat_lengkap) }}</h2>
+                                                <small class="opacity-75">> 90</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6 mb-3">
+                                            <div class="p-3 bg-primary text-white rounded">
+                                                <p class="mb-1 opacity-75 small">Lengkap</p>
+                                                <h2 class="mb-0 fw-bold">{{ number_format($monevNasionalScore->count_lengkap) }}</h2>
+                                                <small class="opacity-75">55.6 - 90</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6 mb-3">
+                                            <div class="p-3 bg-warning text-white rounded">
+                                                <p class="mb-1 opacity-75 small">Cukup Lengkap</p>
+                                                <h2 class="mb-0 fw-bold">{{ number_format($monevNasionalScore->count_cukup_lengkap) }}</h2>
+                                                <small class="opacity-75">30 - 55.5</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 mb-3">
+                                            <div class="p-3 bg-danger text-white rounded">
+                                                <p class="mb-1 opacity-75 small">Kurang Lengkap</p>
+                                                <h2 class="mb-0 fw-bold">{{ number_format($monevNasionalScore->count_kurang_lengkap) }}</h2>
+                                                <small class="opacity-75">< 30</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @else
+                    <div class="row">
+                        <div class="col-12 grid-margin">
+                            <div class="alert alert-warning" role="alert">
+                                <h5><i class="mdi mdi-alert"></i> Belum Ada Data Skor Nasional</h5>
+                                <p class="mb-0">Silakan upload data CSV terlebih dahulu pada tab <strong>Kelola Statistik Instansi</strong> untuk mulai monitoring skor.</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Distribusi Kelengkapan Nasional (FROM MONEV DATA) -->
+                    @if($monevNasionalScore)
+                    <div class="row">
+                        <div class="col-lg-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">
+                                        <i class="mdi mdi-chart-pie text-info"></i> Distribusi Kelengkapan Instansi Nasional
+                                    </h4>
+                                    <div class="row mt-4">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="border border-success rounded p-3 text-center">
+                                                <div class="mb-2">
+                                                    <i class="mdi mdi-star-circle text-success" style="font-size: 2rem;"></i>
+                                                </div>
+                                                <h3 class="text-success mb-1">{{ number_format($monevNasionalScore->count_sangat_lengkap) }}</h3>
+                                                <p class="text-muted mb-1 small">Sangat Lengkap</p>
+                                                <small class="text-muted">Skor > 90</small>
+                                                @if($monevNasionalScore->total_instansi > 0)
+                                                <div class="progress mt-2" style="height: 5px;">
+                                                    <div class="progress-bar bg-success" style="width: {{ ($monevNasionalScore->count_sangat_lengkap / $monevNasionalScore->total_instansi) * 100 }}%"></div>
+                                                </div>
+                                                <small class="text-muted">{{ number_format(($monevNasionalScore->count_sangat_lengkap / $monevNasionalScore->total_instansi) * 100, 1) }}%</small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="border border-primary rounded p-3 text-center">
+                                                <div class="mb-2">
+                                                    <i class="mdi mdi-check-circle text-primary" style="font-size: 2rem;"></i>
+                                                </div>
+                                                <h3 class="text-primary mb-1">{{ number_format($monevNasionalScore->count_lengkap) }}</h3>
+                                                <p class="text-muted mb-1 small">Lengkap</p>
+                                                <small class="text-muted">Skor 55.6 - 90</small>
+                                                @if($monevNasionalScore->total_instansi > 0)
+                                                <div class="progress mt-2" style="height: 5px;">
+                                                    <div class="progress-bar bg-primary" style="width: {{ ($monevNasionalScore->count_lengkap / $monevNasionalScore->total_instansi) * 100 }}%"></div>
+                                                </div>
+                                                <small class="text-muted">{{ number_format(($monevNasionalScore->count_lengkap / $monevNasionalScore->total_instansi) * 100, 1) }}%</small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="border border-warning rounded p-3 text-center">
+                                                <div class="mb-2">
+                                                    <i class="mdi mdi-alert-circle text-warning" style="font-size: 2rem;"></i>
+                                                </div>
+                                                <h3 class="text-warning mb-1">{{ number_format($monevNasionalScore->count_cukup_lengkap) }}</h3>
+                                                <p class="text-muted mb-1 small">Cukup Lengkap</p>
+                                                <small class="text-muted">Skor 30 - 55.5</small>
+                                                @if($monevNasionalScore->total_instansi > 0)
+                                                <div class="progress mt-2" style="height: 5px;">
+                                                    <div class="progress-bar bg-warning" style="width: {{ ($monevNasionalScore->count_cukup_lengkap / $monevNasionalScore->total_instansi) * 100 }}%"></div>
+                                                </div>
+                                                <small class="text-muted">{{ number_format(($monevNasionalScore->count_cukup_lengkap / $monevNasionalScore->total_instansi) * 100, 1) }}%</small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="border border-danger rounded p-3 text-center">
+                                                <div class="mb-2">
+                                                    <i class="mdi mdi-close-circle text-danger" style="font-size: 2rem;"></i>
+                                                </div>
+                                                <h3 class="text-danger mb-1">{{ number_format($monevNasionalScore->count_kurang_lengkap) }}</h3>
+                                                <p class="text-muted mb-1 small">Kurang Lengkap</p>
+                                                <small class="text-muted">Skor < 30</small>
+                                                @if($monevNasionalScore->total_instansi > 0)
+                                                <div class="progress mt-2" style="height: 5px;">
+                                                    <div class="progress-bar bg-danger" style="width: {{ ($monevNasionalScore->count_kurang_lengkap / $monevNasionalScore->total_instansi) * 100 }}%"></div>
+                                                </div>
+                                                <small class="text-muted">{{ number_format(($monevNasionalScore->count_kurang_lengkap / $monevNasionalScore->total_instansi) * 100, 1) }}%</small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Top & Bottom Instansi Summary -->
+                    <div class="row">
+                        <div class="col-lg-6 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">
+                                        <i class="mdi mdi-trophy text-warning"></i> Top 5 Instansi Terbaik
+                                    </h4>
+                                    <p class="card-description">Instansi dengan skor kelengkapan tertinggi</p>
+                                    <div class="table-responsive mt-3">
+                                        <table class="table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th class="ps-0">#</th>
+                                                    <th>Instansi</th>
+                                                    <th class="text-end">Skor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($monevTopInstansi as $index => $inst)
+                                                <tr>
+                                                    <td class="ps-0 fw-bold text-primary">{{ $index + 1 }}</td>
+                                                    <td class="text-muted">{{ Str::limit($inst->nama_instansi, 40) }}</td>
+                                                    <td class="text-end">
+                                                        <span class="badge badge-success px-3 py-2">
+                                                            {{ number_format($inst->monev_skor_instansi, 2) }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                @empty
+                                                <tr>
+                                                    <td colspan="3" class="text-center text-muted">Belum ada data</td>
+                                                </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">
+                                        <i class="mdi mdi-alert-octagon text-danger"></i> Top 5 Instansi Perlu Perhatian
+                                    </h4>
+                                    <p class="card-description">Instansi dengan skor kelengkapan terendah</p>
+                                    <div class="table-responsive mt-3">
+                                        <table class="table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th class="ps-0">#</th>
+                                                    <th>Instansi</th>
+                                                    <th class="text-end">Skor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($monevBottomInstansi as $index => $inst)
+                                                <tr>
+                                                    <td class="ps-0 fw-bold text-danger">{{ $index + 1 }}</td>
+                                                    <td class="text-muted">{{ Str::limit($inst->nama_instansi, 40) }}</td>
+                                                    <td class="text-end">
+                                                        <span class="badge badge-danger px-3 py-2">
+                                                            {{ number_format($inst->monev_skor_instansi, 2) }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                @empty
+                                                <tr>
+                                                    <td colspan="3" class="text-center text-muted">Belum ada data</td>
+                                                </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- All Instansi Table with Search and Pagination -->
+                    @if($monevNasionalScore)
+                    <div class="row">
+                        <div class="col-lg-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h4 class="card-title mb-0">
+                                            <i class="mdi mdi-format-list-bulleted text-primary"></i> Daftar Semua Instansi
+                                        </h4>
+                                        <span class="badge badge-info px-3 py-2">
+                                            Total: {{ $monevAllInstansi->total() }} Instansi
+                                        </span>
+                                    </div>
+
+                                    <!-- Search Form -->
+                                    <form method="GET" action="{{ route('dashboard.dms') }}" class="mb-3" id="monevSearchForm">
+                                        <input type="hidden" name="monev_date" value="{{ $selectedMonevDate }}">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-primary text-white">
+                                                <i class="mdi mdi-magnify"></i>
+                                            </span>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="monev_search"
+                                                   id="monevSearchInput"
+                                                   placeholder="Cari nama instansi..."
+                                                   value="{{ $monevSearch ?? '' }}"
+                                                   autocomplete="off">
+                                            <button type="button" class="btn btn-secondary" id="monevResetBtn" style="display: {{ $monevSearch ? 'block' : 'none' }};">
+                                                <i class="mdi mdi-close"></i> Reset
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Ketik untuk mencari secara otomatis</small>
+                                    </form>
+
+                                    <!-- Loading Indicator -->
+                                    <div id="monevTableLoading" style="display: none;" class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2 text-muted">Mencari data...</p>
+                                    </div>
+
+                                    <div id="monevTableContainer">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-bordered">
+                                                <thead class="table-primary">
+                                                    <tr>
+                                                        <th width="5%" class="text-center">#</th>
+                                                        <th width="10%" class="text-center">ID Instansi</th>
+                                                        <th width="45%">Nama Instansi</th>
+                                                        <th width="15%" class="text-center">Skor</th>
+                                                        <th width="25%" class="text-center">Status Kelengkapan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="monevTableBody">
+                                                    @forelse($monevAllInstansi as $index => $instansi)
+                                                        @php
+                                                            $badgeClass = match($instansi->monev_status_kelengkapan) {
+                                                                'Sangat Lengkap' => 'badge-success',
+                                                                'Lengkap' => 'badge-primary',
+                                                                'Cukup Lengkap' => 'badge-warning',
+                                                                'Kurang Lengkap' => 'badge-danger',
+                                                                default => 'badge-secondary'
+                                                            };
+                                                        @endphp
+                                                        <tr>
+                                                            <td class="text-center fw-bold">{{ $monevAllInstansi->firstItem() + $index }}</td>
+                                                            <td class="text-center">{{ $instansi->id_instansi }}</td>
+                                                            <td>
+                                                                <strong>{{ $instansi->nama_instansi }}</strong>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge {{ $instansi->monev_skor_instansi > 90 ? 'badge-success' : ($instansi->monev_skor_instansi >= 55.6 ? 'badge-primary' : ($instansi->monev_skor_instansi >= 30 ? 'badge-warning' : 'badge-danger')) }} px-3 py-2">
+                                                                    {{ number_format($instansi->monev_skor_instansi, 2) }}
+                                                                </span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge {{ $badgeClass }} px-3 py-2">
+                                                                    {{ $instansi->monev_status_kelengkapan }}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="5" class="text-center text-muted py-4">
+                                                                @if($monevSearch)
+                                                                    <i class="mdi mdi-magnify mdi-48px d-block mb-2"></i>
+                                                                    Tidak ada data yang ditemukan untuk "<strong>{{ $monevSearch }}</strong>"
+                                                                @else
+                                                                    <i class="mdi mdi-database-remove mdi-48px d-block mb-2"></i>
+                                                                    Belum ada data instansi
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Pagination -->
+                                        <div id="monevPaginationContainer">
+                                            @if($monevAllInstansi->hasPages())
+                                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                                <div class="text-muted small" id="monevPaginationInfo">
+                                                    Menampilkan {{ $monevAllInstansi->firstItem() }} - {{ $monevAllInstansi->lastItem() }} dari {{ $monevAllInstansi->total() }} instansi
+                                                </div>
+                                                <div id="monevPaginationLinks">
+                                                    {{ $monevAllInstansi->links('pagination::bootstrap-5') }}
+                                                </div>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Latest Upload Info (FROM MONEV DATA) -->
+                    @if($monevNasionalScore)
+                    <div class="row">
+                        <div class="col-lg-12 grid-margin stretch-card">
+                            <div class="card bg-info-subtle">
+                                <div class="card-body">
+                                    <h4 class="card-title">
+                                        <i class="mdi mdi-information text-info"></i> Informasi Data Monev Terbaru
+                                    </h4>
+                                    <div class="row mt-3">
+                                        <div class="col-md-3">
+                                            <p class="text-muted mb-1 small">Tanggal Data</p>
+                                            <p class="mb-0 fw-bold">{{ \Carbon\Carbon::parse($monevNasionalScore->upload_date)->format('d M Y') }}</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <p class="text-muted mb-1 small">Total Instansi</p>
+                                            <p class="mb-0 fw-bold">{{ number_format($monevNasionalScore->total_instansi) }} instansi</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <p class="text-muted mb-1 small">Rata-rata Skor Nasional</p>
+                                            <p class="mb-0 fw-bold text-primary">{{ number_format($monevNasionalScore->monev_skor_nasional, 2) }}</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <p class="text-muted mb-1 small">Diupload Pada</p>
+                                            <p class="mb-0 fw-bold">{{ $monevNasionalScore->created_at->format('d M Y H:i') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                </div>
+
+                <!-- Tab: Detail Skor Perorang dan Instansi -->
+                <div class="tab-pane fade" id="detail-skor" role="tabpanel" aria-labelledby="detail-skor">
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="statistics-details d-flex align-items-center justify-content-between">
@@ -440,18 +945,147 @@
 
                 <!-- Tab Kelola DMS Instansi -->
                 <div class="tab-pane fade" id="kelola-dms" role="tabpanel" aria-labelledby="dms-tab">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h4 class="card-title">Upload Data DMS PNS</h4>
 
+                    <!-- ===== SECTION 1: MONEV SKOR INSTANSI ===== -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="card-title text-white mb-0">
+                                        <i class="mdi mdi-chart-box"></i> Section 1: Monev Skor Instansi
+                                    </h4>
+                                    <small>Upload data skor instansi manual dari database server</small>
+                                </div>
+                                <div class="card-body">
                                     @if(session('success'))
                                         <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                            {{ session('success') }}
+                                            <i class="mdi mdi-check-circle"></i> {{ session('success') }}
                                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                         </div>
                                     @endif
+
+                                    @if(session('error'))
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <i class="mdi mdi-alert-circle"></i> {{ session('error') }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    @endif
+
+                                    <form action="{{ route('monev-dms.upload-csv') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label fw-bold">Pilih File CSV Monev</label>
+                                                <input type="file" name="monev_csv_file" class="form-control" accept=".csv" required>
+                                                @error('monev_csv_file')
+                                                    <div class="text-danger mt-1 small">{{ $message }}</div>
+                                                @enderror
+                                                <small class="text-muted">
+                                                    Format CSV: id_instansi, nama_instansi, skor_instansi<br>
+                                                    <code>Example: 001,Kementerian Dalam Negeri,85.50</code>
+                                                </small>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label fw-bold">Tanggal Upload</label>
+                                                <input type="date" name="upload_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                                                @error('upload_date')
+                                                    <div class="text-danger mt-1 small">{{ $message }}</div>
+                                                @enderror
+                                                <small class="text-muted">Pilih tanggal untuk data ini</small>
+                                            </div>
+                                            <div class="col-md-2 mb-3 d-flex align-items-end">
+                                                <button type="submit" class="btn btn-primary w-100">
+                                                    <i class="mdi mdi-upload"></i> Upload Monev CSV
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    <hr class="my-4">
+
+                                    <h5 class="mb-3">
+                                        <i class="mdi mdi-history"></i> Riwayat Upload Monev
+                                    </h5>
+
+                                    @if($monevUploads->count() > 0)
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-bordered">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Tanggal Upload</th>
+                                                        <th class="text-center">Total Instansi</th>
+                                                        <th class="text-center">Rata-rata Skor</th>
+                                                        <th class="text-center">Sangat Lengkap</th>
+                                                        <th class="text-center">Lengkap</th>
+                                                        <th class="text-center">Cukup Lengkap</th>
+                                                        <th class="text-center">Kurang Lengkap</th>
+                                                        <th class="text-center">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($monevUploads as $upload)
+                                                    <tr>
+                                                        <td>
+                                                            <strong>{{ \Carbon\Carbon::parse($upload->upload_date)->format('d M Y') }}</strong>
+                                                            @if($loop->first)
+                                                                <span class="badge bg-success ms-2">Latest</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-info px-3 py-2">{{ number_format($upload->total_instansi) }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <strong class="text-primary">{{ number_format($upload->monev_skor_nasional, 2) }}</strong>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-success">{{ number_format($upload->count_sangat_lengkap) }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-primary">{{ number_format($upload->count_lengkap) }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-warning">{{ number_format($upload->count_cukup_lengkap) }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-danger">{{ number_format($upload->count_kurang_lengkap) }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <form action="{{ route('monev-dms.delete') }}" method="POST" class="d-inline"
+                                                                  onsubmit="return confirm('Yakin ingin menghapus data monev untuk tanggal {{ \Carbon\Carbon::parse($upload->upload_date)->format('d M Y') }}?');">
+                                                                @csrf
+                                                                <input type="hidden" name="upload_date" value="{{ $upload->upload_date }}">
+                                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                                    <i class="mdi mdi-delete"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <div class="alert alert-info">
+                                            <i class="mdi mdi-information"></i> Belum ada data monev yang diupload.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== SECTION 2: DETAIL SKOR INSTANSI (Upload Data DMS PNS) ===== -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    <h4 class="card-title text-white mb-0">
+                                        <i class="mdi mdi-database"></i> Section 2: Detail Skor Instansi
+                                    </h4>
+                                    <small>Upload data detail PNS dari CSV untuk perhitungan otomatis</small>
+                                </div>
+                                <div class="card-body">
+                                    <h4 class="card-title">Upload Data DMS PNS</h4>
 
                                     <form id="uploadForm" action="{{ route('dms.upload') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
@@ -989,6 +1623,189 @@
                 }
             }
         });
+    }
+
+    // Real-time AJAX Search for Monev Instansi
+    const monevSearchInput = document.getElementById('monevSearchInput');
+    const monevSearchForm = document.getElementById('monevSearchForm');
+    const monevTableBody = document.getElementById('monevTableBody');
+    const monevTableContainer = document.getElementById('monevTableContainer');
+    const monevTableLoading = document.getElementById('monevTableLoading');
+    const monevPaginationContainer = document.getElementById('monevPaginationContainer');
+    const monevResetBtn = document.getElementById('monevResetBtn');
+
+    if (monevSearchInput && monevSearchForm) {
+        let searchTimeout;
+        let currentPage = 1;
+
+        // Function to perform AJAX search
+        function performSearch(page = 1) {
+            const searchValue = monevSearchInput.value;
+            const uploadDate = '{{ $selectedMonevDate ?? ($monevNasionalScore->upload_date ?? "") }}';
+
+            // Show loading
+            monevTableContainer.style.opacity = '0.5';
+            monevTableLoading.style.display = 'block';
+
+            // Perform AJAX request
+            fetch(`{{ route('api.monev-dms.search') }}?upload_date=${uploadDate}&search=${encodeURIComponent(searchValue)}&page=${page}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update table body
+                updateTableBody(data.data, searchValue);
+
+                // Update pagination
+                updatePagination(data.pagination, searchValue);
+
+                // Hide loading
+                monevTableContainer.style.opacity = '1';
+                monevTableLoading.style.display = 'none';
+
+                // Update reset button visibility
+                if (monevResetBtn) {
+                    monevResetBtn.style.display = searchValue ? 'block' : 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                monevTableContainer.style.opacity = '1';
+                monevTableLoading.style.display = 'none';
+            });
+        }
+
+        // Function to update table body
+        function updateTableBody(data, searchValue) {
+            if (data.length === 0) {
+                monevTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            ${searchValue ?
+                                `<i class="mdi mdi-magnify mdi-48px d-block mb-2"></i>
+                                Tidak ada data yang ditemukan untuk "<strong>${searchValue}</strong>"` :
+                                `<i class="mdi mdi-database-remove mdi-48px d-block mb-2"></i>
+                                Belum ada data instansi`
+                            }
+                        </td>
+                    </tr>
+                `;
+            } else {
+                let rows = '';
+                data.forEach(item => {
+                    rows += `
+                        <tr>
+                            <td class="text-center fw-bold">${item.no}</td>
+                            <td class="text-center">${item.id_instansi}</td>
+                            <td><strong>${item.nama_instansi}</strong></td>
+                            <td class="text-center">
+                                <span class="badge ${item.skor_badge_class} px-3 py-2">
+                                    ${item.monev_skor_instansi}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge ${item.badge_class} px-3 py-2">
+                                    ${item.monev_status_kelengkapan}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                monevTableBody.innerHTML = rows;
+            }
+        }
+
+        // Function to update pagination
+        function updatePagination(pagination, searchValue) {
+            if (pagination.last_page <= 1) {
+                monevPaginationContainer.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = `
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        Menampilkan ${pagination.from || 0} - ${pagination.to || 0} dari ${pagination.total} instansi
+                    </div>
+                    <div>
+                        <nav>
+                            <ul class="pagination mb-0">
+            `;
+
+            // Previous button
+            if (pagination.current_page > 1) {
+                paginationHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="monevSearchPage(${pagination.current_page - 1}); return false;">Previous</a>
+                    </li>
+                `;
+            }
+
+            // Page numbers
+            for (let i = 1; i <= pagination.last_page; i++) {
+                if (i === 1 || i === pagination.last_page || (i >= pagination.current_page - 2 && i <= pagination.current_page + 2)) {
+                    paginationHTML += `
+                        <li class="page-item ${i === pagination.current_page ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="monevSearchPage(${i}); return false;">${i}</a>
+                        </li>
+                    `;
+                } else if (i === pagination.current_page - 3 || i === pagination.current_page + 3) {
+                    paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+
+            // Next button
+            if (pagination.current_page < pagination.last_page) {
+                paginationHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="monevSearchPage(${pagination.current_page + 1}); return false;">Next</a>
+                    </li>
+                `;
+            }
+
+            paginationHTML += `
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            `;
+
+            monevPaginationContainer.innerHTML = paginationHTML;
+        }
+
+        // Expose search function to window for pagination clicks
+        window.monevSearchPage = function(page) {
+            performSearch(page);
+        };
+
+        // Debounced search on input
+        monevSearchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                performSearch(1);
+            }, 500);
+        });
+
+        // Enter key support
+        monevSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(searchTimeout);
+                performSearch(1);
+            }
+        });
+
+        // Reset button
+        if (monevResetBtn) {
+            monevResetBtn.addEventListener('click', function() {
+                monevSearchInput.value = '';
+                performSearch(1);
+            });
+        }
     }
 </script>
 @endpush

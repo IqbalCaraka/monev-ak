@@ -9,6 +9,7 @@ use App\Http\Controllers\AktivitasPegawaiController;
 use App\Http\Controllers\StagingLogController;
 use App\Http\Controllers\PerhitunganSkorArsipController;
 use App\Http\Controllers\DmsController;
+use App\Http\Controllers\MonevDmsController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/dashboard-dms', [DashboardController::class, 'dms'])->name('dashboard.dms');
@@ -55,4 +56,16 @@ Route::prefix('dms')->group(function () {
     Route::post('/calculate-instansi', [DmsController::class, 'calculateInstansi'])->name('dms.calculate-instansi');
     Route::post('/{uploadId}/calculate-all', [DmsController::class, 'calculateAll'])->name('dms.calculate-all');
     Route::get('/{uploadId}/instansi/{instansiId}', [DmsController::class, 'instansiDetail'])->name('dms.instansi-detail');
+});
+
+// Monev DMS Routes
+Route::prefix('monev-dms')->group(function () {
+    Route::post('/upload-csv', [MonevDmsController::class, 'uploadMonevCsv'])->name('monev-dms.upload-csv');
+    Route::post('/delete', [MonevDmsController::class, 'deleteMonevData'])->name('monev-dms.delete');
+});
+
+// Monev DMS API Routes
+Route::prefix('api/monev-dms')->group(function () {
+    Route::get('/search-instansi', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'searchInstansi'])->name('api.monev-dms.search');
+    Route::get('/search-aktivitas-pegawai', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'searchAktivitasPegawai'])->name('api.aktivitas-pegawai.search');
 });
