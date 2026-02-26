@@ -55,11 +55,12 @@ class MonevDmsController extends Controller
             $countKurangLengkap = 0;
 
             foreach ($csvData as $row) {
-                if (count($row) < 3) continue; // Skip invalid rows
+                if (count($row) < 4) continue; // Skip invalid rows (now need 4 columns)
 
                 $idInstansi = trim($row[0]);
                 $namaInstansi = trim($row[1]);
                 $skorInstansi = floatval($row[2]);
+                $kantorRegionalId = trim($row[3]);
 
                 // Determine status kelengkapan
                 if ($skorInstansi > 90) {
@@ -81,6 +82,7 @@ class MonevDmsController extends Controller
                     'nama_instansi' => $namaInstansi,
                     'upload_date' => $uploadDate,
                     'monev_skor_instansi' => $skorInstansi,
+                    'kantor_regional_id' => $kantorRegionalId,
                     'monev_status_kelengkapan' => $statusKelengkapan,
                     'created_at' => now(),
                     'updated_at' => now(),
