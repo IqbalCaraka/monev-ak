@@ -949,17 +949,17 @@ class AktivitasPegawaiController extends Controller
             })
             ->select(
                 'pd.id as pic_id',
-                'ketua.nama as ketua_nama',
-                'ketua.nip as ketua_nip',
+                DB::raw('MAX(ketua.nama) as ketua_nama'),
+                DB::raw('MAX(ketua.nip) as ketua_nip'),
                 'pd.is_active',
                 DB::raw('COUNT(DISTINCT pdp.pegawai_nip) as total_anggota'),
-                DB::raw('COUNT(la.id) as total_aktivitas'),
+                DB::raw('(COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) + COUNT(CASE WHEN la.is_inject = 1 THEN 1 END)) as total_aktivitas'),
                 DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) as total_mapping'),
                 DB::raw('COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) as total_inject'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
             ->where('pd.is_active', true)
-            ->groupBy('pd.id', 'ketua.nama', 'ketua.nip', 'pd.is_active')
+            ->groupBy('pd.id', 'pd.is_active')
             ->orderByDesc('total_aktivitas')
             ->get();
 
@@ -1087,7 +1087,7 @@ class AktivitasPegawaiController extends Controller
             ->select(
                 'p.nip',
                 'p.nama',
-                DB::raw('COUNT(la.id) as total_aktivitas'),
+                DB::raw('(SUM(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 ELSE 0 END) + SUM(CASE WHEN la.is_inject = 1 THEN 1 ELSE 0 END)) as total_aktivitas'),
                 DB::raw('SUM(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 ELSE 0 END) as mapping_count'),
                 DB::raw('SUM(CASE WHEN la.is_inject = 1 THEN 1 ELSE 0 END) as inject_count')
             )
