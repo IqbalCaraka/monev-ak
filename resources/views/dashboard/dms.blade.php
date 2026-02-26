@@ -365,6 +365,122 @@
                         </div>
                     </div>
 
+                    <!-- Statistik Kantor Regional -->
+                    @if($monevKantorRegionalStats->count() > 0)
+                    <div class="row">
+                        <div class="col-lg-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h4 class="card-title mb-1">
+                                                <i class="mdi mdi-map-marker-multiple text-info"></i> Statistik Per Kantor Regional
+                                            </h4>
+                                            <p class="text-muted small mb-0">Pengelompokan instansi berdasarkan Kantor Regional BKN</p>
+                                        </div>
+                                        <span class="badge badge-info px-3 py-2">
+                                            Total: {{ $monevKantorRegionalStats->count() }} Kantor Regional
+                                        </span>
+                                    </div>
+                                    <div class="table-responsive mt-3">
+                                        <table class="table table-hover table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="text-center" width="50">#</th>
+                                                    <th class="text-center" width="120">Kantor Regional</th>
+                                                    <th class="text-center">Total Instansi</th>
+                                                    <th class="text-center">Rata-rata Skor</th>
+                                                    <th class="text-center" width="100">Sangat Lengkap</th>
+                                                    <th class="text-center" width="100">Lengkap</th>
+                                                    <th class="text-center" width="100">Cukup Lengkap</th>
+                                                    <th class="text-center" width="100">Kurang Lengkap</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($monevKantorRegionalStats as $index => $kanreg)
+                                                <tr>
+                                                    <td class="text-center fw-bold">{{ $index + 1 }}</td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-primary px-3 py-2">
+                                                            Kanreg {{ $kanreg->kantor_regional_id }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-info px-3 py-2">
+                                                            {{ number_format($kanreg->total_instansi) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <strong class="text-primary" style="font-size: 1.1em;">
+                                                            {{ number_format($kanreg->rata_rata_skor, 2) }}
+                                                        </strong>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-success px-2 py-1">
+                                                            {{ number_format($kanreg->count_sangat_lengkap) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-primary px-2 py-1">
+                                                            {{ number_format($kanreg->count_lengkap) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-warning px-2 py-1">
+                                                            {{ number_format($kanreg->count_cukup_lengkap) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-danger px-2 py-1">
+                                                            {{ number_format($kanreg->count_kurang_lengkap) }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                            <tfoot class="table-secondary">
+                                                <tr>
+                                                    <th colspan="2" class="text-end">TOTAL:</th>
+                                                    <th class="text-center">
+                                                        <span class="badge badge-dark px-3 py-2">
+                                                            {{ number_format($monevKantorRegionalStats->sum('total_instansi')) }}
+                                                        </span>
+                                                    </th>
+                                                    <th class="text-center">
+                                                        <strong class="text-dark" style="font-size: 1.1em;">
+                                                            {{ number_format($monevKantorRegionalStats->avg('rata_rata_skor'), 2) }}
+                                                        </strong>
+                                                    </th>
+                                                    <th class="text-center">
+                                                        <span class="badge badge-success px-2 py-1">
+                                                            {{ number_format($monevKantorRegionalStats->sum('count_sangat_lengkap')) }}
+                                                        </span>
+                                                    </th>
+                                                    <th class="text-center">
+                                                        <span class="badge badge-primary px-2 py-1">
+                                                            {{ number_format($monevKantorRegionalStats->sum('count_lengkap')) }}
+                                                        </span>
+                                                    </th>
+                                                    <th class="text-center">
+                                                        <span class="badge badge-warning px-2 py-1">
+                                                            {{ number_format($monevKantorRegionalStats->sum('count_cukup_lengkap')) }}
+                                                        </span>
+                                                    </th>
+                                                    <th class="text-center">
+                                                        <span class="badge badge-danger px-2 py-1">
+                                                            {{ number_format($monevKantorRegionalStats->sum('count_kurang_lengkap')) }}
+                                                        </span>
+                                                    </th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- All Instansi Table with Search and Pagination -->
                     @if($monevNasionalScore)
                     <div class="row">

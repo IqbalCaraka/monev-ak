@@ -140,6 +140,7 @@ class DashboardController extends Controller
 
         // Get search parameter for monev instansi
         $monevSearch = $request->input('monev_search');
+        $monevKantorRegionalStats = collect();
 
         if ($monevNasionalScore) {
             // Get top 5 for summary
@@ -165,6 +166,23 @@ class DashboardController extends Controller
                 ->orderBy('monev_skor_instansi', 'desc')
                 ->paginate(10)
                 ->appends(['monev_date' => $selectedMonevDate, 'monev_search' => $monevSearch]);
+
+            // Get Kantor Regional statistics
+            $monevKantorRegionalStats = DB::table('monev_dms_instansi_score')
+                ->select(
+                    'kantor_regional_id',
+                    DB::raw('COUNT(*) as total_instansi'),
+                    DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
+                    DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
+                    DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Lengkap" THEN 1 END) as count_lengkap'),
+                    DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Cukup Lengkap" THEN 1 END) as count_cukup_lengkap'),
+                    DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
+                )
+                ->where('upload_date', $monevNasionalScore->upload_date)
+                ->whereNotNull('kantor_regional_id')
+                ->groupBy('kantor_regional_id')
+                ->orderByDesc('rata_rata_skor')
+                ->get();
         } else {
             $monevAllInstansi = collect();
         }
@@ -185,7 +203,8 @@ class DashboardController extends Controller
             'monevUploads',
             'selectedMonevDate',
             'monevAllInstansi',
-            'monevSearch'
+            'monevSearch',
+            'monevKantorRegionalStats'
         ));
     }
 }
