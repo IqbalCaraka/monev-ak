@@ -161,11 +161,13 @@ class ImportLogAktivitasJob implements ShouldQueue
                     SELECT
                         created_by_nip,
                         CASE
-                            WHEN event_name = 'unggah_dokumen' AND details != 'unggah_dokumen'
+                            WHEN event_name = 'unggah_dokumen' AND is_inject = 1
                                 THEN 'Inject - Unggah Dokumen'
-                            WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
+                            WHEN event_name = 'mapping_dokumen' AND is_inject = 1
+                                THEN 'Inject - Mapping Dokumen'
+                            WHEN event_name = 'unggah_dokumen' AND (is_inject = 0 OR is_inject IS NULL)
                                 THEN 'Unggah Dokumen'
-                            WHEN event_name = 'mapping_dokumen' AND (details NOT LIKE '%inject%' OR details IS NULL)
+                            WHEN event_name = 'mapping_dokumen' AND (is_inject = 0 OR is_inject IS NULL)
                                 THEN 'Mapping Dokumen'
                             WHEN event_name = 'lock_arsip'
                                 THEN 'Lock Arsip'
@@ -186,7 +188,6 @@ class ImportLogAktivitasJob implements ShouldQueue
                         NOW() as updated_at
                     FROM log_aktivitas
                     WHERE created_by_nip IN (" . implode(',', array_fill(0, count($affectedNips), '?')) . ")
-                        AND NOT (event_name = 'mapping_dokumen' AND details LIKE '%inject%')
                     GROUP BY created_by_nip, kategori_aktivitas
                 ";
 
