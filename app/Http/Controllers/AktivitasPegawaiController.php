@@ -21,27 +21,20 @@ class AktivitasPegawaiController extends Controller
         $dateFrom = $request->get('date_from');
         $dateTo = $request->get('date_to');
 
-        // OPTIMIZATION: Jika ada filter tanggal, query langsung dari log_aktivitas
-        // dengan index optimization. Jika tidak, pakai summary table yang lebih cepat.
+        // LAZY LOADING OPTIMIZATION: Hanya load stats cards dan top kategori
+        // Tables (aktivitas, mapping, inject, pic) akan di-load via AJAX untuk performa lebih cepat
         if ($dateFrom || $dateTo) {
-            // Dynamic aggregation dengan date filter (OPTIMIZED dengan index)
-            $aktivitas = $this->getFilteredActivities($search, $dateFrom, $dateTo);
             $topKategori = $this->getTopKategoriFiltered($dateFrom, $dateTo);
             $stats = $this->getStatsFiltered($dateFrom, $dateTo);
-            $mappingDokumen = $this->getMappingDokumenSummary($dateFrom, $dateTo, $search);
-            $injectDokumen = $this->getInjectDokumenSummary($dateFrom, $dateTo, $search);
-            $picStats = $this->getPicStatsSummary($dateFrom, $dateTo);
         } else {
-            // Default: pakai summary table (sangat cepat)
-            $aktivitas = $this->getActivitiesFromSummary($search);
             $topKategori = $this->getTopKategoriFromSummary();
             $stats = $this->getStatsFromSummary();
-            $mappingDokumen = $this->getMappingDokumenSummary(null, null, $search);
-            $injectDokumen = $this->getInjectDokumenSummary(null, null, $search);
-            $picStats = $this->getPicStatsSummary(null, null);
         }
 
-        return view('statistik.aktivitas-pegawai', compact('aktivitas', 'topKategori', 'stats', 'search', 'dateFrom', 'dateTo', 'mappingDokumen', 'injectDokumen', 'picStats'));
+        // Tables akan di-load via AJAX, tidak perlu query di sini
+        // Ini drastis mempercepat initial page load (6 queries → 2 queries)
+
+        return view('statistik.aktivitas-pegawai', compact('topKategori', 'stats', 'search', 'dateFrom', 'dateTo'));
     }
 
     /**

@@ -162,4 +162,205 @@ class MonevDmsApiController extends Controller
             ->orderByDesc('total_aktivitas')
             ->paginate(20);
     }
+
+    /**
+     * Get PIC Stats - AJAX Lazy Load
+     */
+    public function getPicStats(Request $request)
+    {
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
+        $picStats = $this->getPicStatsSummaryApi($dateFrom, $dateTo);
+
+        $formattedData = $picStats->map(function($pic, $index) use ($picStats) {
+            return [
+                'no' => $picStats->firstItem() + $index,
+                'ketua_nama' => $pic->ketua_nama ?: 'Tidak ada ketua',
+                'ketua_nip' => $pic->ketua_nip,
+                'total_anggota' => number_format($pic->total_anggota),
+                'total_aktivitas' => number_format($pic->total_aktivitas),
+                'total_mapping' => number_format($pic->total_mapping),
+                'total_inject' => number_format($pic->total_inject),
+                'detail_url' => route('pic.show', $pic->pic_id),
+            ];
+        });
+
+        return response()->json([
+            'data' => $formattedData,
+            'pagination' => [
+                'current_page' => $picStats->currentPage(),
+                'last_page' => $picStats->lastPage(),
+                'per_page' => $picStats->perPage(),
+                'total' => $picStats->total(),
+                'from' => $picStats->firstItem(),
+                'to' => $picStats->lastItem(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get Mapping Dokumen Stats - AJAX Lazy Load
+     */
+    public function getMappingDokumen(Request $request)
+    {
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $search = $request->input('search');
+
+        $mappingDokumen = $this->getMappingDokumenSummaryApi($dateFrom, $dateTo, $search);
+
+        $formattedData = $mappingDokumen->map(function($item, $index) use ($mappingDokumen) {
+            return [
+                'no' => $mappingDokumen->firstItem() + $index,
+                'nip' => $item->nip,
+                'nama' => $item->nama,
+                'total_per_dokumen' => number_format($item->total_per_dokumen),
+                'total_per_object_pns' => number_format($item->total_per_object_pns),
+            ];
+        });
+
+        return response()->json([
+            'data' => $formattedData,
+            'pagination' => [
+                'current_page' => $mappingDokumen->currentPage(),
+                'last_page' => $mappingDokumen->lastPage(),
+                'per_page' => $mappingDokumen->perPage(),
+                'total' => $mappingDokumen->total(),
+                'from' => $mappingDokumen->firstItem(),
+                'to' => $mappingDokumen->lastItem(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get Inject Dokumen Stats - AJAX Lazy Load
+     */
+    public function getInjectDokumen(Request $request)
+    {
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $search = $request->input('search');
+
+        $injectDokumen = $this->getInjectDokumenSummaryApi($dateFrom, $dateTo, $search);
+
+        $formattedData = $injectDokumen->map(function($item, $index) use ($injectDokumen) {
+            return [
+                'no' => $injectDokumen->firstItem() + $index,
+                'nip' => $item->nip,
+                'nama' => $item->nama,
+                'total_per_dokumen' => number_format($item->total_per_dokumen),
+                'total_per_object_pns' => number_format($item->total_per_object_pns),
+            ];
+        });
+
+        return response()->json([
+            'data' => $formattedData,
+            'pagination' => [
+                'current_page' => $injectDokumen->currentPage(),
+                'last_page' => $injectDokumen->lastPage(),
+                'per_page' => $injectDokumen->perPage(),
+                'total' => $injectDokumen->total(),
+                'from' => $injectDokumen->firstItem(),
+                'to' => $injectDokumen->lastItem(),
+            ]
+        ]);
+    }
+
+    private function getPicStatsSummaryApi($dateFrom = null, $dateTo = null)
+    {
+        $query = DB::table('pic_dms')
+            ->leftJoin('pegawai as ketua', 'pic_dms.ketua_nip', '=', 'ketua.nip')
+            ->leftJoin('pic_dms_pegawai', 'pic_dms.id', '=', 'pic_dms_pegawai.pic_dms_id')
+            ->leftJoin('log_aktivitas as la', function($join) use ($dateFrom, $dateTo) {
+                $join->on('pic_dms_pegawai.pegawai_nip', '=', 'la.created_by_nip');
+                if ($dateFrom) {
+                    $join->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+                }
+                if ($dateTo) {
+                    $join->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+                }
+            })
+            ->select(
+                'pic_dms.id as pic_id',
+                DB::raw('MAX(ketua.nama) as ketua_nama'),
+                DB::raw('MAX(ketua.nip) as ketua_nip'),
+                DB::raw('COUNT(DISTINCT pic_dms_pegawai.pegawai_nip) as total_anggota'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) as total_inject'),
+                DB::raw('(COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) + COUNT(CASE WHEN la.is_inject = 1 THEN 1 END)) as total_aktivitas')
+            )
+            ->where('pic_dms.is_active', 1)
+            ->groupBy('pic_dms.id')
+            ->orderByDesc('total_aktivitas');
+
+        return $query->paginate(10);
+    }
+
+    private function getMappingDokumenSummaryApi($dateFrom = null, $dateTo = null, $search = null)
+    {
+        $query = DB::table('log_aktivitas as la')
+            ->leftJoin('pegawai as p', 'la.created_by_nip', '=', 'p.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(MAX(p.nama), MAX(la.created_by_nama)) as nama'),
+                DB::raw('COUNT(*) as total_per_dokumen'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
+            )
+            ->where('la.event_name', 'mapping_dokumen')
+            ->where(function($q) {
+                $q->where('la.is_inject', 0)->orWhereNull('la.is_inject');
+            })
+            ->whereNotNull('la.created_by_nip');
+
+        if ($dateFrom) {
+            $query->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('la.created_by_nip', 'like', "%{$search}%")
+                  ->orWhere('p.nama', 'like', "%{$search}%");
+            });
+        }
+
+        return $query
+            ->groupBy('la.created_by_nip')
+            ->orderByDesc('total_per_dokumen')
+            ->paginate(10);
+    }
+
+    private function getInjectDokumenSummaryApi($dateFrom = null, $dateTo = null, $search = null)
+    {
+        $query = DB::table('log_aktivitas as la')
+            ->leftJoin('pegawai as p', 'la.created_by_nip', '=', 'p.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(MAX(p.nama), MAX(la.created_by_nama)) as nama'),
+                DB::raw('COUNT(*) as total_per_dokumen'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
+            )
+            ->where('la.is_inject', 1)
+            ->whereNotNull('la.created_by_nip');
+
+        if ($dateFrom) {
+            $query->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('la.created_by_nip', 'like', "%{$search}%")
+                  ->orWhere('p.nama', 'like', "%{$search}%");
+            });
+        }
+
+        return $query
+            ->groupBy('la.created_by_nip')
+            ->orderByDesc('total_per_dokumen')
+            ->paginate(10);
+    }
 }

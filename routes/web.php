@@ -69,4 +69,7 @@ Route::prefix('monev-dms')->group(function () {
 Route::prefix('api/monev-dms')->group(function () {
     Route::get('/search-instansi', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'searchInstansi'])->name('api.monev-dms.search');
     Route::get('/search-aktivitas-pegawai', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'searchAktivitasPegawai'])->name('api.aktivitas-pegawai.search');
+    Route::get('/pic-stats', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'getPicStats'])->name('api.aktivitas-pegawai.pic-stats');
+    Route::get('/mapping-dokumen', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'getMappingDokumen'])->name('api.aktivitas-pegawai.mapping-dokumen');
+    Route::get('/inject-dokumen', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'getInjectDokumen'])->name('api.aktivitas-pegawai.inject-dokumen');
 });

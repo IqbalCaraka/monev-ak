@@ -4,6 +4,13 @@
 
 @section('content')
 
+@php
+    // Temporary empty collections for sections that will be loaded via AJAX
+    $mappingDokumen = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+    $injectDokumen = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+    $picStats = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+@endphp
+
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
@@ -225,55 +232,22 @@
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($picStats as $index => $pic)
-                                <tr>
-                                    <td>{{ $picStats->firstItem() + $index }}</td>
-                                    <td>
-                                        <strong>{{ $pic->ketua_nama ?: 'Tidak ada ketua' }}</strong>
-                                        @if($pic->ketua_nip)
-                                            <br><small class="text-muted">NIP: {{ $pic->ketua_nip }}</small>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-info">{{ $pic->total_anggota }}</span>
-                                    </td>
-                                    <td class="text-end">{{ number_format($pic->total_aktivitas) }}</td>
-                                    <td class="text-end">{{ number_format($pic->total_mapping) }}</td>
-                                    <td class="text-end">{{ number_format($pic->total_inject) }}</td>
-                                    <td class="text-center">
-                                        <a href="{{ route('pic.show', $pic->pic_id) }}"
-                                           class="btn btn-sm btn-outline-info"
-                                           title="Lihat Detail">
-                                            <i class="ti-eye"></i> Detail
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-3">
-                                        Belum ada data PIC DMS aktif
-                                    </td>
-                                </tr>
-                            @endforelse
+                        <tbody id="picStatsTableBody">
+                            <!-- Skeleton Loader -->
+                            <tr>
+                                <td colspan="7" class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="ms-2 text-muted">Memuat data statistik PIC DMS...</span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
-                @if($picStats->hasPages())
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted small">
-                        {{ $picStats->firstItem() }} - {{ $picStats->lastItem() }} dari {{ $picStats->total() }}
-                    </div>
-                    <div>
-                        {{ $picStats->appends([
-                            'search' => $search,
-                            'date_from' => $dateFrom,
-                            'date_to' => $dateTo
-                        ])->links('pagination::bootstrap-5') }}
-                    </div>
-                </div>
-                @endif
+                <div id="picStatsPaginationInfo" class="text-muted small mt-3"></div>
+                <div id="picStatsPaginationContainer" class="mt-3"></div>
             </div>
         </div>
     </div>
@@ -309,52 +283,21 @@
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
-                                @forelse($aktivitas as $index => $a)
-                                    <tr>
-                                        <td>{{ $aktivitas->firstItem() + $index }}</td>
-                                        <td><code>{{ $a->nip }}</code></td>
-                                        <td>{{ $a->nama }}</td>
-                                        <td class="text-center">
-                                            <span class="badge badge-info">{{ $a->jenis_aktivitas }}</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <strong>{{ number_format($a->total_aktivitas) }}</strong>
-                                        </td>
-                                        <td class="text-center">
-                                            <small class="text-muted">{{ $a->last_activity ?? '-' }}</small>
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="{{ route('aktivitas-pegawai.show', $a->nip) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="ti-eye"></i> Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center text-muted">
-                                            @if($search)
-                                                Tidak ada data yang ditemukan untuk "{{ $search }}"
-                                            @else
-                                                Belum ada data aktivitas
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforelse
+                                <!-- Skeleton Loader -->
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <span class="ms-2 text-muted">Memuat data aktivitas pegawai...</span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
 
                     <div id="paginationContainer">
-                        @if($aktivitas->hasPages())
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="text-muted small" id="paginationInfo">
-                                Menampilkan {{ $aktivitas->firstItem() }} - {{ $aktivitas->lastItem() }} dari {{ $aktivitas->total() }} data
-                            </div>
-                            <div id="paginationLinks">
-                                {{ $aktivitas->appends(['search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo])->links('pagination::bootstrap-5') }}
-                            </div>
-                        </div>
-                        @endif
+                        <!-- Pagination will be loaded via AJAX -->
                     </div>
                 </div>
             </div>
@@ -386,60 +329,37 @@
                                 <th class="text-center" width="100">Per PNS</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($mappingDokumen as $index => $item)
-                                <tr>
-                                    <td>{{ $mappingDokumen->firstItem() + $index }}</td>
-                                    <td>
-                                        <div class="text-truncate" style="max-width: 200px;" title="{{ $item->nama }}">
-                                            {{ $item->nama }}
-                                        </div>
-                                        <small class="text-muted">{{ $item->nip }}</small>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-primary">{{ number_format($item->total_per_dokumen) }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-success">{{ number_format($item->total_per_object_pns) }}</span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-3">
-                                        Tidak ada data mapping dokumen
-                                    </td>
-                                </tr>
-                            @endforelse
+                        <tbody id="mappingTableBody">
+                            <!-- Skeleton Loader -->
+                            <tr>
+                                <td colspan="4" class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="ms-2 text-muted">Memuat data mapping dokumen...</span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Pagination -->
-                @if($mappingDokumen->hasPages())
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted small">
-                        Menampilkan {{ $mappingDokumen->firstItem() }} - {{ $mappingDokumen->lastItem() }} dari {{ $mappingDokumen->total() }} pegawai
-                    </div>
-                    <div>
-                        {{ $mappingDokumen->appends(['search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'inject_page' => request('inject_page')])->links('pagination::bootstrap-5') }}
-                    </div>
-                </div>
-                @endif
+                <div id="mappingPaginationContainer"></div>
 
                 <!-- Summary -->
-                <div class="mt-3 pt-3 border-top">
+                <div id="mappingSummaryContainer" class="mt-3 pt-3 border-top" style="display:none;">
                     <div class="row text-center">
                         <div class="col-6">
                             <small class="text-muted d-block">Total Halaman Ini</small>
                             <div>
-                                <strong class="text-primary">{{ number_format($mappingDokumen->sum('total_per_dokumen')) }}</strong>
+                                <strong class="text-primary" id="mappingTotalDok">0</strong>
                                 <span class="text-muted small">dok</span>
                             </div>
                         </div>
                         <div class="col-6">
                             <small class="text-muted d-block">Per Object PNS</small>
                             <div>
-                                <strong class="text-success">{{ number_format($mappingDokumen->sum('total_per_object_pns')) }}</strong>
+                                <strong class="text-success" id="mappingTotalPNS">0</strong>
                                 <span class="text-muted small">PNS</span>
                             </div>
                         </div>
@@ -471,60 +391,37 @@
                                 <th class="text-center" width="100">Per PNS</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @forelse($injectDokumen as $index => $item)
-                                <tr>
-                                    <td>{{ $injectDokumen->firstItem() + $index }}</td>
-                                    <td>
-                                        <div class="text-truncate" style="max-width: 200px;" title="{{ $item->nama }}">
-                                            {{ $item->nama }}
-                                        </div>
-                                        <small class="text-muted">{{ $item->nip }}</small>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-primary">{{ number_format($item->total_per_dokumen) }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-success">{{ number_format($item->total_per_object_pns) }}</span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-3">
-                                        Tidak ada data inject dokumen
-                                    </td>
-                                </tr>
-                            @endforelse
+                        <tbody id="injectTableBody">
+                            <!-- Skeleton Loader -->
+                            <tr>
+                                <td colspan="4" class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="ms-2 text-muted">Memuat data inject dokumen...</span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Pagination -->
-                @if($injectDokumen->hasPages())
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="text-muted small">
-                        Menampilkan {{ $injectDokumen->firstItem() }} - {{ $injectDokumen->lastItem() }} dari {{ $injectDokumen->total() }} pegawai
-                    </div>
-                    <div>
-                        {{ $injectDokumen->appends(['search' => $search, 'date_from' => $dateFrom, 'date_to' => $dateTo, 'mapping_page' => request('mapping_page')])->links('pagination::bootstrap-5') }}
-                    </div>
-                </div>
-                @endif
+                <div id="injectPaginationContainer"></div>
 
                 <!-- Summary -->
-                <div class="mt-3 pt-3 border-top">
+                <div id="injectSummaryContainer" class="mt-3 pt-3 border-top" style="display:none;">
                     <div class="row text-center">
                         <div class="col-6">
                             <small class="text-muted d-block">Total Halaman Ini</small>
                             <div>
-                                <strong class="text-primary">{{ number_format($injectDokumen->sum('total_per_dokumen')) }}</strong>
+                                <strong class="text-primary" id="injectTotalDok">0</strong>
                                 <span class="text-muted small">dok</span>
                             </div>
                         </div>
                         <div class="col-6">
                             <small class="text-muted d-block">Per Object PNS</small>
                             <div>
-                                <strong class="text-success">{{ number_format($injectDokumen->sum('total_per_object_pns')) }}</strong>
+                                <strong class="text-success" id="injectTotalPNS">0</strong>
                                 <span class="text-muted small">PNS</span>
                             </div>
                         </div>
@@ -954,6 +851,399 @@ function exportPicPdf() {
         btnExportPicPdf.disabled = false;
         btnExportPicPdf.innerHTML = '<i class="ti-printer me-1"></i> Print Report';
     }, 5000);
+}
+
+// ============================================
+// LAZY LOADING - Load tables via AJAX
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Load Aktivitas Pegawai table
+    loadAktivitasPegawai();
+
+    // Load PIC Stats table with delay
+    setTimeout(() => loadPicStats(), 200);
+
+    // Load Mapping Dokumen table with delay
+    setTimeout(() => loadMappingDokumen(), 700);
+
+    // Load Inject Dokumen table with delay
+    setTimeout(() => loadInjectDokumen(), 1200);
+});
+
+function loadAktivitasPegawai(page = 1) {
+    const tableBody = document.getElementById('tableBody');
+    const paginationContainer = document.getElementById('paginationContainer');
+
+    // Get filter values
+    const search = '{{ $search ?? '' }}';
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+
+    // Build URL
+    let url = '/api/monev-dms/search-aktivitas-pegawai?page=' + page;
+    if (search) url += '&search=' + encodeURIComponent(search);
+    if (dateFrom) url += '&date_from=' + dateFrom;
+    if (dateTo) url += '&date_to=' + dateTo;
+
+    // Show loading
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="ms-2 text-muted">Memuat data aktivitas pegawai...</span>
+            </td>
+        </tr>
+    `;
+
+    // Fetch data
+    fetch(url)
+        .then(response => response.json())
+        .then(result => {
+            // Clear table
+            tableBody.innerHTML = '';
+
+            // Populate data
+            if (result.data.length > 0) {
+                result.data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td>${item.no}</td>
+                            <td><code>${item.nip}</code></td>
+                            <td>${item.nama}</td>
+                            <td class="text-center">
+                                <span class="badge badge-info">${item.jenis_aktivitas}</span>
+                            </td>
+                            <td class="text-center">
+                                <strong>${item.total_aktivitas}</strong>
+                            </td>
+                            <td class="text-center">
+                                <small class="text-muted">${item.last_activity}</small>
+                            </td>
+                            <td class="text-center">
+                                <a href="${item.detail_url}" class="btn btn-sm btn-outline-primary">
+                                    <i class="ti-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+
+                // Show pagination
+                if (result.pagination.last_page > 1) {
+                    paginationContainer.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted small">
+                                Menampilkan ${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total} data
+                            </div>
+                            <div>
+                                ${generatePagination(result.pagination)}
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-3">
+                            ${search ? 'Tidak ada data yang ditemukan untuk "' + search + '"' : 'Belum ada data aktivitas'}
+                        </td>
+                    </tr>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading data:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-danger py-3">
+                        <i class="mdi mdi-alert-circle"></i> Gagal memuat data. Silakan refresh halaman.
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+function generatePagination(pagination) {
+    let html = '<nav><ul class="pagination pagination-sm mb-0">';
+
+    // Previous button
+    if (pagination.current_page > 1) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="loadAktivitasPegawai(${pagination.current_page - 1}); return false;">«</a></li>`;
+    }
+
+    // Page numbers (show 5 pages max)
+    let startPage = Math.max(1, pagination.current_page - 2);
+    let endPage = Math.min(pagination.last_page, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+        const active = i === pagination.current_page ? 'active' : '';
+        html += `<li class="page-item ${active}"><a class="page-link" href="#" onclick="loadAktivitasPegawai(${i}); return false;">${i}</a></li>`;
+    }
+
+    // Next button
+    if (pagination.current_page < pagination.last_page) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="loadAktivitasPegawai(${pagination.current_page + 1}); return false;">»</a></li>`;
+    }
+
+    html += '</ul></nav>';
+    return html;
+}
+
+// Load Mapping Dokumen table
+function loadMappingDokumen(page = 1) {
+    const tableBody = document.getElementById('mappingTableBody');
+    const paginationContainer = document.getElementById('mappingPaginationContainer');
+    const summaryContainer = document.getElementById('mappingSummaryContainer');
+
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+    const search = '{{ $search ?? '' }}';
+
+    let url = '/api/monev-dms/mapping-dokumen?page=' + page;
+    if (search) url += '&search=' + encodeURIComponent(search);
+    if (dateFrom) url += '&date_from=' + dateFrom;
+    if (dateTo) url += '&date_to=' + dateTo;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(result => {
+            tableBody.innerHTML = '';
+
+            if (result.data.length > 0) {
+                let totalDok = 0, totalPNS = 0;
+
+                result.data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td>${item.no}</td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 200px;" title="${item.nama}">
+                                    ${item.nama}
+                                </div>
+                                <small class="text-muted">${item.nip}</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-primary">${item.total_per_dokumen}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-success">${item.total_per_object_pns}</span>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+
+                    totalDok += parseInt(item.total_per_dokumen.replace(/,/g, ''));
+                    totalPNS += parseInt(item.total_per_object_pns.replace(/,/g, ''));
+                });
+
+                // Show summary
+                document.getElementById('mappingTotalDok').textContent = totalDok.toLocaleString();
+                document.getElementById('mappingTotalPNS').textContent = totalPNS.toLocaleString();
+                summaryContainer.style.display = 'block';
+
+                // Pagination (simple version for now)
+                if (result.pagination.last_page > 1) {
+                    paginationContainer.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted small">
+                                Menampilkan ${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total} pegawai
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">
+                            Tidak ada data mapping dokumen
+                        </td>
+                    </tr>
+                `;
+                summaryContainer.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading mapping dokumen:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger py-3">
+                        <i class="mdi mdi-alert-circle"></i> Gagal memuat data
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+// Load Inject Dokumen table
+function loadInjectDokumen(page = 1) {
+    const tableBody = document.getElementById('injectTableBody');
+    const paginationContainer = document.getElementById('injectPaginationContainer');
+    const summaryContainer = document.getElementById('injectSummaryContainer');
+
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+    const search = '{{ $search ?? '' }}';
+
+    let url = '/api/monev-dms/inject-dokumen?page=' + page;
+    if (search) url += '&search=' + encodeURIComponent(search);
+    if (dateFrom) url += '&date_from=' + dateFrom;
+    if (dateTo) url += '&date_to=' + dateTo;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(result => {
+            tableBody.innerHTML = '';
+
+            if (result.data.length > 0) {
+                let totalDok = 0, totalPNS = 0;
+
+                result.data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td>${item.no}</td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 200px;" title="${item.nama}">
+                                    ${item.nama}
+                                </div>
+                                <small class="text-muted">${item.nip}</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-primary">${item.total_per_dokumen}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-success">${item.total_per_object_pns}</span>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+
+                    totalDok += parseInt(item.total_per_dokumen.replace(/,/g, ''));
+                    totalPNS += parseInt(item.total_per_object_pns.replace(/,/g, ''));
+                });
+
+                // Show summary
+                document.getElementById('injectTotalDok').textContent = totalDok.toLocaleString();
+                document.getElementById('injectTotalPNS').textContent = totalPNS.toLocaleString();
+                summaryContainer.style.display = 'block';
+
+                // Pagination (simple version for now)
+                if (result.pagination.last_page > 1) {
+                    paginationContainer.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted small">
+                                Menampilkan ${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total} pegawai
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">
+                            Tidak ada data inject dokumen
+                        </td>
+                    </tr>
+                `;
+                summaryContainer.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading inject dokumen:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger py-3">
+                        <i class="mdi mdi-alert-circle"></i> Gagal memuat data
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+function loadPicStats(page = 1) {
+    const tableBody = document.getElementById('picStatsTableBody');
+    const paginationContainer = document.getElementById('picStatsPaginationContainer');
+    const paginationInfo = document.getElementById('picStatsPaginationInfo');
+
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+    const search = '{{ $search ?? '' }}';
+
+    let url = '/api/monev-dms/pic-stats?page=' + page;
+    if (search) url += '&search=' + encodeURIComponent(search);
+    if (dateFrom) url += '&date_from=' + dateFrom;
+    if (dateTo) url += '&date_to=' + dateTo;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(result => {
+            tableBody.innerHTML = '';
+
+            if (result.data.length > 0) {
+                result.data.forEach(item => {
+                    const nipInfo = item.ketua_nip ? `<br><small class="text-muted">NIP: ${item.ketua_nip}</small>` : '';
+                    const row = `
+                        <tr>
+                            <td>${item.no}</td>
+                            <td>
+                                <strong>${item.ketua_nama}</strong>
+                                ${nipInfo}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-info">${item.total_anggota}</span>
+                            </td>
+                            <td class="text-end">${item.total_aktivitas}</td>
+                            <td class="text-end">${item.total_mapping}</td>
+                            <td class="text-end">${item.total_inject}</td>
+                            <td class="text-center">
+                                <a href="${item.detail_url}"
+                                   class="btn btn-sm btn-outline-info"
+                                   title="Lihat Detail">
+                                    <i class="ti-eye"></i> Detail
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+
+                // Show pagination info
+                if (result.pagination.total > 0) {
+                    paginationInfo.innerHTML = `${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total}`;
+                }
+
+                // Pagination (simple version for now)
+                if (result.pagination.last_page > 1) {
+                    paginationContainer.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted small">
+                                Halaman ${result.pagination.current_page} dari ${result.pagination.last_page}
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-3">
+                            Belum ada data PIC DMS aktif
+                        </td>
+                    </tr>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading PIC stats:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-danger py-3">
+                        <i class="mdi mdi-alert-circle"></i> Gagal memuat data
+                    </td>
+                </tr>
+            `;
+        });
 }
 </script>
 
