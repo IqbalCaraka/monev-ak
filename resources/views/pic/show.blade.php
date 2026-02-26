@@ -14,6 +14,9 @@
                         <p class="text-muted mb-0">Person In Charge Document Management System - Statistik Performa Tim</p>
                     </div>
                     <div class="d-flex gap-2">
+                        <a href="{{ route('pic.exportPdf', $pic->id) }}?date_from={{ $dateFrom ?? '' }}&date_to={{ $dateTo ?? '' }}" class="btn btn-danger" target="_blank">
+                            <i class="mdi mdi-file-pdf"></i> Export PDF
+                        </a>
                         <a href="{{ route('pic.edit', $pic->id) }}" class="btn btn-warning">
                             <i class="mdi mdi-pencil"></i> Edit
                         </a>
@@ -135,6 +138,64 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Filter Tanggal -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="mb-3">Filter Periode Log Aktivitas</h5>
+                        <form method="GET" action="{{ route('pic.show', $pic->id) }}">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="date_from">Tanggal Mulai</label>
+                                        <input type="date"
+                                               name="date_from"
+                                               id="date_from"
+                                               class="form-control"
+                                               value="{{ $dateFrom ?? '' }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="date_to">Tanggal Selesai</label>
+                                        <input type="date"
+                                               name="date_to"
+                                               id="date_to"
+                                               class="form-control"
+                                               value="{{ $dateTo ?? '' }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>&nbsp;</label>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="mdi mdi-filter"></i> Terapkan Filter
+                                            </button>
+                                            <a href="{{ route('pic.show', $pic->id) }}" class="btn btn-secondary">
+                                                <i class="mdi mdi-refresh"></i> Reset
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if($dateFrom || $dateTo)
+                            <div class="alert alert-info mt-2 mb-0">
+                                <i class="mdi mdi-information"></i>
+                                Menampilkan data
+                                @if($dateFrom && $dateTo)
+                                    dari <strong>{{ \Carbon\Carbon::parse($dateFrom)->format('d M Y') }}</strong>
+                                    sampai <strong>{{ \Carbon\Carbon::parse($dateTo)->format('d M Y') }}</strong>
+                                @elseif($dateFrom)
+                                    dari <strong>{{ \Carbon\Carbon::parse($dateFrom)->format('d M Y') }}</strong> hingga sekarang
+                                @else
+                                    sampai <strong>{{ \Carbon\Carbon::parse($dateTo)->format('d M Y') }}</strong>
+                                @endif
+                            </div>
+                            @endif
+                        </form>
                     </div>
                 </div>
 

@@ -102,10 +102,14 @@ class PicController extends Controller
     /**
      * Display the specified PIC
      */
-    public function show(Pic $pic)
+    public function show(Request $request, Pic $pic)
     {
         $pic->load(['ketua', 'anggota', 'instansi'])
             ->loadCount(['anggota', 'instansi']);
+
+        // Get date filter
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
 
         // Get anggota NIPs
         $anggotaNips = $pic->anggota->pluck('nip')->toArray();
@@ -119,18 +123,27 @@ class PicController extends Controller
                     'total_inject' => 0,
                     'unique_pns' => 0,
                 ],
-                'performaAnggota' => []
+                'performaAnggota' => [],
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
             ]);
         }
 
         // Get overall team statistics
-        $stats = [
-            'total_aktivitas' => DB::table('log_aktivitas')
-                ->whereIn('created_by_nip', $anggotaNips)
-                ->count(),
+        $statsQuery = DB::table('log_aktivitas')
+            ->whereIn('created_by_nip', $anggotaNips);
 
-            'total_mapping' => DB::table('log_aktivitas')
-                ->whereIn('created_by_nip', $anggotaNips)
+        // Apply date filter
+        if ($dateFrom) {
+            $statsQuery->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $statsQuery->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        // Clone query for different stats
+        $stats = [
+            'total_mapping' => (clone $statsQuery)
                 ->where('event_name', 'mapping_dokumen')
                 ->where(function($q) {
                     $q->where('is_inject', 0)
@@ -138,21 +151,32 @@ class PicController extends Controller
                 })
                 ->count(),
 
-            'total_inject' => DB::table('log_aktivitas')
-                ->whereIn('created_by_nip', $anggotaNips)
+            'total_inject' => (clone $statsQuery)
                 ->where('is_inject', 1)
                 ->count(),
 
-            'unique_pns' => DB::table('log_aktivitas')
-                ->whereIn('created_by_nip', $anggotaNips)
+            'unique_pns' => (clone $statsQuery)
                 ->whereNotNull('object_pns_id')
                 ->distinct('object_pns_id')
                 ->count('object_pns_id'),
         ];
 
+        // Calculate total_aktivitas
+        $stats['total_aktivitas'] = $stats['total_mapping'] + $stats['total_inject'];
+
         // Get individual performance
         $performaAnggota = DB::table('pegawai as p')
-            ->leftJoin('log_aktivitas as la', 'p.nip', '=', 'la.created_by_nip')
+            ->leftJoin('log_aktivitas as la', function($join) use ($dateFrom, $dateTo) {
+                $join->on('p.nip', '=', 'la.created_by_nip');
+
+                // Apply date filter in join
+                if ($dateFrom) {
+                    $join->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+                }
+                if ($dateTo) {
+                    $join->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+                }
+            })
             ->select(
                 'p.nip',
                 'p.nama',
@@ -166,7 +190,92 @@ class PicController extends Controller
             ->orderByDesc('total_aktivitas')
             ->get();
 
-        return view('pic.show', compact('pic', 'stats', 'performaAnggota'));
+        return view('pic.show', compact('pic', 'stats', 'performaAnggota', 'dateFrom', 'dateTo'));
+    }
+
+    /**
+     * Export PIC report to PDF
+     */
+    public function exportPdf(Request $request, Pic $pic)
+    {
+        $pic->load(['ketua', 'anggota', 'instansi'])
+            ->loadCount(['anggota', 'instansi']);
+
+        // Get date filter
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        // Get anggota NIPs
+        $anggotaNips = $pic->anggota->pluck('nip')->toArray();
+
+        if (empty($anggotaNips)) {
+            return redirect()->back()->with('error', 'PIC tidak memiliki anggota');
+        }
+
+        // Get overall team statistics (sama seperti show method)
+        $statsQuery = DB::table('log_aktivitas')
+            ->whereIn('created_by_nip', $anggotaNips);
+
+        if ($dateFrom) {
+            $statsQuery->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $statsQuery->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        $stats = [
+            'total_mapping' => (clone $statsQuery)
+                ->where('event_name', 'mapping_dokumen')
+                ->where(function($q) {
+                    $q->where('is_inject', 0)
+                      ->orWhereNull('is_inject');
+                })
+                ->count(),
+
+            'total_inject' => (clone $statsQuery)
+                ->where('is_inject', 1)
+                ->count(),
+
+            'unique_pns' => (clone $statsQuery)
+                ->whereNotNull('object_pns_id')
+                ->distinct('object_pns_id')
+                ->count('object_pns_id'),
+        ];
+
+        $stats['total_aktivitas'] = $stats['total_mapping'] + $stats['total_inject'];
+
+        // Get individual performance
+        $performaAnggota = DB::table('pegawai as p')
+            ->leftJoin('log_aktivitas as la', function($join) use ($dateFrom, $dateTo) {
+                $join->on('p.nip', '=', 'la.created_by_nip');
+
+                if ($dateFrom) {
+                    $join->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+                }
+                if ($dateTo) {
+                    $join->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+                }
+            })
+            ->select(
+                'p.nip',
+                'p.nama',
+                DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) as total_mapping'),
+                DB::raw('COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) as total_inject'),
+                DB::raw('(COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) + COUNT(CASE WHEN la.is_inject = 1 THEN 1 END)) as total_aktivitas'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
+            )
+            ->whereIn('p.nip', $anggotaNips)
+            ->groupBy('p.nip', 'p.nama')
+            ->orderByDesc('total_aktivitas')
+            ->get();
+
+        // Generate PDF
+        $pdf = \PDF::loadView('pic.pdf-report', compact('pic', 'stats', 'performaAnggota', 'dateFrom', 'dateTo'));
+        $pdf->setPaper('a4', 'portrait');
+
+        $fileName = 'Laporan_PIC_' . str_replace(' ', '_', $pic->ketua->nama ?? 'PIC') . '_' . date('Ymd_His') . '.pdf';
+
+        return $pdf->download($fileName);
     }
 
     /**

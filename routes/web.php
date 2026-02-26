@@ -23,6 +23,7 @@ Route::prefix('pengaturan')->group(function () {
 
     Route::resource('pic', PicController::class);
     Route::post('pic/{pic}/toggle-active', [PicController::class, 'toggleActive'])->name('pic.toggleActive');
+    Route::get('pic/{pic}/export-pdf', [PicController::class, 'exportPdf'])->name('pic.exportPdf');
 });
 
 // Statistik Routes
