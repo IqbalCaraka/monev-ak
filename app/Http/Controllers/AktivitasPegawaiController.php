@@ -231,11 +231,15 @@ class AktivitasPegawaiController extends Controller
     {
         return "
             CASE
-                WHEN inject_type = 'unggah'
+                WHEN is_inject = 1 AND event_name = 'mapping_dokumen'
+                    THEN 'Inject - Mapping Dokumen'
+                WHEN is_inject = 1 AND event_name = 'unggah_dokumen'
+                    THEN 'Inject - Unggah Dokumen'
+                WHEN is_inject = 1
                     THEN 'Inject Dokumen'
-                WHEN event_name = 'unggah_dokumen' AND details = 'unggah_dokumen'
+                WHEN event_name = 'unggah_dokumen' AND (is_inject = 0 OR is_inject IS NULL)
                     THEN 'Unggah Dokumen'
-                WHEN event_name = 'mapping_dokumen' AND inject_type IS NULL
+                WHEN event_name = 'mapping_dokumen' AND (is_inject = 0 OR is_inject IS NULL)
                     THEN 'Mapping Dokumen'
                 WHEN event_name = 'lock_arsip'
                     THEN 'Lock Arsip'
@@ -355,24 +359,27 @@ class AktivitasPegawaiController extends Controller
             $query->where('created_at_log', '<=', $dateTo . ' 23:59:59');
         }
 
-        if ($kategori === 'Inject Dokumen' || $kategori === 'Inject - Unggah Dokumen' || $kategori === 'Inject - Mapping Dokumen') {
+        // Normalize kategori untuk case-insensitive comparison
+        $kategoriLower = strtolower($kategori);
+
+        if (in_array($kategoriLower, ['inject dokumen', 'inject - unggah dokumen', 'inject - mapping dokumen'])) {
             // OPTIMIZED: Use indexed column is_inject
             $query->where('is_inject', 1);
 
             // Additional filter for specific inject types
-            if ($kategori === 'Inject - Unggah Dokumen') {
+            if ($kategoriLower === 'inject - unggah dokumen') {
                 $query->where('event_name', 'unggah_dokumen');
-            } elseif ($kategori === 'Inject - Mapping Dokumen') {
+            } elseif ($kategoriLower === 'inject - mapping dokumen') {
                 $query->where('event_name', 'mapping_dokumen');
             }
-        } elseif ($kategori === 'Unggah Dokumen') {
+        } elseif ($kategoriLower === 'unggah dokumen') {
             // Unggah Dokumen (normal): unggah_dokumen TANPA inject
             $query->where('event_name', 'unggah_dokumen')
                   ->where(function($q) {
                       $q->where('is_inject', 0)
                         ->orWhereNull('is_inject');
                   });
-        } elseif ($kategori === 'Mapping Dokumen') {
+        } elseif ($kategoriLower === 'mapping dokumen') {
             // Mapping Dokumen (non-inject): mapping_dokumen tanpa inject
             // OPTIMIZED: Use indexed column is_inject
             $query->where('event_name', 'mapping_dokumen')
