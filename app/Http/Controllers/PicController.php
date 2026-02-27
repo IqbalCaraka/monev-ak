@@ -111,6 +111,53 @@ class PicController extends Controller
         $dateFrom = $request->get('date_from');
         $dateTo = $request->get('date_to');
 
+        // Get monev date filter (for monev DMS scores)
+        $monevDate = $request->get('monev_date');
+
+        // Get available monev upload dates for dropdown
+        $monevUploadDates = \App\Models\MonevDmsNasional::orderBy('upload_date', 'desc')->get();
+
+        // Get monev scores for this PIC's instansi
+        $monevScores = [];
+        if ($monevDate) {
+            // Use selected date
+            $monevScores = \App\Models\MonevDmsInstansiScore::where('upload_date', $monevDate)
+                ->whereIn('id_instansi', $pic->instansi->pluck('id'))
+                ->get()
+                ->keyBy('id_instansi');
+        } else {
+            // Use latest upload date
+            $latestMonevDate = \App\Models\MonevDmsNasional::orderBy('upload_date', 'desc')->value('upload_date');
+            if ($latestMonevDate) {
+                $monevScores = \App\Models\MonevDmsInstansiScore::where('upload_date', $latestMonevDate)
+                    ->whereIn('id_instansi', $pic->instansi->pluck('id'))
+                    ->get()
+                    ->keyBy('id_instansi');
+            }
+        }
+
+        // Get monev scores for ALL periods for chart (top 5 instansi per period)
+        $chartData = [];
+        $instansiIds = $pic->instansi->pluck('id')->toArray();
+
+        if (!empty($instansiIds)) {
+            foreach ($monevUploadDates as $upload) {
+                $uploadDateStr = $upload->upload_date instanceof \Carbon\Carbon
+                    ? $upload->upload_date->format('Y-m-d')
+                    : $upload->upload_date;
+
+                $periodScores = \App\Models\MonevDmsInstansiScore::where('upload_date', $uploadDateStr)
+                    ->whereIn('id_instansi', $instansiIds)
+                    ->orderBy('monev_skor_instansi', 'desc')
+                    ->limit(5)
+                    ->get();
+
+                if ($periodScores->isNotEmpty()) {
+                    $chartData[$uploadDateStr] = $periodScores;
+                }
+            }
+        }
+
         // Get anggota NIPs
         $anggotaNips = $pic->anggota->pluck('nip')->toArray();
 
@@ -121,11 +168,16 @@ class PicController extends Controller
                     'total_aktivitas' => 0,
                     'total_mapping' => 0,
                     'total_inject' => 0,
+                    'total_laporan_kekurangan' => 0,
                     'unique_pns' => 0,
                 ],
                 'performaAnggota' => [],
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo,
+                'monevScores' => $monevScores,
+                'monevUploadDates' => $monevUploadDates,
+                'monevDate' => $monevDate,
+                'chartData' => $chartData,
             ]);
         }
 
@@ -155,14 +207,18 @@ class PicController extends Controller
                 ->where('is_inject', 1)
                 ->count(),
 
+            'total_laporan_kekurangan' => (clone $statsQuery)
+                ->where('event_name', 'Laporan-Kekurangan-Riwayat')
+                ->count(),
+
             'unique_pns' => (clone $statsQuery)
                 ->whereNotNull('object_pns_id')
                 ->distinct('object_pns_id')
                 ->count('object_pns_id'),
         ];
 
-        // Calculate total_aktivitas
-        $stats['total_aktivitas'] = $stats['total_mapping'] + $stats['total_inject'];
+        // Calculate total_aktivitas (mapping + inject + laporan kekurangan)
+        $stats['total_aktivitas'] = $stats['total_mapping'] + $stats['total_inject'] + $stats['total_laporan_kekurangan'];
 
         // Get individual performance
         $performaAnggota = DB::table('pegawai as p')
@@ -182,7 +238,8 @@ class PicController extends Controller
                 'p.nama',
                 DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) as total_mapping'),
                 DB::raw('COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) as total_inject'),
-                DB::raw('(COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) + COUNT(CASE WHEN la.is_inject = 1 THEN 1 END)) as total_aktivitas'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "Laporan-Kekurangan-Riwayat" THEN 1 END) as total_laporan_kekurangan'),
+                DB::raw('(COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) + COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) + COUNT(CASE WHEN la.event_name = "Laporan-Kekurangan-Riwayat" THEN 1 END)) as total_aktivitas'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
             ->whereIn('p.nip', $anggotaNips)
@@ -190,7 +247,7 @@ class PicController extends Controller
             ->orderByDesc('total_aktivitas')
             ->get();
 
-        return view('pic.show', compact('pic', 'stats', 'performaAnggota', 'dateFrom', 'dateTo'));
+        return view('pic.show', compact('pic', 'stats', 'performaAnggota', 'dateFrom', 'dateTo', 'monevScores', 'monevUploadDates', 'monevDate', 'chartData'));
     }
 
     /**
@@ -236,13 +293,18 @@ class PicController extends Controller
                 ->where('is_inject', 1)
                 ->count(),
 
+            'total_laporan_kekurangan' => (clone $statsQuery)
+                ->where('event_name', 'Laporan-Kekurangan-Riwayat')
+                ->count(),
+
             'unique_pns' => (clone $statsQuery)
                 ->whereNotNull('object_pns_id')
                 ->distinct('object_pns_id')
                 ->count('object_pns_id'),
         ];
 
-        $stats['total_aktivitas'] = $stats['total_mapping'] + $stats['total_inject'];
+        // Calculate total_aktivitas (mapping + inject + laporan kekurangan)
+        $stats['total_aktivitas'] = $stats['total_mapping'] + $stats['total_inject'] + $stats['total_laporan_kekurangan'];
 
         // Get individual performance
         $performaAnggota = DB::table('pegawai as p')
@@ -261,7 +323,8 @@ class PicController extends Controller
                 'p.nama',
                 DB::raw('COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) as total_mapping'),
                 DB::raw('COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) as total_inject'),
-                DB::raw('(COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) + COUNT(CASE WHEN la.is_inject = 1 THEN 1 END)) as total_aktivitas'),
+                DB::raw('COUNT(CASE WHEN la.event_name = "Laporan-Kekurangan-Riwayat" THEN 1 END) as total_laporan_kekurangan'),
+                DB::raw('(COUNT(CASE WHEN la.event_name = "mapping_dokumen" AND (la.is_inject = 0 OR la.is_inject IS NULL) THEN 1 END) + COUNT(CASE WHEN la.is_inject = 1 THEN 1 END) + COUNT(CASE WHEN la.event_name = "Laporan-Kekurangan-Riwayat" THEN 1 END)) as total_aktivitas'),
                 DB::raw('COUNT(DISTINCT la.object_pns_id) as unique_pns')
             )
             ->whereIn('p.nip', $anggotaNips)

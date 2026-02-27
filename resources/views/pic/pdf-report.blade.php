@@ -234,19 +234,23 @@
     <div class="section-title">Ringkasan Statistik Tim</div>
     <table class="data-table stats-table" style="width: 100%;">
         <tr>
-            <td style="width: 25%;">
+            <td style="width: 20%;">
                 <span class="stat-label">Total Aktivitas</span>
                 <span class="stat-value">{{ number_format($stats['total_aktivitas']) }}</span>
             </td>
-            <td style="width: 25%;">
+            <td style="width: 20%;">
                 <span class="stat-label">Mapping</span>
                 <span class="stat-value">{{ number_format($stats['total_mapping']) }}</span>
             </td>
-            <td style="width: 25%;">
+            <td style="width: 20%;">
                 <span class="stat-label">Inject</span>
                 <span class="stat-value">{{ number_format($stats['total_inject']) }}</span>
             </td>
-            <td style="width: 25%;">
+            <td style="width: 20%;">
+                <span class="stat-label">Lap. Kekurangan</span>
+                <span class="stat-value">{{ number_format($stats['total_laporan_kekurangan']) }}</span>
+            </td>
+            <td style="width: 20%;">
                 <span class="stat-label">Unique PNS</span>
                 <span class="stat-value">{{ number_format($stats['unique_pns']) }}</span>
             </td>
@@ -261,11 +265,12 @@
                 <th class="text-center" style="width: 30px;">No</th>
                 <th class="text-left">Nama</th>
                 <th class="text-center" style="width: 85px;">NIP</th>
-                <th class="text-right" style="width: 70px;">Total (M+I)</th>
-                <th class="text-right" style="width: 60px;">Mapping</th>
-                <th class="text-right" style="width: 55px;">Inject</th>
-                <th class="text-right" style="width: 65px;">Uniq PNS</th>
-                <th class="text-right" style="width: 70px;">Kontribusi</th>
+                <th class="text-right" style="width: 60px;">Total Akt.</th>
+                <th class="text-right" style="width: 50px;">Mapping</th>
+                <th class="text-right" style="width: 45px;">Inject</th>
+                <th class="text-right" style="width: 50px;">Lap. Kek.</th>
+                <th class="text-right" style="width: 55px;">Uniq PNS</th>
+                <th class="text-right" style="width: 60px;">Kontribusi</th>
             </tr>
         </thead>
         <tbody>
@@ -280,12 +285,13 @@
                 <td class="text-right font-weight-bold">{{ number_format($anggota->total_aktivitas) }}</td>
                 <td class="text-right">{{ number_format($anggota->total_mapping) }}</td>
                 <td class="text-right">{{ number_format($anggota->total_inject) }}</td>
+                <td class="text-right">{{ number_format($anggota->total_laporan_kekurangan) }}</td>
                 <td class="text-right">{{ number_format($anggota->unique_pns) }}</td>
                 <td class="text-right">{{ number_format(($anggota->total_aktivitas / $totalTeamActivities) * 100, 1) }}%</td>
             </tr>
             @empty
             <tr>
-                <td colspan="8" class="text-center text-muted" style="padding: 15px;">Tidak ada data anggota</td>
+                <td colspan="9" class="text-center text-muted" style="padding: 15px;">Tidak ada data anggota</td>
             </tr>
             @endforelse
         </tbody>
