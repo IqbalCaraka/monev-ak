@@ -20,7 +20,7 @@ class PerhitunganSkorArsipController extends Controller
     public function process(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt|max:102400', // Max 100MB
+            'csv_file' => 'required|file|mimes:csv,txt|max:512000', // Max 500MB
         ]);
 
         try {

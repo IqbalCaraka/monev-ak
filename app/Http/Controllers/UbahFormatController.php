@@ -49,7 +49,7 @@ class UbahFormatController extends Controller
     public function processUpload(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt|max:10240', // Max 10MB
+            'csv_file' => 'required|file|mimes:csv,txt|max:512000', // Max 500MB
         ]);
 
         try {

@@ -69,7 +69,7 @@
                                 <hr class="my-2">
                                 <p class="mb-0">
                                     <i class="mdi mdi-alert-circle"></i>
-                                    <small>File CSV harus menggunakan delimiter <strong>titik koma (;)</strong> dan maksimal 10MB. Data tidak akan disimpan ke database, hanya ditampilkan.</small>
+                                    <small>File CSV harus menggunakan delimiter <strong>titik koma (;)</strong> dan maksimal 500MB. Data tidak akan disimpan ke database, hanya ditampilkan.</small>
                                 </p>
                             </div>
 
@@ -90,7 +90,7 @@
                                     @error('csv_file')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="text-muted">Format: CSV dengan delimiter titik koma (;), Max: 10MB</small>
+                                    <small class="text-muted">Format: CSV dengan delimiter titik koma (;), Max: 500MB</small>
                                 </div>
 
                                 <div id="filePreview" class="mb-4" style="display: none;">
@@ -201,7 +201,7 @@
                                            name="csv_file"
                                            accept=".csv,.txt"
                                            required>
-                                    <small class="text-muted">Format: CSV, Max: 10MB</small>
+                                    <small class="text-muted">Format: CSV, Max: 500MB</small>
                                 </div>
 
                                 <div id="filePreviewUbah" class="mb-4" style="display: none;">
@@ -285,8 +285,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 filePreview.style.display = 'block';
 
                 // Validate file size
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('Ukuran file terlalu besar! Maksimal 10MB');
+                if (file.size > 500 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar! Maksimal 500MB');
                     fileInput.value = '';
                     filePreview.style.display = 'none';
                 }
@@ -327,8 +327,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 filePreviewUbah.style.display = 'block';
 
                 // Validate file size
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('Ukuran file terlalu besar! Maksimal 10MB');
+                if (file.size > 500 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar! Maksimal 500MB');
                     fileInputUbah.value = '';
                     filePreviewUbah.style.display = 'none';
                 }
