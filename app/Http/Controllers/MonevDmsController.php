@@ -17,7 +17,7 @@ class MonevDmsController extends Controller
     public function uploadMonevCsv(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'monev_csv_file' => 'required|file|mimes:csv,txt|max:51200',
+            'monev_csv_file' => 'required|file|mimes:csv,txt|max:102400',
             'upload_date' => 'required|date',
         ]);
 

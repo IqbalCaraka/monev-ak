@@ -257,6 +257,107 @@
         </tr>
     </table>
 
+    <!-- Breakdown Lokasi Kerja -->
+    <div class="section-title">Breakdown Lokasi Kerja</div>
+    @php
+        $totalWorkLocation = $workLocationStats['wfa'] + $workLocationStats['wfo'] + $workLocationStats['libur'];
+        $wfaPct = $totalWorkLocation > 0 ? ($workLocationStats['wfa'] / $totalWorkLocation * 100) : 0;
+        $wfoPct = $totalWorkLocation > 0 ? ($workLocationStats['wfo'] / $totalWorkLocation * 100) : 0;
+        $liburPct = $totalWorkLocation > 0 ? ($workLocationStats['libur'] / $totalWorkLocation * 100) : 0;
+    @endphp
+
+    @if($totalWorkLocation > 0)
+    <table class="data-table stats-table" style="width: 100%; margin-bottom: 10px;">
+        <tr>
+            <td style="width: 33.33%; background-color: #e3f2fd; border-left: 4px solid #2196F3;">
+                <span class="stat-label">WFA (Work From Anywhere)</span>
+                <span class="stat-value" style="color: #2196F3;">{{ number_format($workLocationStats['wfa']) }}</span>
+                <small class="text-muted" style="font-size: 7px; display: block; margin-top: 2px;">{{ number_format($wfaPct, 1) }}% dari total</small>
+            </td>
+            <td style="width: 33.33%; background-color: #e8f5e9; border-left: 4px solid #4CAF50;">
+                <span class="stat-label">WFO (Work From Office)</span>
+                <span class="stat-value" style="color: #4CAF50;">{{ number_format($workLocationStats['wfo']) }}</span>
+                <small class="text-muted" style="font-size: 7px; display: block; margin-top: 2px;">{{ number_format($wfoPct, 1) }}% dari total</small>
+            </td>
+            <td style="width: 33.33%; background-color: #f5f5f5; border-left: 4px solid #9E9E9E;">
+                <span class="stat-label">Libur</span>
+                <span class="stat-value" style="color: #9E9E9E;">{{ number_format($workLocationStats['libur']) }}</span>
+                <small class="text-muted" style="font-size: 7px; display: block; margin-top: 2px;">{{ number_format($liburPct, 1) }}% dari total</small>
+            </td>
+        </tr>
+    </table>
+    @else
+    <div style="padding: 15px; text-align: center; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; font-size: 9px;">
+        <strong>ℹ️ Data lokasi kerja (WFA/WFO/Libur) belum tersedia.</strong><br>
+        <span class="text-muted">Data lokasi kerja hanya tersedia untuk log aktivitas yang memiliki informasi work_category.</span>
+    </div>
+    @endif
+
+    <!-- Perbandingan Skor Instansi Antar Periode - Table Only -->
+    @if(!empty($chartData))
+    @php
+        $periods = array_keys($chartData);
+        sort($periods); // Sort oldest to newest
+
+        // Collect all unique instansi
+        $allInstansi = [];
+        foreach ($chartData as $period => $scores) {
+            foreach ($scores as $score) {
+                if (!isset($allInstansi[$score->nama_instansi])) {
+                    $allInstansi[$score->nama_instansi] = [];
+                }
+                $allInstansi[$score->nama_instansi][$period] = $score->monev_skor_instansi;
+            }
+        }
+        ksort($allInstansi); // Sort by instansi name
+    @endphp
+
+    @if(count($allInstansi) > 0)
+    <div class="section-title">Perbandingan Skor Instansi Antar Periode</div>
+    <div style="margin-top: 10px;">
+        @php
+            // Get the 5 latest periods (already sorted oldest to newest)
+            $latestPeriods = array_slice($periods, -5);
+        @endphp
+        <p style="font-size: 8px; color: #6c757d; margin-bottom: 5px;">
+            <em>Data Tabel Perbandingan Skor @if(count($periods) > 5)(Menampilkan 5 periode terbaru dari {{ count($periods) }} periode)@endif:</em>
+        </p>
+        <table class="data-table" style="font-size: 8px;">
+            <thead>
+                <tr>
+                    <th class="text-left">Nama Instansi</th>
+                    @foreach($latestPeriods as $period)
+                        <th class="text-center" style="width: 60px;">{{ \Carbon\Carbon::parse($period)->format('d M Y') }}</th>
+                    @endforeach
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($allInstansi as $instansiNama => $periodScores)
+                <tr>
+                    <td class="text-left" style="font-size: 7px;">{{ $instansiNama }}</td>
+                    @foreach($latestPeriods as $period)
+                        <td class="text-center">
+                            @if(isset($periodScores[$period]))
+                                <strong>{{ number_format($periodScores[$period], 2) }}</strong>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                    @endforeach
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @else
+    <div class="section-title">Perbandingan Skor Instansi Antar Periode</div>
+    <div style="padding: 15px; text-align: center; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; font-size: 9px;">
+        <strong>ℹ️ Data skor instansi belum tersedia.</strong><br>
+        <span class="text-muted">Pastikan data Monev DMS sudah diupload dan PIC memiliki instansi yang terdaftar.</span>
+    </div>
+    @endif
+    @endif
+
     <!-- Performa Individual -->
     <div class="section-title">Performa Individual Anggota</div>
     <table class="data-table">

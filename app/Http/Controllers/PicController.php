@@ -136,7 +136,7 @@ class PicController extends Controller
             }
         }
 
-        // Get monev scores for ALL periods for chart (top 5 instansi per period)
+        // Get monev scores for ALL periods for chart (all instansi)
         $chartData = [];
         $instansiIds = $pic->instansi->pluck('id')->toArray();
 
@@ -149,7 +149,6 @@ class PicController extends Controller
                 $periodScores = \App\Models\MonevDmsInstansiScore::where('upload_date', $uploadDateStr)
                     ->whereIn('id_instansi', $instansiIds)
                     ->orderBy('monev_skor_instansi', 'desc')
-                    ->limit(5)
                     ->get();
 
                 if ($periodScores->isNotEmpty()) {
@@ -332,8 +331,53 @@ class PicController extends Controller
             ->orderByDesc('total_aktivitas')
             ->get();
 
+        // Get monev upload dates
+        $monevUploadDates = \App\Models\MonevDmsNasional::select('upload_date')
+            ->distinct()
+            ->orderBy('upload_date', 'desc')
+            ->get();
+
+        // Get monev scores for ALL periods for chart (all instansi)
+        $chartData = [];
+        $instansiIds = $pic->instansi->pluck('id')->toArray();
+
+        if (!empty($instansiIds)) {
+            foreach ($monevUploadDates as $upload) {
+                $uploadDateStr = $upload->upload_date instanceof \Carbon\Carbon
+                    ? $upload->upload_date->format('Y-m-d')
+                    : $upload->upload_date;
+
+                $periodScores = \App\Models\MonevDmsInstansiScore::where('upload_date', $uploadDateStr)
+                    ->whereIn('id_instansi', $instansiIds)
+                    ->orderBy('monev_skor_instansi', 'desc')
+                    ->get();
+
+                if ($periodScores->isNotEmpty()) {
+                    $chartData[$uploadDateStr] = $periodScores;
+                }
+            }
+        }
+
+        // Get WFA/WFO/Libur breakdown
+        $workLocationQuery = DB::table('log_aktivitas')
+            ->whereIn('created_by_nip', $anggotaNips)
+            ->whereNotNull('work_category');
+
+        if ($dateFrom) {
+            $workLocationQuery->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $workLocationQuery->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        $workLocationStats = [
+            'wfa' => (clone $workLocationQuery)->where('work_category', 'WFA')->count(),
+            'wfo' => (clone $workLocationQuery)->where('work_category', 'WFO')->count(),
+            'libur' => (clone $workLocationQuery)->where('work_category', 'Libur')->count(),
+        ];
+
         // Generate PDF
-        $pdf = \PDF::loadView('pic.pdf-report', compact('pic', 'stats', 'performaAnggota', 'dateFrom', 'dateTo'));
+        $pdf = \PDF::loadView('pic.pdf-report', compact('pic', 'stats', 'performaAnggota', 'dateFrom', 'dateTo', 'chartData', 'workLocationStats'));
         $pdf->setPaper('a4', 'portrait');
 
         $fileName = 'Laporan_PIC_' . str_replace(' ', '_', $pic->ketua->nama ?? 'PIC') . '_' . date('Ymd_His') . '.pdf';

@@ -204,10 +204,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="mb-3">
-                                <i class="mdi mdi-chart-bar text-primary"></i>
+                                <i class="mdi mdi-chart-line text-primary"></i>
                                 Perbandingan Skor Instansi Antar Periode
                             </h5>
-                            <p class="text-muted small mb-4">Menampilkan top 5 instansi dengan skor tertinggi per periode upload</p>
+                            <p class="text-muted small mb-4">Menampilkan seluruh instansi yang dikelola per periode upload</p>
                             <canvas id="monevScoreChart" style="max-height: 400px;"></canvas>
                         </div>
                     </div>
@@ -488,7 +488,11 @@ document.addEventListener('DOMContentLoaded', function() {
             data: scores,
             backgroundColor: colors[index % colors.length],
             borderColor: colors[index % colors.length].replace('0.8', '1'),
-            borderWidth: 1
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: false
         };
     });
 
@@ -501,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create chart
     const ctx = document.getElementById('monevScoreChart').getContext('2d');
     const myChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: labels,
             datasets: datasets
