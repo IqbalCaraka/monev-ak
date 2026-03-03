@@ -47,6 +47,9 @@ Route::prefix('skor-arsip')->group(function () {
     Route::post('/process', [PerhitunganSkorArsipController::class, 'process'])->name('skor-arsip.process');
 });
 
+// Ubah Format - CSV to Excel converter
+Route::post('/ubah-format/process', [\App\Http\Controllers\UbahFormatController::class, 'processUpload'])->name('ubah-format.process');
+
 // DMS Routes
 Route::prefix('dms')->group(function () {
     Route::post('/upload', [DmsController::class, 'upload'])->name('dms.upload');
