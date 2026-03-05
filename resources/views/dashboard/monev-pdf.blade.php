@@ -322,17 +322,17 @@
         Pengelompokan {{ $monevKantorRegionalStats->count() }} Kantor Regional berdasarkan rata-rata skor instansi
     </p>
 
-    <table>
+    <table style="font-size: 8px;">
         <thead>
             <tr>
-                <th width="30" class="text-center">#</th>
-                <th width="80" class="text-center">Kantor Regional</th>
-                <th width="80" class="text-center">Total Instansi</th>
-                <th width="80" class="text-center">Rata-rata Skor</th>
-                <th width="70" class="text-center">Sangat Lengkap</th>
-                <th width="70" class="text-center">Lengkap</th>
-                <th width="70" class="text-center">Cukup Lengkap</th>
-                <th width="70" class="text-center">Kurang Lengkap</th>
+                <th width="25" class="text-center">#</th>
+                <th width="70" class="text-center">Kantor Regional</th>
+                <th width="60" class="text-center">Total Instansi</th>
+                <th width="60" class="text-center">Rata-rata Skor</th>
+                <th width="55" class="text-center">Sangat Lengkap</th>
+                <th width="55" class="text-center">Lengkap</th>
+                <th width="55" class="text-center">Cukup Lengkap</th>
+                <th width="55" class="text-center">Kurang Lengkap</th>
             </tr>
         </thead>
         <tbody>
