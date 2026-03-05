@@ -207,4 +207,63 @@ class DashboardController extends Controller
             'monevKantorRegionalStats'
         ));
     }
+
+    public function exportMonevPdf(Request $request)
+    {
+        // Get selected date or use latest
+        $selectedMonevDate = $request->input('monev_date');
+
+        if ($selectedMonevDate) {
+            $monevNasionalScore = MonevDmsNasional::where('upload_date', $selectedMonevDate)->first();
+        } else {
+            $monevNasionalScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+        }
+
+        if (!$monevNasionalScore) {
+            return back()->with('error', 'Tidak ada data Monev untuk di-export');
+        }
+
+        // Get top 5 instansi
+        $monevTopInstansi = MonevDmsInstansiScore::where('upload_date', $monevNasionalScore->upload_date)
+            ->orderBy('monev_skor_instansi', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Get bottom 5 instansi
+        $monevBottomInstansi = MonevDmsInstansiScore::where('upload_date', $monevNasionalScore->upload_date)
+            ->orderBy('monev_skor_instansi', 'asc')
+            ->limit(5)
+            ->get();
+
+        // Get Kantor Regional statistics
+        $monevKantorRegionalStats = DB::table('monev_dms_instansi_score')
+            ->select(
+                'kantor_regional_id',
+                DB::raw('COUNT(*) as total_instansi'),
+                DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Lengkap" THEN 1 END) as count_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Cukup Lengkap" THEN 1 END) as count_cukup_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
+            )
+            ->where('upload_date', $monevNasionalScore->upload_date)
+            ->whereNotNull('kantor_regional_id')
+            ->groupBy('kantor_regional_id')
+            ->orderByDesc('rata_rata_skor')
+            ->get();
+
+        // Generate PDF
+        $pdf = \PDF::loadView('dashboard.monev-pdf', compact(
+            'monevNasionalScore',
+            'monevTopInstansi',
+            'monevBottomInstansi',
+            'monevKantorRegionalStats'
+        ));
+
+        $pdf->setPaper('a4', 'portrait');
+
+        $fileName = 'Laporan_Monev_Skor_' . \Carbon\Carbon::parse($monevNasionalScore->upload_date)->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($fileName);
+    }
 }

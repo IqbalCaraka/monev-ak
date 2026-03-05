@@ -29,28 +29,39 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <form method="GET" action="{{ route('dashboard.dms') }}" class="d-flex align-items-center">
-                                        <label class="mb-0 me-3 fw-bold">
-                                            <i class="mdi mdi-filter-variant"></i> Filter Tanggal Data:
-                                        </label>
-                                        <select name="monev_date" class="form-select me-3" style="width: 250px;" onchange="this.form.submit()">
-                                            <option value="">-- Pilih Tanggal --</option>
-                                            @foreach($monevUploads as $upload)
-                                                <option value="{{ $upload->upload_date }}"
-                                                    {{ ($selectedMonevDate ?? '') == $upload->upload_date || (!$selectedMonevDate && $loop->first) ? 'selected' : '' }}>
-                                                    {{ \Carbon\Carbon::parse($upload->upload_date)->format('d M Y') }}
-                                                    @if($loop->first && !$selectedMonevDate)
-                                                        (Terbaru)
-                                                    @endif
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @if($selectedMonevDate)
-                                            <a href="{{ route('dashboard.dms') }}" class="btn btn-secondary btn-sm">
-                                                <i class="mdi mdi-reload"></i> Reset
-                                            </a>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <form method="GET" action="{{ route('dashboard.dms') }}" class="d-flex align-items-center">
+                                            <label class="mb-0 me-3 fw-bold">
+                                                <i class="mdi mdi-filter-variant"></i> Filter Tanggal Data:
+                                            </label>
+                                            <select name="monev_date" class="form-select me-3" style="width: 250px;" onchange="this.form.submit()">
+                                                <option value="">-- Pilih Tanggal --</option>
+                                                @foreach($monevUploads as $upload)
+                                                    <option value="{{ $upload->upload_date }}"
+                                                        {{ ($selectedMonevDate ?? '') == $upload->upload_date || (!$selectedMonevDate && $loop->first) ? 'selected' : '' }}>
+                                                        {{ \Carbon\Carbon::parse($upload->upload_date)->format('d M Y') }}
+                                                        @if($loop->first && !$selectedMonevDate)
+                                                            (Terbaru)
+                                                        @endif
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @if($selectedMonevDate)
+                                                <a href="{{ route('dashboard.dms') }}" class="btn btn-secondary btn-sm">
+                                                    <i class="mdi mdi-reload"></i> Reset
+                                                </a>
+                                            @endif
+                                        </form>
+
+                                        <!-- Print PDF Button -->
+                                        @if($monevNasionalScore)
+                                        <a href="{{ route('dashboard.monev.export-pdf') }}?monev_date={{ $selectedMonevDate ?? '' }}"
+                                           class="btn btn-danger btn-sm"
+                                           target="_blank">
+                                            <i class="mdi mdi-file-pdf"></i> Cetak PDF
+                                        </a>
                                         @endif
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>

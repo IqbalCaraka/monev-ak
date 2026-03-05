@@ -13,6 +13,7 @@ use App\Http\Controllers\MonevDmsController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/dashboard-dms', [DashboardController::class, 'dms'])->name('dashboard.dms');
+Route::get('/dashboard-dms/export-monev-pdf', [DashboardController::class, 'exportMonevPdf'])->name('dashboard.monev.export-pdf');
 
 // Pengaturan Routes
 Route::prefix('pengaturan')->group(function () {
