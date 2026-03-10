@@ -14,6 +14,9 @@ use App\Http\Controllers\MonevDmsController;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/dashboard-dms', [DashboardController::class, 'dms'])->name('dashboard.dms');
 Route::get('/dashboard-dms/export-monev-pdf', [DashboardController::class, 'exportMonevPdf'])->name('dashboard.monev.export-pdf');
+Route::get('/dashboard-dms/compare-periods', [DashboardController::class, 'comparePeriods'])->name('dashboard.monev.compare');
+Route::get('/dashboard-dms/export-kanreg-excel', [DashboardController::class, 'exportKanregExcel'])->name('dashboard.monev.export-kanreg-excel');
+Route::get('/dashboard-dms/export-kanreg-pdf', [DashboardController::class, 'exportKanregPdf'])->name('dashboard.monev.export-kanreg-pdf');
 
 // Pengaturan Routes
 Route::prefix('pengaturan')->group(function () {

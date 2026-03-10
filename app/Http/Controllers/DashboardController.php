@@ -183,8 +183,104 @@ class DashboardController extends Controller
                 ->groupBy('kantor_regional_id')
                 ->orderByDesc('rata_rata_skor')
                 ->get();
+
+            // Period Comparison Analysis (only if there are at least 2 periods)
+            $comparisonData = null;
+            if ($monevUploads->count() >= 2) {
+                // Check if user selected custom periods to compare
+                $comparePeriodStart = $request->input('compare_period_start');
+                $comparePeriodEnd = $request->input('compare_period_end');
+
+                // If user selected custom periods, use those
+                if ($comparePeriodStart && $comparePeriodEnd) {
+                    $previousPeriod = $comparePeriodStart;
+                    $currentPeriod = $comparePeriodEnd;
+                } else {
+                    // Otherwise, compare current period with previous period
+                    $currentPeriod = $monevNasionalScore->upload_date;
+
+                    // Find previous period (periode sebelum current)
+                    $previousPeriodData = MonevDmsNasional::where('upload_date', '<', $currentPeriod)
+                        ->orderBy('upload_date', 'desc')
+                        ->first();
+
+                    if (!$previousPeriodData) {
+                        $previousPeriod = null;
+                    } else {
+                        $previousPeriod = $previousPeriodData->upload_date;
+                    }
+                }
+
+                if ($previousPeriod) {
+
+                    // Get scores from both periods
+                    $currentScores = MonevDmsInstansiScore::where('upload_date', $currentPeriod)
+                        ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+                        ->get()
+                        ->keyBy('id_instansi');
+
+                    $previousScores = MonevDmsInstansiScore::where('upload_date', $previousPeriod)
+                        ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+                        ->get()
+                        ->keyBy('id_instansi');
+
+                    // Calculate changes
+                    $changes = [];
+                    $countNaik = 0;
+                    $countTurun = 0;
+                    $countStagnan = 0;
+
+                    foreach ($currentScores as $idInstansi => $current) {
+                        if (isset($previousScores[$idInstansi])) {
+                            $previous = $previousScores[$idInstansi];
+                            $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
+
+                            $changes[] = [
+                                'id_instansi' => $idInstansi,
+                                'nama_instansi' => $current->nama_instansi,
+                                'skor_sebelum' => $previous->monev_skor_instansi,
+                                'skor_sekarang' => $current->monev_skor_instansi,
+                                'perubahan' => $scoreDiff,
+                                'perubahan_abs' => abs($scoreDiff)
+                            ];
+
+                            // Count trends
+                            if ($scoreDiff > 0.5) {
+                                $countNaik++;
+                            } elseif ($scoreDiff < -0.5) {
+                                $countTurun++;
+                            } else {
+                                $countStagnan++;
+                            }
+                        }
+                    }
+
+                    // Sort by perubahan descending for biggest increases
+                    usort($changes, function($a, $b) {
+                        return $b['perubahan'] <=> $a['perubahan'];
+                    });
+
+                    // Get top 5 biggest increases (kenaikan terbesar)
+                    $biggestChanges = array_slice($changes, 0, 5);
+
+                    // Get top 5 smallest increases/stagnan (kenaikan terkecil atau stagnan)
+                    $mostStable = array_slice(array_reverse($changes), 0, 5);
+
+                    $comparisonData = [
+                        'current_period' => $currentPeriod,
+                        'previous_period' => $previousPeriod,
+                        'biggest_changes' => $biggestChanges,
+                        'most_stable' => $mostStable,
+                        'count_naik' => $countNaik,
+                        'count_turun' => $countTurun,
+                        'count_stagnan' => $countStagnan,
+                        'total_compared' => count($changes)
+                    ];
+                }
+            }
         } else {
             $monevAllInstansi = collect();
+            $comparisonData = null;
         }
 
         return view('dashboard.dms', compact(
@@ -204,7 +300,8 @@ class DashboardController extends Controller
             'selectedMonevDate',
             'monevAllInstansi',
             'monevSearch',
-            'monevKantorRegionalStats'
+            'monevKantorRegionalStats',
+            'comparisonData'
         ));
     }
 
@@ -265,5 +362,251 @@ class DashboardController extends Controller
         $fileName = 'Laporan_Monev_Skor_' . \Carbon\Carbon::parse($monevNasionalScore->upload_date)->format('Y-m-d') . '.pdf';
 
         return $pdf->download($fileName);
+    }
+
+    public function comparePeriods(Request $request)
+    {
+        $comparePeriodStart = $request->input('compare_period_start');
+        $comparePeriodEnd = $request->input('compare_period_end');
+
+        if (!$comparePeriodStart || !$comparePeriodEnd) {
+            return response()->json(['error' => 'Pilih kedua periode untuk dibandingkan'], 400);
+        }
+
+        $previousPeriod = $comparePeriodStart;
+        $currentPeriod = $comparePeriodEnd;
+
+        // Get scores from both periods
+        $currentScores = MonevDmsInstansiScore::where('upload_date', $currentPeriod)
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->get()
+            ->keyBy('id_instansi');
+
+        $previousScores = MonevDmsInstansiScore::where('upload_date', $previousPeriod)
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->get()
+            ->keyBy('id_instansi');
+
+        // Calculate changes
+        $changes = [];
+        $countNaik = 0;
+        $countTurun = 0;
+        $countStagnan = 0;
+
+        foreach ($currentScores as $idInstansi => $current) {
+            if (isset($previousScores[$idInstansi])) {
+                $previous = $previousScores[$idInstansi];
+                $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
+
+                $changes[] = [
+                    'id_instansi' => $idInstansi,
+                    'nama_instansi' => $current->nama_instansi,
+                    'skor_sebelum' => $previous->monev_skor_instansi,
+                    'skor_sekarang' => $current->monev_skor_instansi,
+                    'perubahan' => $scoreDiff,
+                    'perubahan_abs' => abs($scoreDiff)
+                ];
+
+                // Count trends
+                if ($scoreDiff > 0.5) {
+                    $countNaik++;
+                } elseif ($scoreDiff < -0.5) {
+                    $countTurun++;
+                } else {
+                    $countStagnan++;
+                }
+            }
+        }
+
+        // Sort by perubahan descending for biggest increases
+        usort($changes, function($a, $b) {
+            return $b['perubahan'] <=> $a['perubahan'];
+        });
+
+        // Get top 5 biggest increases (kenaikan terbesar)
+        $biggestChanges = array_slice($changes, 0, 5);
+
+        // Get top 5 smallest increases/stagnan (kenaikan terkecil atau stagnan)
+        $mostStable = array_slice(array_reverse($changes), 0, 5);
+
+        $comparisonData = [
+            'current_period' => $currentPeriod,
+            'previous_period' => $previousPeriod,
+            'biggest_changes' => $biggestChanges,
+            'most_stable' => $mostStable,
+            'count_naik' => $countNaik,
+            'count_turun' => $countTurun,
+            'count_stagnan' => $countStagnan,
+            'total_compared' => count($changes)
+        ];
+
+        return response()->json($comparisonData);
+    }
+
+    public function exportKanregExcel(Request $request)
+    {
+        $kanregId = $request->input('kanreg_id');
+        $monevDate = $request->input('monev_date');
+
+        // If no date provided, get the latest
+        if (!$monevDate) {
+            $latestScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+            $monevDate = $latestScore ? $latestScore->upload_date : null;
+        }
+
+        if (!$monevDate) {
+            return back()->with('error', 'Tidak ada data monev yang tersedia');
+        }
+
+        // Debug log
+        \Log::info('Excel Export - Kanreg ID: ' . $kanregId . ', Date: ' . $monevDate);
+
+        // Get instansi data for this kanreg
+        $instansiList = DB::table('monev_dms_instansi_score')
+            ->where('upload_date', $monevDate)
+            ->where('kantor_regional_id', $kanregId)
+            ->orderBy('monev_skor_instansi', 'desc')
+            ->get();
+
+        \Log::info('Found instansi: ' . $instansiList->count());
+
+        if ($instansiList->isEmpty()) {
+            return back()->with('error', 'Tidak ada data instansi untuk Kantor Regional ini pada tanggal ' . $monevDate);
+        }
+
+        // Create Excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header info
+        $sheet->setCellValue('A1', 'DAFTAR DETAIL INSTANSI PER KANTOR REGIONAL');
+        $sheet->mergeCells('A1:E1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A2', 'Kantor Regional: ' . $kanregId);
+        $sheet->mergeCells('A2:E2');
+        $sheet->getStyle('A2')->getFont()->setBold(true);
+
+        $sheet->setCellValue('A3', 'Periode Penilaian: ' . \Carbon\Carbon::parse($monevDate)->format('d F Y'));
+        $sheet->mergeCells('A3:E3');
+
+        $sheet->setCellValue('A4', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->mergeCells('A4:E4');
+
+        // Table header
+        $sheet->setCellValue('A6', 'No');
+        $sheet->setCellValue('B6', 'Nama Instansi');
+        $sheet->setCellValue('C6', 'ID Instansi');
+        $sheet->setCellValue('D6', 'Skor');
+        $sheet->setCellValue('E6', 'Status Kelengkapan');
+
+        $sheet->getStyle('A6:E6')->getFont()->setBold(true);
+        $sheet->getStyle('A6:E6')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFD9D9D9');
+
+        // Data
+        $row = 7;
+        $no = 1;
+        foreach ($instansiList as $instansi) {
+            $sheet->setCellValue('A' . $row, $no);
+            $sheet->setCellValue('B' . $row, $instansi->nama_instansi);
+            $sheet->setCellValue('C' . $row, $instansi->id_instansi);
+            $sheet->setCellValue('D' . $row, number_format($instansi->monev_skor_instansi, 2));
+            $sheet->setCellValue('E' . $row, $instansi->monev_status_kelengkapan);
+
+            // Color code status
+            $statusColor = '';
+            switch ($instansi->monev_status_kelengkapan) {
+                case 'Sangat Lengkap':
+                    $statusColor = 'FF92D050';
+                    break;
+                case 'Lengkap':
+                    $statusColor = 'FF3498DB';
+                    break;
+                case 'Cukup Lengkap':
+                    $statusColor = 'FFF39C12';
+                    break;
+                case 'Kurang Lengkap':
+                    $statusColor = 'FFFF6666';
+                    break;
+            }
+
+            if ($statusColor) {
+                $sheet->getStyle('E' . $row)->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB($statusColor);
+            }
+
+            $row++;
+            $no++;
+        }
+
+        // Auto size columns
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(12);
+        $sheet->getColumnDimension('E')->setWidth(20);
+
+        // Export using StreamedResponse
+        $filename = 'Daftar_Instansi_Kanreg_' . str_replace(' ', '_', $kanregId) . '_' . date('Ymd') . '.xlsx';
+
+        return response()->streamDownload(function() use ($spreadsheet) {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    public function exportKanregPdf(Request $request)
+    {
+        $kanregId = $request->input('kanreg_id');
+        $monevDate = $request->input('monev_date');
+
+        // If no date provided, get the latest
+        if (!$monevDate) {
+            $latestScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+            $monevDate = $latestScore ? $latestScore->upload_date : null;
+        }
+
+        if (!$monevDate) {
+            return response()->json(['error' => 'Tidak ada data monev yang tersedia'], 404);
+        }
+
+        // Debug log
+        \Log::info('PDF Export - Kanreg ID: ' . $kanregId . ', Date: ' . $monevDate);
+
+        // Get instansi data for this kanreg
+        $instansiList = DB::table('monev_dms_instansi_score')
+            ->where('upload_date', $monevDate)
+            ->where('kantor_regional_id', $kanregId)
+            ->orderBy('monev_skor_instansi', 'desc')
+            ->get();
+
+        \Log::info('Found instansi for PDF: ' . $instansiList->count());
+
+        if ($instansiList->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada data instansi untuk Kantor Regional ini pada tanggal ' . $monevDate], 404);
+        }
+
+        // Test: render HTML first
+        try {
+            $html = view('dashboard.kanreg-detail-pdf', compact('instansiList', 'kanregId', 'monevDate'))->render();
+            \Log::info('HTML rendered successfully, length: ' . strlen($html));
+
+            $pdf = \PDF::loadHTML($html);
+            $pdf->setPaper('a4', 'portrait');
+
+            $filename = 'Daftar_Instansi_Kanreg_' . str_replace(' ', '_', $kanregId) . '_' . date('Ymd') . '.pdf';
+
+            return $pdf->stream($filename);
+        } catch (\Exception $e) {
+            \Log::error('PDF Error: ' . $e->getMessage());
+            return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);
+        }
     }
 }
