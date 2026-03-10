@@ -23,11 +23,21 @@
                 <!-- Tab: Monev Skor -->
                 <div class="tab-pane fade show active" id="monev-skor" role="tabpanel" aria-labelledby="monev-skor">
 
-                    <!-- Filter Perbandingan Periode -->
+                    <!-- SECTION 1: PERBANDINGAN PERIODE -->
                     @if($monevUploads->count() >= 2)
                     <div class="row mb-3">
                         <div class="col-12">
-                            <div class="card border-info">
+                            <div class="alert alert-info border-0 mb-3" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); border-left: 5px solid #2196F3 !important;">
+                                <h4 class="mb-0 fw-bold text-primary">
+                                    <i class="mdi mdi-numeric-1-circle"></i> SECTION 1: PERBANDINGAN PERIODE
+                                </h4>
+                                <small class="text-muted">Bandingkan data monitoring antara dua periode berbeda</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="card border-info" style="border-width: 2px !important; box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);">
                                 <div class="card-body">
                                     <h5 class="card-title mb-3">
                                         <i class="mdi mdi-compare text-info"></i> Filter Perbandingan Periode
@@ -80,24 +90,34 @@
                     @endif
 
                     <!-- Period Comparison Analysis -->
-                    <div id="comparisonContainer" style="{{ $comparisonData ? '' : 'display: none;' }}">
-                    @if($comparisonData)
+                    <div id="comparisonContainer" style="display: none;">
+                    @if(false) {{-- Never show on initial page load --}}
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card card-rounded">
                                 <div class="card-body">
-                                    <h4 class="card-title mb-3">
-                                        <i class="mdi mdi-chart-timeline-variant text-info"></i> Analisis Perbandingan Periode
-                                    </h4>
-                                    <div class="alert alert-info mb-3" style="background-color: #e3f2fd; border-left: 4px solid #2196F3;">
-                                        <small>
-                                            <i class="mdi mdi-information"></i>
-                                            Membandingkan data antara periode
-                                            <strong>{{ \Carbon\Carbon::parse($comparisonData['previous_period'])->format('d M Y') }}</strong>
-                                            dengan
-                                            <strong>{{ \Carbon\Carbon::parse($comparisonData['current_period'])->format('d M Y') }}</strong>
-                                            ({{ $comparisonData['total_compared'] }} instansi dibandingkan)
-                                        </small>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h4 class="card-title mb-1">
+                                                <i class="mdi mdi-chart-timeline-variant text-info"></i> Analisis Perbandingan Periode
+                                            </h4>
+                                            <small class="text-muted">
+                                                Periode {{ \Carbon\Carbon::parse($comparisonData['previous_period'])->format('d M Y') }} vs {{ \Carbon\Carbon::parse($comparisonData['current_period'])->format('d M Y') }}
+                                            </small>
+                                        </div>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('dashboard.monev.export-comparison-excel', ['previous_date' => $comparisonData['previous_period'], 'current_date' => $comparisonData['current_period']]) }}"
+                                               class="btn btn-sm btn-success"
+                                               title="Download Excel">
+                                                <i class="mdi mdi-file-excel"></i> Excel
+                                            </a>
+                                            <a href="{{ route('dashboard.monev.export-comparison-pdf', ['previous_date' => $comparisonData['previous_period'], 'current_date' => $comparisonData['current_period']]) }}"
+                                               class="btn btn-sm btn-danger"
+                                               target="_blank"
+                                               title="Download PDF">
+                                                <i class="mdi mdi-file-pdf"></i> PDF
+                                            </a>
+                                        </div>
                                     </div>
 
                                     <!-- Trend Summary Cards -->
@@ -134,101 +154,73 @@
                                         </div>
                                     </div>
 
-                                    <!-- Top Changes Tables -->
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <h5 class="mb-3">
-                                                <i class="mdi mdi-trending-up text-success"></i> Top 5 Kenaikan Terbesar
-                                            </h5>
-                                            <div class="table-responsive">
-                                                <table class="table table-hover table-bordered">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th width="40">#</th>
-                                                            <th>Instansi</th>
-                                                            <th width="80" class="text-center">Sebelum</th>
-                                                            <th width="80" class="text-center">Sekarang</th>
-                                                            <th width="100" class="text-center">Perubahan</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach($comparisonData['biggest_changes'] as $index => $change)
-                                                        <tr>
-                                                            <td class="text-center fw-bold">{{ $index + 1 }}</td>
-                                                            <td>{{ Str::limit($change['nama_instansi'], 40) }}</td>
-                                                            <td class="text-center">
-                                                                <span class="badge badge-secondary">{{ number_format($change['skor_sebelum'], 1) }}</span>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <span class="badge badge-primary">{{ number_format($change['skor_sekarang'], 1) }}</span>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                @if($change['perubahan'] > 0)
-                                                                    <span class="badge badge-success">
-                                                                        <i class="mdi mdi-arrow-up"></i> +{{ number_format($change['perubahan'], 2) }}
-                                                                    </span>
-                                                                @elseif($change['perubahan'] < 0)
-                                                                    <span class="badge badge-danger">
-                                                                        <i class="mdi mdi-arrow-down"></i> {{ number_format($change['perubahan'], 2) }}
-                                                                    </span>
-                                                                @else
-                                                                    <span class="badge badge-secondary">0.00</span>
-                                                                @endif
-                                                            </td>
-                                                        </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
+                                    <!-- Comparison Data Table -->
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th width="40" class="text-center">#</th>
+                                                    <th>Nama Instansi</th>
+                                                    <th width="100" class="text-center">{{ \Carbon\Carbon::parse($comparisonData['previous_period'])->format('d M Y') }}</th>
+                                                    <th width="100" class="text-center">{{ \Carbon\Carbon::parse($comparisonData['current_period'])->format('d M Y') }}</th>
+                                                    <th width="100" class="text-center">Perubahan</th>
+                                                    <th width="100" class="text-center">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @php
+                                                    // Combine all comparison data and sort by change (descending)
+                                                    $allComparisons = collect($comparisonData['all_comparisons'] ?? [])
+                                                        ->sortByDesc('perubahan')
+                                                        ->values();
+                                                @endphp
+                                                @foreach($allComparisons as $index => $change)
+                                                @php
+                                                    $statusBadge = 'badge-warning';
+                                                    $statusText = 'Stagnan';
+                                                    $statusIcon = 'mdi-minus';
 
-                                        <div class="col-lg-6">
-                                            <h5 class="mb-3">
-                                                <i class="mdi mdi-minus-circle text-warning"></i> Top 5 Kenaikan Terkecil/Stagnan
-                                            </h5>
-                                            <div class="table-responsive">
-                                                <table class="table table-hover table-bordered">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th width="40">#</th>
-                                                            <th>Instansi</th>
-                                                            <th width="80" class="text-center">Sebelum</th>
-                                                            <th width="80" class="text-center">Sekarang</th>
-                                                            <th width="100" class="text-center">Perubahan</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach($comparisonData['most_stable'] as $index => $change)
-                                                        <tr>
-                                                            <td class="text-center fw-bold">{{ $index + 1 }}</td>
-                                                            <td>{{ Str::limit($change['nama_instansi'], 40) }}</td>
-                                                            <td class="text-center">
-                                                                <span class="badge badge-secondary">{{ number_format($change['skor_sebelum'], 1) }}</span>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <span class="badge badge-primary">{{ number_format($change['skor_sekarang'], 1) }}</span>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                @if($change['perubahan'] > 0)
-                                                                    <span class="badge badge-success">
-                                                                        <i class="mdi mdi-arrow-up"></i> +{{ number_format($change['perubahan'], 2) }}
-                                                                    </span>
-                                                                @elseif($change['perubahan'] < 0)
-                                                                    <span class="badge badge-danger">
-                                                                        <i class="mdi mdi-arrow-down"></i> {{ number_format($change['perubahan'], 2) }}
-                                                                    </span>
-                                                                @else
-                                                                    <span class="badge badge-warning">
-                                                                        <i class="mdi mdi-minus"></i> {{ number_format($change['perubahan'], 2) }}
-                                                                    </span>
-                                                                @endif
-                                                            </td>
-                                                        </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
+                                                    if ($change['perubahan'] > 0.5) {
+                                                        $statusBadge = 'badge-success';
+                                                        $statusText = 'Naik';
+                                                        $statusIcon = 'mdi-trending-up';
+                                                    } elseif ($change['perubahan'] < -0.5) {
+                                                        $statusBadge = 'badge-danger';
+                                                        $statusText = 'Turun';
+                                                        $statusIcon = 'mdi-trending-down';
+                                                    }
+                                                @endphp
+                                                <tr>
+                                                    <td class="text-center fw-bold">{{ $index + 1 }}</td>
+                                                    <td>{{ $change['nama_instansi'] }}</td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-secondary">{{ number_format($change['skor_sebelum'], 2) }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-info">{{ number_format($change['skor_sekarang'], 2) }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if($change['perubahan'] > 0)
+                                                            <span class="badge badge-success">
+                                                                <i class="mdi mdi-arrow-up"></i> +{{ number_format($change['perubahan'], 2) }}
+                                                            </span>
+                                                        @elseif($change['perubahan'] < 0)
+                                                            <span class="badge badge-danger">
+                                                                <i class="mdi mdi-arrow-down"></i> {{ number_format($change['perubahan'], 2) }}
+                                                            </span>
+                                                        @else
+                                                            <span class="badge badge-secondary">0.00</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge {{ $statusBadge }}">
+                                                            <i class="mdi {{ $statusIcon }}"></i> {{ $statusText }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -237,11 +229,21 @@
                     @endif
                     </div>
 
-                    <!-- Filter Tanggal Upload -->
+                    <!-- SECTION 2: DATA MONITORING & EVALUASI -->
                     @if($monevUploads->count() > 0)
+                    <div class="row mb-3 mt-5">
+                        <div class="col-12">
+                            <div class="alert alert-success border-0 mb-3" style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-left: 5px solid #4CAF50 !important;">
+                                <h4 class="mb-0 fw-bold text-success">
+                                    <i class="mdi mdi-numeric-2-circle"></i> SECTION 2: DATA MONITORING & EVALUASI
+                                </h4>
+                                <small class="text-muted">Lihat dan filter data monitoring DMS berdasarkan periode tertentu</small>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row mb-4">
                         <div class="col-12">
-                            <div class="card">
+                            <div class="card border-success" style="border-width: 2px !important; box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <form method="GET" action="{{ route('dashboard.dms') }}" class="d-flex align-items-center">
@@ -604,9 +606,26 @@
                                             </h4>
                                             <p class="text-muted small mb-0">Pengelompokan instansi berdasarkan Kantor Regional BKN</p>
                                         </div>
-                                        <span class="badge badge-info px-3 py-2">
-                                            Total: {{ $monevKantorRegionalStats->count() }} Kantor Regional
-                                        </span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge badge-info px-3 py-2">
+                                                Total: {{ $monevKantorRegionalStats->count() }} Kantor Regional
+                                            </span>
+                                            @if($monevNasionalScore)
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ route('dashboard.monev.export-kanreg-summary-excel', ['monev_date' => $monevNasionalScore->upload_date]) }}"
+                                                   class="btn btn-sm btn-success"
+                                                   title="Download Excel">
+                                                    <i class="mdi mdi-file-excel"></i> Excel
+                                                </a>
+                                                <a href="{{ route('dashboard.monev.export-kanreg-summary-pdf', ['monev_date' => $monevNasionalScore->upload_date]) }}"
+                                                   class="btn btn-sm btn-danger"
+                                                   target="_blank"
+                                                   title="Download PDF">
+                                                    <i class="mdi mdi-file-pdf"></i> PDF
+                                                </a>
+                                            </div>
+                                            @endif
+                                        </div>
                                     </div>
                                     <div class="table-responsive mt-3">
                                         <table class="table table-hover table-bordered">
@@ -616,6 +635,7 @@
                                                     <th class="text-center" width="120">Kantor Regional</th>
                                                     <th class="text-center">Total Instansi</th>
                                                     <th class="text-center">Rata-rata Skor</th>
+                                                    <th class="text-center" width="150">Status Kelengkapan</th>
                                                     <th class="text-center" width="100">Sangat Lengkap</th>
                                                     <th class="text-center" width="100">Lengkap</th>
                                                     <th class="text-center" width="100">Cukup Lengkap</th>
@@ -641,6 +661,30 @@
                                                         <strong class="text-primary" style="font-size: 1.1em;">
                                                             {{ number_format($kanreg->rata_rata_skor, 2) }}
                                                         </strong>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @php
+                                                            // Determine dominant status
+                                                            $statusCounts = [
+                                                                'Sangat Lengkap' => $kanreg->count_sangat_lengkap,
+                                                                'Lengkap' => $kanreg->count_lengkap,
+                                                                'Cukup Lengkap' => $kanreg->count_cukup_lengkap,
+                                                                'Kurang Lengkap' => $kanreg->count_kurang_lengkap
+                                                            ];
+                                                            arsort($statusCounts);
+                                                            $dominantStatus = array_key_first($statusCounts);
+
+                                                            $badgeClass = match($dominantStatus) {
+                                                                'Sangat Lengkap' => 'badge-success',
+                                                                'Lengkap' => 'badge-primary',
+                                                                'Cukup Lengkap' => 'badge-warning',
+                                                                'Kurang Lengkap' => 'badge-danger',
+                                                                default => 'badge-secondary'
+                                                            };
+                                                        @endphp
+                                                        <span class="badge {{ $badgeClass }} px-3 py-2">
+                                                            {{ $dominantStatus }}
+                                                        </span>
                                                     </td>
                                                     <td class="text-center">
                                                         <span class="badge badge-success px-2 py-1">
@@ -693,6 +737,7 @@
                                                             {{ number_format($monevKantorRegionalStats->avg('rata_rata_skor'), 2) }}
                                                         </strong>
                                                     </th>
+                                                    <th></th>
                                                     <th class="text-center">
                                                         <span class="badge badge-success px-2 py-1">
                                                             {{ number_format($monevKantorRegionalStats->sum('count_sangat_lengkap')) }}
@@ -730,12 +775,31 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h4 class="card-title mb-0">
-                                            <i class="mdi mdi-format-list-bulleted text-primary"></i> Daftar Semua Instansi
-                                        </h4>
-                                        <span class="badge badge-info px-3 py-2">
-                                            Total: {{ $monevAllInstansi->total() }} Instansi
-                                        </span>
+                                        <div>
+                                            <h4 class="card-title mb-0">
+                                                <i class="mdi mdi-format-list-bulleted text-primary"></i> Daftar Semua Instansi
+                                            </h4>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge badge-info px-3 py-2">
+                                                Total: {{ $monevAllInstansi->total() }} Instansi
+                                            </span>
+                                            @if($monevNasionalScore)
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ route('dashboard.monev.export-all-excel', ['monev_date' => $monevNasionalScore->upload_date]) }}"
+                                                   class="btn btn-sm btn-success"
+                                                   title="Download Excel">
+                                                    <i class="mdi mdi-file-excel"></i> Excel
+                                                </a>
+                                                <a href="{{ route('dashboard.monev.export-all-pdf', ['monev_date' => $monevNasionalScore->upload_date]) }}"
+                                                   class="btn btn-sm btn-danger"
+                                                   target="_blank"
+                                                   title="Download PDF">
+                                                    <i class="mdi mdi-file-pdf"></i> PDF
+                                                </a>
+                                            </div>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     <!-- Search Form -->
@@ -773,8 +837,7 @@
                                                 <thead class="table-primary">
                                                     <tr>
                                                         <th width="5%" class="text-center">#</th>
-                                                        <th width="10%" class="text-center">ID Instansi</th>
-                                                        <th width="45%">Nama Instansi</th>
+                                                        <th width="55%">Nama Instansi</th>
                                                         <th width="15%" class="text-center">Skor</th>
                                                         <th width="25%" class="text-center">Status Kelengkapan</th>
                                                     </tr>
@@ -792,7 +855,6 @@
                                                         @endphp
                                                         <tr>
                                                             <td class="text-center fw-bold">{{ $monevAllInstansi->firstItem() + $index }}</td>
-                                                            <td class="text-center">{{ $instansi->id_instansi }}</td>
                                                             <td>
                                                                 <strong>{{ $instansi->nama_instansi }}</strong>
                                                             </td>
@@ -809,7 +871,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="5" class="text-center text-muted py-4">
+                                                            <td colspan="4" class="text-center text-muted py-4">
                                                                 @if($monevSearch)
                                                                     <i class="mdi mdi-magnify mdi-48px d-block mb-2"></i>
                                                                     Tidak ada data yang ditemukan untuk "<strong>{{ $monevSearch }}</strong>"
@@ -2213,7 +2275,21 @@
         document.getElementById('compare_period_end').selectedIndex = 0;
     }
 
+    // Global variables for pagination
+    let currentComparisonData = null;
+    let currentPage = 1;
+    const itemsPerPage = 20;
+
     function updateComparisonSection(data) {
+        currentComparisonData = data; // Store data globally for pagination
+        currentPage = 1; // Reset to first page
+        renderComparisonTable();
+    }
+
+    function renderComparisonTable() {
+        if (!currentComparisonData) return;
+
+        const data = currentComparisonData;
         const formatDate = (dateStr) => {
             const date = new Date(dateStr);
             return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -2240,147 +2316,193 @@
             return '';
         };
 
+        // Get export URLs
+        const exportExcelUrl = `{{ route('dashboard.monev.export-comparison-excel') }}?previous_date=${data.previous_period}&current_date=${data.current_period}`;
+        const exportPdfUrl = `{{ route('dashboard.monev.export-comparison-pdf') }}?previous_date=${data.previous_period}&current_date=${data.current_period}`;
+
         // Build HTML
         let html = `
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card card-rounded">
                     <div class="card-body">
-                        <h4 class="card-title mb-3">
-                            <i class="mdi mdi-chart-timeline-variant text-info"></i> Analisis Perbandingan Periode
-                        </h4>
-                        <div class="alert alert-info mb-3" style="background-color: #e3f2fd; border-left: 4px solid #2196F3;">
-                            <small>
-                                <i class="mdi mdi-information"></i>
-                                Membandingkan data antara periode
-                                <strong>${formatDate(data.previous_period)}</strong>
-                                dengan
-                                <strong>${formatDate(data.current_period)}</strong>
-                                (${data.total_compared} instansi dibandingkan)
-                            </small>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h4 class="card-title mb-1">
+                                    <i class="mdi mdi-chart-timeline-variant text-info"></i> Analisis Perbandingan Periode
+                                </h4>
+                                <small class="text-muted">
+                                    Periode ${formatDate(data.previous_period)} vs ${formatDate(data.current_period)}
+                                </small>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <a href="${exportExcelUrl}" class="btn btn-sm btn-success">
+                                    <i class="mdi mdi-file-excel"></i> Excel
+                                </a>
+                                <a href="${exportPdfUrl}" class="btn btn-sm btn-danger" target="_blank">
+                                    <i class="mdi mdi-file-pdf"></i> PDF
+                                </a>
+                            </div>
                         </div>
 
-                        <!-- Trend Summary Cards -->
+                        <!-- Summary Statistics -->
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <div class="card border-success">
-                                    <div class="card-body text-center py-3">
-                                        <i class="mdi mdi-trending-up text-success" style="font-size: 2rem;"></i>
-                                        <h3 class="text-success mt-2 mb-1">${data.count_naik}</h3>
-                                        <p class="text-muted mb-0 small">Instansi Mengalami Kenaikan</p>
-                                        <small class="text-muted">(Naik > 0.5 poin)</small>
-                                    </div>
+                                <div class="alert alert-success mb-0 text-center">
+                                    <h4 class="mb-1">${data.count_naik}</h4>
+                                    <small>Instansi Naik</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="card border-warning">
-                                    <div class="card-body text-center py-3">
-                                        <i class="mdi mdi-minus-circle text-warning" style="font-size: 2rem;"></i>
-                                        <h3 class="text-warning mt-2 mb-1">${data.count_stagnan}</h3>
-                                        <p class="text-muted mb-0 small">Instansi Stagnan/Stabil</p>
-                                        <small class="text-muted">(Perubahan ≤ 0.5 poin)</small>
-                                    </div>
+                                <div class="alert alert-warning mb-0 text-center">
+                                    <h4 class="mb-1">${data.count_stagnan}</h4>
+                                    <small>Instansi Stagnan</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="card border-danger">
-                                    <div class="card-body text-center py-3">
-                                        <i class="mdi mdi-trending-down text-danger" style="font-size: 2rem;"></i>
-                                        <h3 class="text-danger mt-2 mb-1">${data.count_turun}</h3>
-                                        <p class="text-muted mb-0 small">Instansi Mengalami Penurunan</p>
-                                        <small class="text-muted">(Turun > 0.5 poin)</small>
-                                    </div>
+                                <div class="alert alert-danger mb-0 text-center">
+                                    <h4 class="mb-1">${data.count_turun}</h4>
+                                    <small>Instansi Turun</small>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Top Changes Tables -->
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <h5 class="mb-3">
-                                    <i class="mdi mdi-trending-up text-success"></i> Top 5 Kenaikan Terbesar
-                                </h5>
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-bordered">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th width="40">#</th>
-                                                <th>Instansi</th>
-                                                <th width="80" class="text-center">Sebelum</th>
-                                                <th width="80" class="text-center">Sekarang</th>
-                                                <th width="100" class="text-center">Perubahan</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>`;
+                        <!-- Comparison Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="40" class="text-center">#</th>
+                                        <th>Nama Instansi</th>
+                                        <th width="100" class="text-center">${formatDate(data.previous_period)}</th>
+                                        <th width="100" class="text-center">${formatDate(data.current_period)}</th>
+                                        <th width="100" class="text-center">Perubahan</th>
+                                        <th width="100" class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
 
-        data.biggest_changes.forEach((change, index) => {
-            const namaInstansi = change.nama_instansi.length > 40 ? change.nama_instansi.substring(0, 40) + '...' : change.nama_instansi;
+        // Sort all comparisons by perubahan desc
+        const allComparisons = (data.all_comparisons || []).sort((a, b) => b.perubahan - a.perubahan);
+
+        // Calculate pagination
+        const totalItems = allComparisons.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+        const paginatedData = allComparisons.slice(startIndex, endIndex);
+
+        paginatedData.forEach((change, index) => {
+            const globalIndex = startIndex + index + 1;
+            const namaInstansi = change.nama_instansi.length > 50 ? change.nama_instansi.substring(0, 50) + '...' : change.nama_instansi;
+
+            // Determine status
+            let statusBadge = 'badge-warning';
+            let statusText = 'Stagnan';
+            let statusIcon = 'mdi-minus';
+
+            if (change.perubahan > 0.5) {
+                statusBadge = 'badge-success';
+                statusText = 'Naik';
+                statusIcon = 'mdi-trending-up';
+            } else if (change.perubahan < -0.5) {
+                statusBadge = 'badge-danger';
+                statusText = 'Turun';
+                statusIcon = 'mdi-trending-down';
+            }
+
             html += `
-                                            <tr>
-                                                <td class="text-center fw-bold">${index + 1}</td>
-                                                <td>${namaInstansi}</td>
-                                                <td class="text-center">
-                                                    <span class="badge badge-secondary">${formatNumber(change.skor_sebelum, 1)}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge badge-primary">${formatNumber(change.skor_sekarang, 1)}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge ${getBadgeClass(change.perubahan)}">
-                                                        <i class="mdi ${getIcon(change.perubahan)}"></i> ${getSign(change.perubahan)}${formatNumber(change.perubahan, 2)}
-                                                    </span>
-                                                </td>
-                                            </tr>`;
+                                    <tr>
+                                        <td class="text-center fw-bold">${globalIndex}</td>
+                                        <td>${namaInstansi}</td>
+                                        <td class="text-center">
+                                            <span class="badge badge-secondary">${formatNumber(change.skor_sebelum, 2)}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge badge-info">${formatNumber(change.skor_sekarang, 2)}</span>
+                                        </td>
+                                        <td class="text-center">`;
+
+            if (change.perubahan > 0) {
+                html += `<span class="badge badge-success">
+                            <i class="mdi mdi-arrow-up"></i> +${formatNumber(change.perubahan, 2)}
+                         </span>`;
+            } else if (change.perubahan < 0) {
+                html += `<span class="badge badge-danger">
+                            <i class="mdi mdi-arrow-down"></i> ${formatNumber(change.perubahan, 2)}
+                         </span>`;
+            } else {
+                html += `<span class="badge badge-secondary">0.00</span>`;
+            }
+
+            html += `</td>
+                                        <td class="text-center">
+                                            <span class="badge ${statusBadge}">
+                                                <i class="mdi ${statusIcon}"></i> ${statusText}
+                                            </span>
+                                        </td>
+                                    </tr>`;
         });
 
         html += `
-                                        </tbody>
-                                    </table>
-                                </div>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted">
+                                Menampilkan ${startIndex + 1} - ${endIndex} dari ${totalItems} instansi
                             </div>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0">`;
 
-                            <div class="col-lg-6">
-                                <h5 class="mb-3">
-                                    <i class="mdi mdi-minus-circle text-warning"></i> Top 5 Kenaikan Terkecil/Stagnan
-                                </h5>
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-bordered">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th width="40">#</th>
-                                                <th>Instansi</th>
-                                                <th width="80" class="text-center">Sebelum</th>
-                                                <th width="80" class="text-center">Sekarang</th>
-                                                <th width="100" class="text-center">Perubahan</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>`;
+        // Previous button
+        html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="changeComparisonPage(${currentPage - 1})">
+                        <i class="mdi mdi-chevron-left"></i>
+                    </a>
+                </li>`;
 
-        data.most_stable.forEach((change, index) => {
-            const namaInstansi = change.nama_instansi.length > 40 ? change.nama_instansi.substring(0, 40) + '...' : change.nama_instansi;
-            html += `
-                                            <tr>
-                                                <td class="text-center fw-bold">${index + 1}</td>
-                                                <td>${namaInstansi}</td>
-                                                <td class="text-center">
-                                                    <span class="badge badge-secondary">${formatNumber(change.skor_sebelum, 1)}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge badge-primary">${formatNumber(change.skor_sekarang, 1)}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge ${getBadgeClass(change.perubahan)}">
-                                                        <i class="mdi ${getIcon(change.perubahan)}"></i> ${getSign(change.perubahan)}${formatNumber(change.perubahan, 2)}
-                                                    </span>
-                                                </td>
-                                            </tr>`;
-        });
+        // Page numbers
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+            html += `<li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="changeComparisonPage(1)">1</a></li>`;
+            if (startPage > 2) {
+                html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changeComparisonPage(${i})">${i}</a>
+                    </li>`;
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+            html += `<li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="changeComparisonPage(${totalPages})">${totalPages}</a></li>`;
+        }
+
+        // Next button
+        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="changeComparisonPage(${currentPage + 1})">
+                        <i class="mdi mdi-chevron-right"></i>
+                    </a>
+                </li>`;
 
         html += `
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -2388,6 +2510,18 @@
         </div>`;
 
         comparisonContainer.innerHTML = html;
+    }
+
+    function changeComparisonPage(page) {
+        if (!currentComparisonData) return;
+        const totalPages = Math.ceil((currentComparisonData.all_comparisons || []).length / itemsPerPage);
+        if (page < 1 || page > totalPages) return;
+
+        currentPage = page;
+        renderComparisonTable();
+
+        // Scroll to top of comparison section
+        comparisonContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 </script>
 @endpush

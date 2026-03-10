@@ -2,55 +2,62 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Daftar Instansi Kantor Regional {{ $kanregId }}</title>
+    <title>Daftar Semua Instansi - Monev DMS</title>
     <style>
         @page {
-            margin: 20mm 15mm 20mm 15mm;
+            margin: 15mm 10mm 15mm 10mm;
         }
 
         body {
             font-family: 'DejaVu Sans', sans-serif;
-            font-size: 10px;
-            line-height: 1.4;
+            font-size: 8px;
+            line-height: 1.3;
             color: #333;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-bottom: 3px solid #2c3e50;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
         }
 
         .header h1 {
-            font-size: 16px;
-            margin: 0 0 5px 0;
+            font-size: 14px;
+            margin: 0 0 3px 0;
             color: #2c3e50;
         }
 
+        .header h2 {
+            font-size: 10px;
+            margin: 0;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+
         .header p {
-            font-size: 9px;
+            font-size: 8px;
             margin: 3px 0;
             color: #7f8c8d;
         }
 
         .info-box {
             background-color: #ecf0f1;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            padding: 8px;
+            margin-bottom: 12px;
             border-left: 4px solid #3498db;
         }
 
         .info-box div {
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            display: inline-block;
+            width: 48%;
         }
 
         .info-box .label {
             font-weight: bold;
             color: #2c3e50;
-            display: inline-block;
-            width: 120px;
+            margin-right: 5px;
         }
 
         table {
@@ -60,93 +67,70 @@
         }
 
         table th {
-            background-color: #34495e;
+            background-color: #3498db;
             color: white;
-            padding: 8px;
-            font-size: 9px;
-            text-align: left;
+            padding: 6px 4px;
+            text-align: center;
             font-weight: bold;
-            border: 1px solid #2c3e50;
+            font-size: 7px;
+            border: 1px solid #2980b9;
         }
 
         table td {
-            padding: 6px 8px;
-            border: 1px solid #dee2e6;
-            font-size: 9px;
+            padding: 4px;
+            border: 1px solid #bdc3c7;
+            font-size: 7px;
         }
 
-        table tr:nth-child(even) {
+        table tbody tr:nth-child(even) {
             background-color: #f8f9fa;
         }
 
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
+        .text-center {
+            text-align: center;
+        }
 
         .status-badge {
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 3px;
-            font-size: 8px;
             font-weight: bold;
-            color: white;
+            font-size: 6px;
             display: inline-block;
-        }
-
-        .status-sangat-lengkap { background-color: #27ae60; }
-        .status-lengkap { background-color: #3498db; }
-        .status-cukup-lengkap { background-color: #f39c12; }
-        .status-kurang-lengkap { background-color: #e74c3c; }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 8px;
-            color: #7f8c8d;
-            padding: 10px 0;
-            border-top: 1px solid #bdc3c7;
-        }
-
-        .summary-box {
-            background-color: #3498db;
             color: white;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            text-align: center;
         }
 
-        .summary-box .number {
-            font-size: 20px;
-            font-weight: bold;
+        .status-sangat-lengkap {
+            background-color: #27ae60;
         }
 
-        .summary-box .label {
-            font-size: 9px;
-            opacity: 0.9;
+        .status-lengkap {
+            background-color: #3498db;
+        }
+
+        .status-cukup-lengkap {
+            background-color: #f39c12;
+        }
+
+        .status-kurang-lengkap {
+            background-color: #e74c3c;
         }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>DAFTAR DETAIL INSTANSI PER KANTOR REGIONAL</h1>
-        <p>Badan Kepegawaian Negara</p>
-        <p>Direktorat Arsip Kepegawaian ASN</p>
+        <h1>BADAN KEPEGAWAIAN NEGARA</h1>
+        <h2>Direktorat Arsip Kepegawaian ASN</h2>
+        <p style="margin-top: 8px; font-size: 12px; font-weight: bold;">DAFTAR SEMUA INSTANSI - MONEV DMS</p>
     </div>
 
     <!-- Info Box -->
     <div class="info-box">
         <div>
-            <span class="label">Kantor Regional:</span>
-            <span><strong>{{ $kanregId }}</strong></span>
-        </div>
-        <div>
             <span class="label">Periode Penilaian:</span>
             <span>{{ \Carbon\Carbon::parse($monevDate)->format('d F Y') }}</span>
         </div>
-        <div>
+        <div style="text-align: right;">
             <span class="label">Waktu Cetak:</span>
             <span>{{ \Carbon\Carbon::now()->format('d F Y, H:i') }} WIB</span>
         </div>
@@ -165,27 +149,27 @@
         $countKurangLengkap = $instansiList->where('monev_status_kelengkapan', 'Kurang Lengkap')->count();
     @endphp
 
-    <table style="width: 100%; margin-bottom: 15px; border-collapse: collapse;" cellpadding="8">
+    <table style="width: 100%; margin-bottom: 12px; border-collapse: collapse;" cellpadding="6">
         <tr>
-            <td style="width: 20%; text-align: center; background-color: #3498db; color: white; padding: 8px;">
-                <div style="font-size: 18px; font-weight: bold;">{{ number_format($avgScore, 2) }}</div>
-                <div style="font-size: 8px;">Rata-rata Skor</div>
+            <td style="width: 20%; text-align: center; background-color: #3498db; color: white; padding: 6px;">
+                <div style="font-size: 14px; font-weight: bold;">{{ number_format($avgScore, 2) }}</div>
+                <div style="font-size: 6px;">Rata-rata Skor</div>
             </td>
-            <td style="width: 20%; text-align: center; background-color: #27ae60; color: white; padding: 8px;">
-                <div style="font-size: 16px; font-weight: bold;">{{ $countSangatLengkap }}</div>
-                <div style="font-size: 7px;">Sangat Lengkap</div>
+            <td style="width: 20%; text-align: center; background-color: #27ae60; color: white; padding: 6px;">
+                <div style="font-size: 12px; font-weight: bold;">{{ $countSangatLengkap }}</div>
+                <div style="font-size: 6px;">Sangat Lengkap</div>
             </td>
-            <td style="width: 20%; text-align: center; background-color: #3498db; color: white; padding: 8px;">
-                <div style="font-size: 16px; font-weight: bold;">{{ $countLengkap }}</div>
-                <div style="font-size: 7px;">Lengkap</div>
+            <td style="width: 20%; text-align: center; background-color: #3498db; color: white; padding: 6px;">
+                <div style="font-size: 12px; font-weight: bold;">{{ $countLengkap }}</div>
+                <div style="font-size: 6px;">Lengkap</div>
             </td>
-            <td style="width: 20%; text-align: center; background-color: #f39c12; color: white; padding: 8px;">
-                <div style="font-size: 16px; font-weight: bold;">{{ $countCukupLengkap }}</div>
-                <div style="font-size: 7px;">Cukup Lengkap</div>
+            <td style="width: 20%; text-align: center; background-color: #f39c12; color: white; padding: 6px;">
+                <div style="font-size: 12px; font-weight: bold;">{{ $countCukupLengkap }}</div>
+                <div style="font-size: 6px;">Cukup Lengkap</div>
             </td>
-            <td style="width: 20%; text-align: center; background-color: #e74c3c; color: white; padding: 8px;">
-                <div style="font-size: 16px; font-weight: bold;">{{ $countKurangLengkap }}</div>
-                <div style="font-size: 7px;">Kurang Lengkap</div>
+            <td style="width: 20%; text-align: center; background-color: #e74c3c; color: white; padding: 6px;">
+                <div style="font-size: 12px; font-weight: bold;">{{ $countKurangLengkap }}</div>
+                <div style="font-size: 6px;">Kurang Lengkap</div>
             </td>
         </tr>
     </table>
@@ -195,9 +179,10 @@
         <thead>
             <tr>
                 <th width="30" class="text-center">No</th>
-                <th>Nama Instansi</th>
-                <th width="60" class="text-center">Skor</th>
-                <th width="100" class="text-center">Status Kelengkapan</th>
+                <th width="240">Nama Instansi</th>
+                <th width="60" class="text-center">Kanreg</th>
+                <th width="50" class="text-center">Skor</th>
+                <th width="80" class="text-center">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -205,6 +190,7 @@
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $instansi->nama_instansi }}</td>
+                <td class="text-center">{{ $instansi->kantor_regional_id }}</td>
                 <td class="text-center">
                     <strong>{{ number_format($instansi->monev_skor_instansi, 2) }}</strong>
                 </td>
@@ -236,9 +222,9 @@
     </table>
 
     <!-- Footer -->
-    <div class="footer">
-        <p>Dokumen ini dicetak secara otomatis dari Sistem Monitoring DMS - Badan Kepegawaian Negara</p>
-        <p>Dicetak pada: {{ \Carbon\Carbon::now()->format('d F Y, H:i:s') }} WIB</p>
+    <div style="margin-top: 15px; text-align: center; font-size: 7px; color: #7f8c8d; border-top: 1px solid #bdc3c7; padding-top: 8px;">
+        <p style="margin: 0;">Dokumen ini digenerate secara otomatis oleh sistem Monev DMS</p>
+        <p style="margin: 3px 0 0 0;">Badan Kepegawaian Negara - Direktorat Arsip Kepegawaian ASN</p>
     </div>
 </body>
 </html>

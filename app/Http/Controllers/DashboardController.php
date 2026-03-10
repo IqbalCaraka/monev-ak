@@ -434,6 +434,7 @@ class DashboardController extends Controller
             'previous_period' => $previousPeriod,
             'biggest_changes' => $biggestChanges,
             'most_stable' => $mostStable,
+            'all_comparisons' => $changes,
             'count_naik' => $countNaik,
             'count_turun' => $countTurun,
             'count_stagnan' => $countStagnan,
@@ -480,29 +481,28 @@ class DashboardController extends Controller
 
         // Header info
         $sheet->setCellValue('A1', 'DAFTAR DETAIL INSTANSI PER KANTOR REGIONAL');
-        $sheet->mergeCells('A1:E1');
+        $sheet->mergeCells('A1:D1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         $sheet->setCellValue('A2', 'Kantor Regional: ' . $kanregId);
-        $sheet->mergeCells('A2:E2');
+        $sheet->mergeCells('A2:D2');
         $sheet->getStyle('A2')->getFont()->setBold(true);
 
         $sheet->setCellValue('A3', 'Periode Penilaian: ' . \Carbon\Carbon::parse($monevDate)->format('d F Y'));
-        $sheet->mergeCells('A3:E3');
+        $sheet->mergeCells('A3:D3');
 
         $sheet->setCellValue('A4', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
-        $sheet->mergeCells('A4:E4');
+        $sheet->mergeCells('A4:D4');
 
         // Table header
         $sheet->setCellValue('A6', 'No');
         $sheet->setCellValue('B6', 'Nama Instansi');
-        $sheet->setCellValue('C6', 'ID Instansi');
-        $sheet->setCellValue('D6', 'Skor');
-        $sheet->setCellValue('E6', 'Status Kelengkapan');
+        $sheet->setCellValue('C6', 'Skor');
+        $sheet->setCellValue('D6', 'Status Kelengkapan');
 
-        $sheet->getStyle('A6:E6')->getFont()->setBold(true);
-        $sheet->getStyle('A6:E6')->getFill()
+        $sheet->getStyle('A6:D6')->getFont()->setBold(true);
+        $sheet->getStyle('A6:D6')->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FFD9D9D9');
 
@@ -512,9 +512,8 @@ class DashboardController extends Controller
         foreach ($instansiList as $instansi) {
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $instansi->nama_instansi);
-            $sheet->setCellValue('C' . $row, $instansi->id_instansi);
-            $sheet->setCellValue('D' . $row, number_format($instansi->monev_skor_instansi, 2));
-            $sheet->setCellValue('E' . $row, $instansi->monev_status_kelengkapan);
+            $sheet->setCellValue('C' . $row, number_format($instansi->monev_skor_instansi, 2));
+            $sheet->setCellValue('D' . $row, $instansi->monev_status_kelengkapan);
 
             // Color code status
             $statusColor = '';
@@ -534,7 +533,7 @@ class DashboardController extends Controller
             }
 
             if ($statusColor) {
-                $sheet->getStyle('E' . $row)->getFill()
+                $sheet->getStyle('D' . $row)->getFill()
                     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                     ->getStartColor()->setARGB($statusColor);
             }
@@ -546,9 +545,8 @@ class DashboardController extends Controller
         // Auto size columns
         $sheet->getColumnDimension('A')->setWidth(8);
         $sheet->getColumnDimension('B')->setWidth(50);
-        $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(12);
-        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(20);
 
         // Export using StreamedResponse
         $filename = 'Daftar_Instansi_Kanreg_' . str_replace(' ', '_', $kanregId) . '_' . date('Ymd') . '.xlsx';
@@ -606,6 +604,608 @@ class DashboardController extends Controller
             return $pdf->stream($filename);
         } catch (\Exception $e) {
             \Log::error('PDF Error: ' . $e->getMessage());
+            return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function exportAllInstansiExcel(Request $request)
+    {
+        $monevDate = $request->input('monev_date');
+
+        // If no date provided, get the latest
+        if (!$monevDate) {
+            $latestScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+            $monevDate = $latestScore ? $latestScore->upload_date : null;
+        }
+
+        if (!$monevDate) {
+            return back()->with('error', 'Tidak ada data monev yang tersedia');
+        }
+
+        // Get all instansi data
+        $instansiList = DB::table('monev_dms_instansi_score')
+            ->where('upload_date', $monevDate)
+            ->orderBy('monev_skor_instansi', 'desc')
+            ->get();
+
+        if ($instansiList->isEmpty()) {
+            return back()->with('error', 'Tidak ada data instansi untuk periode ini');
+        }
+
+        // Create Excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header info
+        $sheet->setCellValue('A1', 'DAFTAR SEMUA INSTANSI - MONEV DMS');
+        $sheet->mergeCells('A1:E1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A2', 'Periode Penilaian: ' . \Carbon\Carbon::parse($monevDate)->format('d F Y'));
+        $sheet->mergeCells('A2:E2');
+        $sheet->getStyle('A2')->getFont()->setBold(true);
+
+        $sheet->setCellValue('A3', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->mergeCells('A3:E3');
+
+        $sheet->setCellValue('A4', 'Total Instansi: ' . $instansiList->count());
+        $sheet->mergeCells('A4:E4');
+        $sheet->getStyle('A4')->getFont()->setBold(true);
+
+        // Table header
+        $sheet->setCellValue('A6', 'No');
+        $sheet->setCellValue('B6', 'Nama Instansi');
+        $sheet->setCellValue('C6', 'Kantor Regional');
+        $sheet->setCellValue('D6', 'Skor');
+        $sheet->setCellValue('E6', 'Status Kelengkapan');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4472C4']
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ]
+            ]
+        ];
+        $sheet->getStyle('A6:E6')->applyFromArray($headerStyle);
+
+        // Data rows
+        $row = 7;
+        $no = 1;
+        foreach ($instansiList as $instansi) {
+            $sheet->setCellValue('A' . $row, $no);
+            $sheet->setCellValue('B' . $row, $instansi->nama_instansi);
+            $sheet->setCellValue('C' . $row, 'Kanreg ' . $instansi->kantor_regional_id);
+            $sheet->setCellValue('D' . $row, number_format($instansi->monev_skor_instansi, 2));
+            $sheet->setCellValue('E' . $row, $instansi->monev_status_kelengkapan);
+
+            // Color code status
+            $statusColor = '';
+            switch ($instansi->monev_status_kelengkapan) {
+                case 'Sangat Lengkap':
+                    $statusColor = 'FF92D050';
+                    break;
+                case 'Lengkap':
+                    $statusColor = 'FF3498DB';
+                    break;
+                case 'Cukup Lengkap':
+                    $statusColor = 'FFF39C12';
+                    break;
+                case 'Kurang Lengkap':
+                    $statusColor = 'FFFF6666';
+                    break;
+            }
+
+            if ($statusColor) {
+                $sheet->getStyle('E' . $row)->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB($statusColor);
+            }
+
+            // Center align for specific columns
+            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('D' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('E' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            $row++;
+            $no++;
+        }
+
+        // Auto size columns
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(12);
+        $sheet->getColumnDimension('E')->setWidth(20);
+
+        // Export using StreamedResponse
+        $filename = 'Daftar_Semua_Instansi_' . date('Ymd') . '.xlsx';
+
+        return response()->streamDownload(function() use ($spreadsheet) {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    public function exportAllInstansiPdf(Request $request)
+    {
+        $monevDate = $request->input('monev_date');
+
+        // If no date provided, get the latest
+        if (!$monevDate) {
+            $latestScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+            $monevDate = $latestScore ? $latestScore->upload_date : null;
+        }
+
+        if (!$monevDate) {
+            return response()->json(['error' => 'Tidak ada data monev yang tersedia'], 404);
+        }
+
+        // Get all instansi data
+        $instansiList = DB::table('monev_dms_instansi_score')
+            ->where('upload_date', $monevDate)
+            ->orderBy('monev_skor_instansi', 'desc')
+            ->get();
+
+        if ($instansiList->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada data instansi untuk periode ini'], 404);
+        }
+
+        // Render HTML first
+        try {
+            $html = view('dashboard.all-instansi-pdf', compact('instansiList', 'monevDate'))->render();
+
+            $pdf = \PDF::loadHTML($html);
+            $pdf->setPaper('a4', 'landscape'); // Landscape karena banyak kolom
+
+            $filename = 'Daftar_Semua_Instansi_' . date('Ymd') . '.pdf';
+
+            return $pdf->stream($filename);
+        } catch (\Exception $e) {
+            \Log::error('PDF All Instansi Error: ' . $e->getMessage());
+            return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function exportKanregSummaryExcel(Request $request)
+    {
+        $monevDate = $request->input('monev_date');
+
+        // If no date provided, get the latest
+        if (!$monevDate) {
+            $latestScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+            $monevDate = $latestScore ? $latestScore->upload_date : null;
+        }
+
+        if (!$monevDate) {
+            return back()->with('error', 'Tidak ada data monev yang tersedia');
+        }
+
+        // Get Kantor Regional statistics
+        $kanregStats = DB::table('monev_dms_instansi_score')
+            ->select(
+                'kantor_regional_id',
+                DB::raw('COUNT(*) as total_instansi'),
+                DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Lengkap" THEN 1 END) as count_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Cukup Lengkap" THEN 1 END) as count_cukup_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
+            )
+            ->where('upload_date', $monevDate)
+            ->groupBy('kantor_regional_id')
+            ->orderBy('kantor_regional_id')
+            ->get();
+
+        if ($kanregStats->isEmpty()) {
+            return back()->with('error', 'Tidak ada data untuk periode ini');
+        }
+
+        // Create Excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header info
+        $sheet->setCellValue('A1', 'STATISTIK PER KANTOR REGIONAL - MONEV DMS');
+        $sheet->mergeCells('A1:J1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A2', 'Periode Penilaian: ' . \Carbon\Carbon::parse($monevDate)->format('d F Y'));
+        $sheet->mergeCells('A2:J2');
+        $sheet->getStyle('A2')->getFont()->setBold(true);
+
+        $sheet->setCellValue('A3', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->mergeCells('A3:J3');
+
+        $sheet->setCellValue('A4', 'Total Kantor Regional: ' . $kanregStats->count());
+        $sheet->mergeCells('A4:J4');
+        $sheet->getStyle('A4')->getFont()->setBold(true);
+
+        // Table header
+        $sheet->setCellValue('A6', 'No');
+        $sheet->setCellValue('B6', 'Kantor Regional');
+        $sheet->setCellValue('C6', 'Total Instansi');
+        $sheet->setCellValue('D6', 'Rata-rata Skor');
+        $sheet->setCellValue('E6', 'Status Kelengkapan');
+        $sheet->setCellValue('F6', 'Sangat Lengkap');
+        $sheet->setCellValue('G6', 'Lengkap');
+        $sheet->setCellValue('H6', 'Cukup Lengkap');
+        $sheet->setCellValue('I6', 'Kurang Lengkap');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4472C4']
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ]
+            ]
+        ];
+        $sheet->getStyle('A6:I6')->applyFromArray($headerStyle);
+
+        // Data rows
+        $row = 7;
+        $no = 1;
+        foreach ($kanregStats as $kanreg) {
+            // Determine dominant status
+            $statusCounts = [
+                'Sangat Lengkap' => $kanreg->count_sangat_lengkap,
+                'Lengkap' => $kanreg->count_lengkap,
+                'Cukup Lengkap' => $kanreg->count_cukup_lengkap,
+                'Kurang Lengkap' => $kanreg->count_kurang_lengkap
+            ];
+            arsort($statusCounts);
+            $dominantStatus = array_key_first($statusCounts);
+
+            $sheet->setCellValue('A' . $row, $no);
+            $sheet->setCellValue('B' . $row, 'Kanreg ' . $kanreg->kantor_regional_id);
+            $sheet->setCellValue('C' . $row, $kanreg->total_instansi);
+            $sheet->setCellValue('D' . $row, number_format($kanreg->rata_rata_skor, 2));
+            $sheet->setCellValue('E' . $row, $dominantStatus);
+            $sheet->setCellValue('F' . $row, $kanreg->count_sangat_lengkap);
+            $sheet->setCellValue('G' . $row, $kanreg->count_lengkap);
+            $sheet->setCellValue('H' . $row, $kanreg->count_cukup_lengkap);
+            $sheet->setCellValue('I' . $row, $kanreg->count_kurang_lengkap);
+
+            // Color code dominant status
+            $statusColor = match($dominantStatus) {
+                'Sangat Lengkap' => 'FF92D050',
+                'Lengkap' => 'FF3498DB',
+                'Cukup Lengkap' => 'FFF39C12',
+                'Kurang Lengkap' => 'FFFF6666',
+                default => 'FFCCCCCC'
+            };
+
+            $sheet->getStyle('E' . $row)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setARGB($statusColor);
+
+            // Center align
+            $sheet->getStyle('A' . $row . ':I' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            $row++;
+            $no++;
+        }
+
+        // Auto size columns
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(18);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(12);
+        $sheet->getColumnDimension('H')->setWidth(15);
+        $sheet->getColumnDimension('I')->setWidth(15);
+
+        // Export
+        $filename = 'Statistik_Kantor_Regional_' . date('Ymd') . '.xlsx';
+
+        return response()->streamDownload(function() use ($spreadsheet) {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    public function exportKanregSummaryPdf(Request $request)
+    {
+        $monevDate = $request->input('monev_date');
+
+        // If no date provided, get the latest
+        if (!$monevDate) {
+            $latestScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+            $monevDate = $latestScore ? $latestScore->upload_date : null;
+        }
+
+        if (!$monevDate) {
+            return response()->json(['error' => 'Tidak ada data monev yang tersedia'], 404);
+        }
+
+        // Get Kantor Regional statistics
+        $kanregStats = DB::table('monev_dms_instansi_score')
+            ->select(
+                'kantor_regional_id',
+                DB::raw('COUNT(*) as total_instansi'),
+                DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Lengkap" THEN 1 END) as count_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Cukup Lengkap" THEN 1 END) as count_cukup_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
+            )
+            ->where('upload_date', $monevDate)
+            ->groupBy('kantor_regional_id')
+            ->orderBy('kantor_regional_id')
+            ->get();
+
+        if ($kanregStats->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada data untuk periode ini'], 404);
+        }
+
+        // Render HTML
+        try {
+            $html = view('dashboard.kanreg-summary-pdf', compact('kanregStats', 'monevDate'))->render();
+
+            $pdf = \PDF::loadHTML($html);
+            $pdf->setPaper('a4', 'landscape');
+
+            $filename = 'Statistik_Kantor_Regional_' . date('Ymd') . '.pdf';
+
+            return $pdf->stream($filename);
+        } catch (\Exception $e) {
+            \Log::error('PDF Kanreg Summary Error: ' . $e->getMessage());
+            return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function exportComparisonExcel(Request $request)
+    {
+        $previousDate = $request->input('previous_date');
+        $currentDate = $request->input('current_date');
+
+        if (!$previousDate || !$currentDate) {
+            return back()->with('error', 'Periode perbandingan tidak lengkap');
+        }
+
+        // Get scores from both periods
+        $currentScores = MonevDmsInstansiScore::where('upload_date', $currentDate)
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->get()
+            ->keyBy('id_instansi');
+
+        $previousScores = MonevDmsInstansiScore::where('upload_date', $previousDate)
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->get()
+            ->keyBy('id_instansi');
+
+        // Calculate changes
+        $changes = [];
+        foreach ($currentScores as $idInstansi => $current) {
+            if (isset($previousScores[$idInstansi])) {
+                $previous = $previousScores[$idInstansi];
+                $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
+
+                // Determine status
+                $status = 'Stagnan';
+                if ($scoreDiff > 0.5) {
+                    $status = 'Naik';
+                } elseif ($scoreDiff < -0.5) {
+                    $status = 'Turun';
+                }
+
+                $changes[] = [
+                    'nama_instansi' => $current->nama_instansi,
+                    'skor_sebelum' => $previous->monev_skor_instansi,
+                    'skor_sekarang' => $current->monev_skor_instansi,
+                    'perubahan' => $scoreDiff,
+                    'status' => $status
+                ];
+            }
+        }
+
+        // Sort by change descending
+        usort($changes, function($a, $b) {
+            return $b['perubahan'] <=> $a['perubahan'];
+        });
+
+        // Create Excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header info
+        $sheet->setCellValue('A1', 'ANALISIS PERBANDINGAN PERIODE - MONEV DMS');
+        $sheet->mergeCells('A1:F1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A2', 'Periode Awal: ' . \Carbon\Carbon::parse($previousDate)->format('d F Y'));
+        $sheet->mergeCells('A2:F2');
+        $sheet->getStyle('A2')->getFont()->setBold(true);
+
+        $sheet->setCellValue('A3', 'Periode Akhir: ' . \Carbon\Carbon::parse($currentDate)->format('d F Y'));
+        $sheet->mergeCells('A3:F3');
+        $sheet->getStyle('A3')->getFont()->setBold(true);
+
+        $sheet->setCellValue('A4', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->mergeCells('A4:F4');
+
+        $sheet->setCellValue('A5', 'Total Instansi: ' . count($changes));
+        $sheet->mergeCells('A5:F5');
+        $sheet->getStyle('A5')->getFont()->setBold(true);
+
+        // Table header
+        $sheet->setCellValue('A7', 'No');
+        $sheet->setCellValue('B7', 'Nama Instansi');
+        $sheet->setCellValue('C7', \Carbon\Carbon::parse($previousDate)->format('d M Y'));
+        $sheet->setCellValue('D7', \Carbon\Carbon::parse($currentDate)->format('d M Y'));
+        $sheet->setCellValue('E7', 'Perubahan');
+        $sheet->setCellValue('F7', 'Status');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4472C4']
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ]
+            ]
+        ];
+        $sheet->getStyle('A7:F7')->applyFromArray($headerStyle);
+
+        // Data rows
+        $row = 8;
+        $no = 1;
+        foreach ($changes as $change) {
+            $sheet->setCellValue('A' . $row, $no);
+            $sheet->setCellValue('B' . $row, $change['nama_instansi']);
+            $sheet->setCellValue('C' . $row, number_format($change['skor_sebelum'], 2));
+            $sheet->setCellValue('D' . $row, number_format($change['skor_sekarang'], 2));
+            $sheet->setCellValue('E' . $row, number_format($change['perubahan'], 2));
+            $sheet->setCellValue('F' . $row, $change['status']);
+
+            // Color code status
+            $statusColor = match($change['status']) {
+                'Naik' => 'FF92D050',
+                'Turun' => 'FFFF6666',
+                'Stagnan' => 'FFF39C12',
+                default => 'FFCCCCCC'
+            };
+
+            $sheet->getStyle('F' . $row)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setARGB($statusColor);
+
+            // Center align
+            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('D' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('E' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            $row++;
+            $no++;
+        }
+
+        // Auto size columns
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(15);
+        $sheet->getColumnDimension('F')->setWidth(15);
+
+        // Export
+        $filename = 'Perbandingan_Periode_' . date('Ymd') . '.xlsx';
+
+        return response()->streamDownload(function() use ($spreadsheet) {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    public function exportComparisonPdf(Request $request)
+    {
+        $previousDate = $request->input('previous_date');
+        $currentDate = $request->input('current_date');
+
+        if (!$previousDate || !$currentDate) {
+            return response()->json(['error' => 'Periode perbandingan tidak lengkap'], 404);
+        }
+
+        // Get scores from both periods
+        $currentScores = MonevDmsInstansiScore::where('upload_date', $currentDate)
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->get()
+            ->keyBy('id_instansi');
+
+        $previousScores = MonevDmsInstansiScore::where('upload_date', $previousDate)
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->get()
+            ->keyBy('id_instansi');
+
+        // Calculate changes
+        $changes = [];
+        $countNaik = 0;
+        $countTurun = 0;
+        $countStagnan = 0;
+
+        foreach ($currentScores as $idInstansi => $current) {
+            if (isset($previousScores[$idInstansi])) {
+                $previous = $previousScores[$idInstansi];
+                $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
+
+                // Determine status
+                $status = 'Stagnan';
+                if ($scoreDiff > 0.5) {
+                    $status = 'Naik';
+                    $countNaik++;
+                } elseif ($scoreDiff < -0.5) {
+                    $status = 'Turun';
+                    $countTurun++;
+                } else {
+                    $countStagnan++;
+                }
+
+                $changes[] = [
+                    'nama_instansi' => $current->nama_instansi,
+                    'skor_sebelum' => $previous->monev_skor_instansi,
+                    'skor_sekarang' => $current->monev_skor_instansi,
+                    'perubahan' => $scoreDiff,
+                    'status' => $status
+                ];
+            }
+        }
+
+        // Sort by change descending
+        usort($changes, function($a, $b) {
+            return $b['perubahan'] <=> $a['perubahan'];
+        });
+
+        // Render HTML
+        try {
+            $html = view('dashboard.comparison-pdf', compact('changes', 'previousDate', 'currentDate', 'countNaik', 'countTurun', 'countStagnan'))->render();
+
+            $pdf = \PDF::loadHTML($html);
+            $pdf->setPaper('a4', 'landscape');
+
+            $filename = 'Perbandingan_Periode_' . date('Ymd') . '.pdf';
+
+            return $pdf->stream($filename);
+        } catch (\Exception $e) {
+            \Log::error('PDF Comparison Error: ' . $e->getMessage());
             return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);
         }
     }
