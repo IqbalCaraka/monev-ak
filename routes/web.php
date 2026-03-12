@@ -23,6 +23,8 @@ Route::get('/dashboard-dms/export-kanreg-summary-excel', [DashboardController::c
 Route::get('/dashboard-dms/export-kanreg-summary-pdf', [DashboardController::class, 'exportKanregSummaryPdf'])->name('dashboard.monev.export-kanreg-summary-pdf');
 Route::get('/dashboard-dms/export-comparison-excel', [DashboardController::class, 'exportComparisonExcel'])->name('dashboard.monev.export-comparison-excel');
 Route::get('/dashboard-dms/export-comparison-pdf', [DashboardController::class, 'exportComparisonPdf'])->name('dashboard.monev.export-comparison-pdf');
+Route::get('/dashboard-dms/export-comparison-kanreg-excel', [DashboardController::class, 'exportComparisonKanregExcel'])->name('dashboard.monev.export-comparison-kanreg-excel');
+Route::get('/dashboard-dms/export-comparison-kanreg-pdf', [DashboardController::class, 'exportComparisonKanregPdf'])->name('dashboard.monev.export-comparison-kanreg-pdf');
 
 // Pengaturan Routes
 Route::prefix('pengaturan')->group(function () {
