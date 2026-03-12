@@ -176,15 +176,16 @@
                                                 @endphp
                                                 @foreach($allComparisons as $index => $change)
                                                 @php
+                                                    // Stagnan hanya jika benar-benar 0
                                                     $statusBadge = 'badge-warning';
                                                     $statusText = 'Stagnan';
                                                     $statusIcon = 'mdi-minus';
 
-                                                    if ($change['perubahan'] > 0.5) {
+                                                    if ($change['perubahan'] > 0) {
                                                         $statusBadge = 'badge-success';
                                                         $statusText = 'Naik';
                                                         $statusIcon = 'mdi-trending-up';
-                                                    } elseif ($change['perubahan'] < -0.5) {
+                                                    } elseif ($change['perubahan'] < 0) {
                                                         $statusBadge = 'badge-danger';
                                                         $statusText = 'Turun';
                                                         $statusIcon = 'mdi-trending-down';
@@ -2396,16 +2397,16 @@
             const globalIndex = startIndex + index + 1;
             const namaInstansi = change.nama_instansi.length > 50 ? change.nama_instansi.substring(0, 50) + '...' : change.nama_instansi;
 
-            // Determine status
+            // Determine status - Stagnan hanya jika benar-benar 0
             let statusBadge = 'badge-warning';
             let statusText = 'Stagnan';
             let statusIcon = 'mdi-minus';
 
-            if (change.perubahan > 0.5) {
+            if (change.perubahan > 0) {
                 statusBadge = 'badge-success';
                 statusText = 'Naik';
                 statusIcon = 'mdi-trending-up';
-            } else if (change.perubahan < -0.5) {
+            } else if (change.perubahan < 0) {
                 statusBadge = 'badge-danger';
                 statusText = 'Turun';
                 statusIcon = 'mdi-trending-down';

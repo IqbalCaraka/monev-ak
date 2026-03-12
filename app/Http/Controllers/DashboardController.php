@@ -407,10 +407,10 @@ class DashboardController extends Controller
                     'perubahan_abs' => abs($scoreDiff)
                 ];
 
-                // Count trends
-                if ($scoreDiff > 0.5) {
+                // Count trends - Stagnan hanya jika benar-benar 0
+                if ($scoreDiff > 0) {
                     $countNaik++;
-                } elseif ($scoreDiff < -0.5) {
+                } elseif ($scoreDiff < 0) {
                     $countTurun++;
                 } else {
                     $countStagnan++;
@@ -1003,17 +1003,25 @@ class DashboardController extends Controller
 
         // Calculate changes
         $changes = [];
+        $countNaik = 0;
+        $countTurun = 0;
+        $countStagnan = 0;
+
         foreach ($currentScores as $idInstansi => $current) {
             if (isset($previousScores[$idInstansi])) {
                 $previous = $previousScores[$idInstansi];
                 $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
 
-                // Determine status
+                // Determine status - Stagnan hanya jika benar-benar 0
                 $status = 'Stagnan';
-                if ($scoreDiff > 0.5) {
+                if ($scoreDiff > 0) {
                     $status = 'Naik';
-                } elseif ($scoreDiff < -0.5) {
+                    $countNaik++;
+                } elseif ($scoreDiff < 0) {
                     $status = 'Turun';
+                    $countTurun++;
+                } else {
+                    $countStagnan++;
                 }
 
                 $changes[] = [
@@ -1056,13 +1064,26 @@ class DashboardController extends Controller
         $sheet->mergeCells('A5:F5');
         $sheet->getStyle('A5')->getFont()->setBold(true);
 
-        // Table header
-        $sheet->setCellValue('A7', 'No');
-        $sheet->setCellValue('B7', 'Nama Instansi');
-        $sheet->setCellValue('C7', \Carbon\Carbon::parse($previousDate)->format('d M Y'));
-        $sheet->setCellValue('D7', \Carbon\Carbon::parse($currentDate)->format('d M Y'));
-        $sheet->setCellValue('E7', 'Perubahan');
-        $sheet->setCellValue('F7', 'Status');
+        // Summary Statistics
+        $sheet->setCellValue('A6', 'Instansi Naik: ' . $countNaik);
+        $sheet->mergeCells('A6:B6');
+        $sheet->getStyle('A6')->getFont()->setBold(true)->getColor()->setARGB('FF27AE60');
+
+        $sheet->setCellValue('C6', 'Instansi Stagnan: ' . $countStagnan);
+        $sheet->mergeCells('C6:D6');
+        $sheet->getStyle('C6')->getFont()->setBold(true)->getColor()->setARGB('FFF39C12');
+
+        $sheet->setCellValue('E6', 'Instansi Turun: ' . $countTurun);
+        $sheet->mergeCells('E6:F6');
+        $sheet->getStyle('E6')->getFont()->setBold(true)->getColor()->setARGB('FFE74C3C');
+
+        // Table header (row 8)
+        $sheet->setCellValue('A8', 'No');
+        $sheet->setCellValue('B8', 'Nama Instansi');
+        $sheet->setCellValue('C8', \Carbon\Carbon::parse($previousDate)->format('d M Y'));
+        $sheet->setCellValue('D8', \Carbon\Carbon::parse($currentDate)->format('d M Y'));
+        $sheet->setCellValue('E8', 'Perubahan');
+        $sheet->setCellValue('F8', 'Status');
 
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
@@ -1080,10 +1101,10 @@ class DashboardController extends Controller
                 ]
             ]
         ];
-        $sheet->getStyle('A7:F7')->applyFromArray($headerStyle);
+        $sheet->getStyle('A8:F8')->applyFromArray($headerStyle);
 
-        // Data rows
-        $row = 8;
+        // Data rows (start from row 9)
+        $row = 9;
         $no = 1;
         foreach ($changes as $change) {
             $sheet->setCellValue('A' . $row, $no);
@@ -1167,12 +1188,12 @@ class DashboardController extends Controller
                 $previous = $previousScores[$idInstansi];
                 $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
 
-                // Determine status
+                // Determine status - Stagnan hanya jika benar-benar 0
                 $status = 'Stagnan';
-                if ($scoreDiff > 0.5) {
+                if ($scoreDiff > 0) {
                     $status = 'Naik';
                     $countNaik++;
-                } elseif ($scoreDiff < -0.5) {
+                } elseif ($scoreDiff < 0) {
                     $status = 'Turun';
                     $countTurun++;
                 } else {
