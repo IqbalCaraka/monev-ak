@@ -181,7 +181,7 @@ class DashboardController extends Controller
                 ->where('upload_date', $monevNasionalScore->upload_date)
                 ->whereNotNull('kantor_regional_id')
                 ->groupBy('kantor_regional_id')
-                ->orderByDesc('rata_rata_skor')
+                ->orderBy('kantor_regional_id', 'asc')
                 ->get();
 
             // Period Comparison Analysis (only if there are at least 2 periods)
@@ -346,7 +346,7 @@ class DashboardController extends Controller
             ->where('upload_date', $monevNasionalScore->upload_date)
             ->whereNotNull('kantor_regional_id')
             ->groupBy('kantor_regional_id')
-            ->orderByDesc('rata_rata_skor')
+            ->orderBy('kantor_regional_id', 'asc')
             ->get();
 
         // Generate PDF
@@ -430,49 +430,46 @@ class DashboardController extends Controller
         // Get top 5 smallest increases/stagnan (kenaikan terkecil atau stagnan)
         $mostStable = array_slice(array_reverse($changes), 0, 5);
 
-        // Aggregate by Kantor Regional
-        $kanregStats = [];
-        foreach ($changes as $change) {
-            $kanregId = $change['kantor_regional_id'];
+        // Get Kantor Regional statistics with comparison
+        $kanregStats = DB::table('monev_dms_instansi_score as current')
+            ->join('monev_dms_instansi_score as previous', function($join) use ($previousPeriod) {
+                $join->on('current.id_instansi', '=', 'previous.id_instansi')
+                     ->where('previous.upload_date', '=', $previousPeriod);
+            })
+            ->where('current.upload_date', $currentPeriod)
+            ->select(
+                'current.kantor_regional_id',
+                DB::raw('COUNT(*) as total_instansi'),
+                DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
+                DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi > 0 THEN 1 ELSE 0 END) as naik'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi < 0 THEN 1 ELSE 0 END) as turun'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
+                DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
+            )
+            ->groupBy('current.kantor_regional_id')
+            ->orderBy('current.kantor_regional_id')
+            ->get()
+            ->map(function($stat) {
+                // Set nama kanreg
+                if ($stat->kantor_regional_id == 0 || $stat->kantor_regional_id == '00' || empty($stat->kantor_regional_id)) {
+                    $stat->nama_kanreg = 'Belum Terisi / Tidak Diketahui';
+                } else {
+                    $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
+                }
 
-            if (!isset($kanregStats[$kanregId])) {
-                $kanregStats[$kanregId] = [
-                    'kantor_regional_id' => $kanregId,
-                    'total_instansi' => 0,
-                    'naik' => 0,
-                    'turun' => 0,
-                    'stagnan' => 0,
-                    'avg_perubahan' => 0,
-                    'total_perubahan' => 0
-                ];
-            }
+                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
+                if ($stat->avg_perubahan > 0) {
+                    $stat->status = 'Naik';
+                } elseif ($stat->avg_perubahan < 0) {
+                    $stat->status = 'Turun';
+                } else {
+                    $stat->status = 'Stagnan';
+                }
 
-            $kanregStats[$kanregId]['total_instansi']++;
-            $kanregStats[$kanregId]['total_perubahan'] += $change['perubahan'];
-
-            // Count status
-            if ($change['perubahan'] > 0) {
-                $kanregStats[$kanregId]['naik']++;
-            } elseif ($change['perubahan'] < 0) {
-                $kanregStats[$kanregId]['turun']++;
-            } else {
-                $kanregStats[$kanregId]['stagnan']++;
-            }
-        }
-
-        // Calculate averages and get Kanreg names
-        foreach ($kanregStats as $kanregId => &$stat) {
-            $stat['avg_perubahan'] = $stat['total_instansi'] > 0
-                ? $stat['total_perubahan'] / $stat['total_instansi']
-                : 0;
-
-            // Get Kantor Regional name from KantorRegional model
-            $kanreg = \App\Models\KantorRegional::find($kanregId);
-            $stat['nama_kanreg'] = $kanreg ? $kanreg->nama_kantor_regional : 'Kantor Regional ' . $kanregId;
-        }
-
-        // Sort by kantor_regional_id
-        ksort($kanregStats);
+                return $stat;
+            })
+            ->toArray();
 
         $comparisonData = [
             'current_period' => $currentPeriod,
@@ -1286,71 +1283,45 @@ class DashboardController extends Controller
             return back()->with('error', 'Periode perbandingan tidak lengkap');
         }
 
-        // Get scores from both periods
-        $currentScores = MonevDmsInstansiScore::where('upload_date', $currentDate)
-            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi')
+        // Get Kantor Regional statistics with comparison (SAMA SEPERTI DI comparePeriods)
+        $kanregStats = DB::table('monev_dms_instansi_score as current')
+            ->join('monev_dms_instansi_score as previous', function($join) use ($previousDate) {
+                $join->on('current.id_instansi', '=', 'previous.id_instansi')
+                     ->where('previous.upload_date', '=', $previousDate);
+            })
+            ->where('current.upload_date', $currentDate)
+            ->select(
+                'current.kantor_regional_id',
+                DB::raw('COUNT(*) as total_instansi'),
+                DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
+                DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi > 0 THEN 1 ELSE 0 END) as naik'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi < 0 THEN 1 ELSE 0 END) as turun'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
+                DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
+            )
+            ->groupBy('current.kantor_regional_id')
+            ->orderBy('current.kantor_regional_id')
             ->get()
-            ->keyBy('id_instansi');
+            ->map(function($stat) {
+                // Set nama kanreg
+                if ($stat->kantor_regional_id == 0 || $stat->kantor_regional_id == '00' || empty($stat->kantor_regional_id)) {
+                    $stat->nama_kanreg = 'Belum Terisi / Tidak Diketahui';
+                } else {
+                    $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
+                }
 
-        $previousScores = MonevDmsInstansiScore::where('upload_date', $previousDate)
-            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi')
-            ->get()
-            ->keyBy('id_instansi');
+                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
+                if ($stat->avg_perubahan > 0) {
+                    $stat->status = 'Naik';
+                } elseif ($stat->avg_perubahan < 0) {
+                    $stat->status = 'Turun';
+                } else {
+                    $stat->status = 'Stagnan';
+                }
 
-        // Calculate changes
-        $changes = [];
-        foreach ($currentScores as $idInstansi => $current) {
-            if (isset($previousScores[$idInstansi])) {
-                $previous = $previousScores[$idInstansi];
-                $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
-
-                $changes[] = [
-                    'kantor_regional_id' => $current->kantor_regional_id,
-                    'perubahan' => $scoreDiff
-                ];
-            }
-        }
-
-        // Aggregate by Kantor Regional
-        $kanregStats = [];
-        foreach ($changes as $change) {
-            $kanregId = $change['kantor_regional_id'];
-
-            if (!isset($kanregStats[$kanregId])) {
-                $kanregStats[$kanregId] = [
-                    'kantor_regional_id' => $kanregId,
-                    'total_instansi' => 0,
-                    'naik' => 0,
-                    'turun' => 0,
-                    'stagnan' => 0,
-                    'avg_perubahan' => 0,
-                    'total_perubahan' => 0
-                ];
-            }
-
-            $kanregStats[$kanregId]['total_instansi']++;
-            $kanregStats[$kanregId]['total_perubahan'] += $change['perubahan'];
-
-            if ($change['perubahan'] > 0) {
-                $kanregStats[$kanregId]['naik']++;
-            } elseif ($change['perubahan'] < 0) {
-                $kanregStats[$kanregId]['turun']++;
-            } else {
-                $kanregStats[$kanregId]['stagnan']++;
-            }
-        }
-
-        // Calculate averages and get names
-        foreach ($kanregStats as $kanregId => &$stat) {
-            $stat['avg_perubahan'] = $stat['total_instansi'] > 0
-                ? $stat['total_perubahan'] / $stat['total_instansi']
-                : 0;
-
-            $kanreg = \App\Models\KantorRegional::find($kanregId);
-            $stat['nama_kanreg'] = $kanreg ? $kanreg->nama_kantor_regional : 'Kantor Regional ' . $kanregId;
-        }
-
-        ksort($kanregStats);
+                return $stat;
+            });
 
         // Create Excel
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -1358,29 +1329,32 @@ class DashboardController extends Controller
 
         // Header
         $sheet->setCellValue('A1', 'STATISTIK PER KANTOR REGIONAL - PERBANDINGAN PERIODE');
-        $sheet->mergeCells('A1:G1');
+        $sheet->mergeCells('A1:J1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         $sheet->setCellValue('A2', 'Periode Awal: ' . \Carbon\Carbon::parse($previousDate)->format('d F Y'));
-        $sheet->mergeCells('A2:G2');
+        $sheet->mergeCells('A2:J2');
         $sheet->getStyle('A2')->getFont()->setBold(true);
 
         $sheet->setCellValue('A3', 'Periode Akhir: ' . \Carbon\Carbon::parse($currentDate)->format('d F Y'));
-        $sheet->mergeCells('A3:G3');
+        $sheet->mergeCells('A3:J3');
         $sheet->getStyle('A3')->getFont()->setBold(true);
 
         $sheet->setCellValue('A4', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
-        $sheet->mergeCells('A4:G4');
+        $sheet->mergeCells('A4:J4');
 
         // Table header
         $sheet->setCellValue('A6', 'No');
         $sheet->setCellValue('B6', 'Kantor Regional');
         $sheet->setCellValue('C6', 'Total Instansi');
-        $sheet->setCellValue('D6', 'Naik');
-        $sheet->setCellValue('E6', 'Stagnan');
-        $sheet->setCellValue('F6', 'Turun');
-        $sheet->setCellValue('G6', 'Rata-rata Perubahan');
+        $sheet->setCellValue('D6', 'Skor Sebelumnya');
+        $sheet->setCellValue('E6', 'Skor Sesudahnya');
+        $sheet->setCellValue('F6', 'Naik');
+        $sheet->setCellValue('G6', 'Stagnan');
+        $sheet->setCellValue('H6', 'Turun');
+        $sheet->setCellValue('I6', 'Rata-rata Perubahan');
+        $sheet->setCellValue('J6', 'Status');
 
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
@@ -1398,30 +1372,48 @@ class DashboardController extends Controller
                 ]
             ]
         ];
-        $sheet->getStyle('A6:G6')->applyFromArray($headerStyle);
+        $sheet->getStyle('A6:J6')->applyFromArray($headerStyle);
 
         // Data rows
         $row = 7;
         $no = 1;
         foreach ($kanregStats as $stat) {
             $sheet->setCellValue('A' . $row, $no);
-            $sheet->setCellValue('B' . $row, $stat['nama_kanreg']);
-            $sheet->setCellValue('C' . $row, $stat['total_instansi']);
-            $sheet->setCellValue('D' . $row, $stat['naik']);
-            $sheet->setCellValue('E' . $row, $stat['stagnan']);
-            $sheet->setCellValue('F' . $row, $stat['turun']);
-            $sheet->setCellValue('G' . $row, number_format($stat['avg_perubahan'], 2));
+            $sheet->setCellValue('B' . $row, $stat->nama_kanreg);
+            $sheet->setCellValue('C' . $row, $stat->total_instansi);
+            $sheet->setCellValue('D' . $row, number_format($stat->skor_sebelumnya, 2));
+            $sheet->setCellValue('E' . $row, number_format($stat->skor_sesudahnya, 2));
+            $sheet->setCellValue('F' . $row, $stat->naik);
+            $sheet->setCellValue('G' . $row, $stat->stagnan);
+            $sheet->setCellValue('H' . $row, $stat->turun);
+            $sheet->setCellValue('I' . $row, number_format($stat->avg_perubahan, 2));
+            $sheet->setCellValue('J' . $row, $stat->status);
 
-            // Color code
-            $sheet->getStyle('D' . $row)->getFill()
-                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                ->getStartColor()->setARGB('FF92D050');
-            $sheet->getStyle('E' . $row)->getFill()
-                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                ->getStartColor()->setARGB('FFF39C12');
+            // Color code untuk Naik, Stagnan, Turun
             $sheet->getStyle('F' . $row)->getFill()
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FF92D050');
+            $sheet->getStyle('G' . $row)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FFF39C12');
+            $sheet->getStyle('H' . $row)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getStartColor()->setARGB('FFFF6666');
+
+            // Color code untuk Status
+            if ($stat->status == 'Naik') {
+                $sheet->getStyle('J' . $row)->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB('FF92D050');
+            } elseif ($stat->status == 'Turun') {
+                $sheet->getStyle('J' . $row)->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB('FFFF6666');
+            } else {
+                $sheet->getStyle('J' . $row)->getFill()
+                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB('FFD3D3D3');
+            }
 
             // Center align
             $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
@@ -1430,19 +1422,25 @@ class DashboardController extends Controller
             $sheet->getStyle('E' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('G' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('H' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('I' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('J' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
             $row++;
             $no++;
         }
 
         // Auto size columns
-        $sheet->getColumnDimension('A')->setWidth(8);
-        $sheet->getColumnDimension('B')->setWidth(40);
-        $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(12);
-        $sheet->getColumnDimension('E')->setWidth(12);
-        $sheet->getColumnDimension('F')->setWidth(12);
-        $sheet->getColumnDimension('G')->setWidth(20);
+        $sheet->getColumnDimension('A')->setWidth(6);
+        $sheet->getColumnDimension('B')->setWidth(30);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(15);
+        $sheet->getColumnDimension('F')->setWidth(10);
+        $sheet->getColumnDimension('G')->setWidth(10);
+        $sheet->getColumnDimension('H')->setWidth(10);
+        $sheet->getColumnDimension('I')->setWidth(18);
+        $sheet->getColumnDimension('J')->setWidth(12);
 
         // Export
         $filename = 'Perbandingan_Kanreg_' . date('Ymd') . '.xlsx';
@@ -1465,78 +1463,52 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Periode perbandingan tidak lengkap'], 404);
         }
 
-        // Get scores from both periods
-        $currentScores = MonevDmsInstansiScore::where('upload_date', $currentDate)
-            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi')
+        // Get Kantor Regional statistics with comparison (SAMA SEPERTI DI comparePeriods)
+        $kanregStats = DB::table('monev_dms_instansi_score as current')
+            ->join('monev_dms_instansi_score as previous', function($join) use ($previousDate) {
+                $join->on('current.id_instansi', '=', 'previous.id_instansi')
+                     ->where('previous.upload_date', '=', $previousDate);
+            })
+            ->where('current.upload_date', $currentDate)
+            ->select(
+                'current.kantor_regional_id',
+                DB::raw('COUNT(*) as total_instansi'),
+                DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
+                DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi > 0 THEN 1 ELSE 0 END) as naik'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi < 0 THEN 1 ELSE 0 END) as turun'),
+                DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
+                DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
+            )
+            ->groupBy('current.kantor_regional_id')
+            ->orderBy('current.kantor_regional_id')
             ->get()
-            ->keyBy('id_instansi');
+            ->map(function($stat) {
+                // Set nama kanreg
+                if ($stat->kantor_regional_id == 0 || $stat->kantor_regional_id == '00' || empty($stat->kantor_regional_id)) {
+                    $stat->nama_kanreg = 'Belum Terisi / Tidak Diketahui';
+                } else {
+                    $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
+                }
 
-        $previousScores = MonevDmsInstansiScore::where('upload_date', $previousDate)
-            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi')
-            ->get()
-            ->keyBy('id_instansi');
+                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
+                if ($stat->avg_perubahan > 0) {
+                    $stat->status = 'Naik';
+                } elseif ($stat->avg_perubahan < 0) {
+                    $stat->status = 'Turun';
+                } else {
+                    $stat->status = 'Stagnan';
+                }
 
-        // Calculate changes
-        $changes = [];
-        foreach ($currentScores as $idInstansi => $current) {
-            if (isset($previousScores[$idInstansi])) {
-                $previous = $previousScores[$idInstansi];
-                $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
-
-                $changes[] = [
-                    'kantor_regional_id' => $current->kantor_regional_id,
-                    'perubahan' => $scoreDiff
-                ];
-            }
-        }
-
-        // Aggregate by Kantor Regional
-        $kanregStats = [];
-        foreach ($changes as $change) {
-            $kanregId = $change['kantor_regional_id'];
-
-            if (!isset($kanregStats[$kanregId])) {
-                $kanregStats[$kanregId] = [
-                    'kantor_regional_id' => $kanregId,
-                    'total_instansi' => 0,
-                    'naik' => 0,
-                    'turun' => 0,
-                    'stagnan' => 0,
-                    'avg_perubahan' => 0,
-                    'total_perubahan' => 0
-                ];
-            }
-
-            $kanregStats[$kanregId]['total_instansi']++;
-            $kanregStats[$kanregId]['total_perubahan'] += $change['perubahan'];
-
-            if ($change['perubahan'] > 0) {
-                $kanregStats[$kanregId]['naik']++;
-            } elseif ($change['perubahan'] < 0) {
-                $kanregStats[$kanregId]['turun']++;
-            } else {
-                $kanregStats[$kanregId]['stagnan']++;
-            }
-        }
-
-        // Calculate averages and get names
-        foreach ($kanregStats as $kanregId => &$stat) {
-            $stat['avg_perubahan'] = $stat['total_instansi'] > 0
-                ? $stat['total_perubahan'] / $stat['total_instansi']
-                : 0;
-
-            $kanreg = \App\Models\KantorRegional::find($kanregId);
-            $stat['nama_kanreg'] = $kanreg ? $kanreg->nama_kantor_regional : 'Kantor Regional ' . $kanregId;
-        }
-
-        ksort($kanregStats);
+                return $stat;
+            });
 
         // Render HTML
         try {
             $html = view('dashboard.comparison-kanreg-pdf', compact('kanregStats', 'previousDate', 'currentDate'))->render();
 
             $pdf = \PDF::loadHTML($html);
-            $pdf->setPaper('a4', 'portrait');
+            $pdf->setPaper('a4', 'landscape'); // Landscape karena banyak kolom
 
             $filename = 'Perbandingan_Kanreg_' . date('Ymd') . '.pdf';
 

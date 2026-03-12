@@ -154,74 +154,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Kantor Regional Statistics Table -->
-                                    @if(isset($comparisonData['kanreg_stats']) && count($comparisonData['kanreg_stats']) > 0)
-                                    <div class="mb-4">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h5 class="mb-0">
-                                                <i class="mdi mdi-office-building text-primary"></i> Statistik Per Kantor Regional
-                                            </h5>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('dashboard.monev.export-comparison-kanreg-excel', ['previous_date' => $comparisonData['previous_period'], 'current_date' => $comparisonData['current_period']]) }}"
-                                                   class="btn btn-sm btn-success">
-                                                    <i class="mdi mdi-file-excel"></i> Excel
-                                                </a>
-                                                <a href="{{ route('dashboard.monev.export-comparison-kanreg-pdf', ['previous_date' => $comparisonData['previous_period'], 'current_date' => $comparisonData['current_period']]) }}"
-                                                   class="btn btn-sm btn-danger"
-                                                   target="_blank">
-                                                    <i class="mdi mdi-file-pdf"></i> PDF
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm">
-                                                <thead class="table-primary">
-                                                    <tr>
-                                                        <th width="5%" class="text-center">#</th>
-                                                        <th width="30%">Kantor Regional</th>
-                                                        <th width="10%" class="text-center">Total Instansi</th>
-                                                        <th width="10%" class="text-center">Naik</th>
-                                                        <th width="10%" class="text-center">Stagnan</th>
-                                                        <th width="10%" class="text-center">Turun</th>
-                                                        <th width="15%" class="text-center">Rata-rata Perubahan</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($comparisonData['kanreg_stats'] as $index => $kanreg)
-                                                    <tr>
-                                                        <td class="text-center fw-bold">{{ $index + 1 }}</td>
-                                                        <td><strong>{{ $kanreg['nama_kanreg'] }}</strong></td>
-                                                        <td class="text-center">{{ $kanreg['total_instansi'] }}</td>
-                                                        <td class="text-center">
-                                                            <span class="badge badge-success">{{ $kanreg['naik'] }}</span>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <span class="badge badge-warning">{{ $kanreg['stagnan'] }}</span>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <span class="badge badge-danger">{{ $kanreg['turun'] }}</span>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if($kanreg['avg_perubahan'] > 0)
-                                                                <span class="badge badge-success">
-                                                                    <i class="mdi mdi-arrow-up"></i> +{{ number_format($kanreg['avg_perubahan'], 2) }}
-                                                                </span>
-                                                            @elseif($kanreg['avg_perubahan'] < 0)
-                                                                <span class="badge badge-danger">
-                                                                    <i class="mdi mdi-arrow-down"></i> {{ number_format($kanreg['avg_perubahan'], 2) }}
-                                                                </span>
-                                                            @else
-                                                                <span class="badge badge-secondary">0.00</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    @endif
-
                                     <!-- Comparison Data Table -->
                                     <div class="table-responsive">
                                         <table class="table table-hover table-bordered">
@@ -291,6 +223,94 @@
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    <!-- Kantor Regional Statistics Table (DI BAWAH TABLE INSTANSI) -->
+                                    @if(isset($comparisonData['kanreg_stats']) && count($comparisonData['kanreg_stats']) > 0)
+                                    <div class="mt-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5 class="mb-0">
+                                                <i class="mdi mdi-office-building text-primary"></i> Statistik Per Kantor Regional
+                                            </h5>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ route('dashboard.monev.export-comparison-kanreg-excel', ['previous_date' => $comparisonData['previous_period'], 'current_date' => $comparisonData['current_period']]) }}"
+                                                   class="btn btn-sm btn-success">
+                                                    <i class="mdi mdi-file-excel"></i> Excel
+                                                </a>
+                                                <a href="{{ route('dashboard.monev.export-comparison-kanreg-pdf', ['previous_date' => $comparisonData['previous_period'], 'current_date' => $comparisonData['current_period']]) }}"
+                                                   class="btn btn-sm btn-danger"
+                                                   target="_blank">
+                                                    <i class="mdi mdi-file-pdf"></i> PDF
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm">
+                                                <thead class="table-primary">
+                                                    <tr>
+                                                        <th width="3%" class="text-center">#</th>
+                                                        <th width="20%">Kantor Regional</th>
+                                                        <th width="8%" class="text-center">Total Instansi</th>
+                                                        <th width="10%" class="text-center">Skor Sebelumnya</th>
+                                                        <th width="10%" class="text-center">Skor Sesudahnya</th>
+                                                        <th width="8%" class="text-center">Naik</th>
+                                                        <th width="8%" class="text-center">Stagnan</th>
+                                                        <th width="8%" class="text-center">Turun</th>
+                                                        <th width="10%" class="text-center">Rata-rata Perubahan</th>
+                                                        <th width="10%" class="text-center">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($comparisonData['kanreg_stats'] as $index => $kanreg)
+                                                    <tr>
+                                                        <td class="text-center fw-bold">{{ $index + 1 }}</td>
+                                                        <td><strong>{{ $kanreg->nama_kanreg }}</strong></td>
+                                                        <td class="text-center">{{ $kanreg->total_instansi }}</td>
+                                                        <td class="text-center">{{ number_format($kanreg->skor_sebelumnya, 2) }}</td>
+                                                        <td class="text-center">{{ number_format($kanreg->skor_sesudahnya, 2) }}</td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-success">{{ $kanreg->naik }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-warning">{{ $kanreg->stagnan }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-danger">{{ $kanreg->turun }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if($kanreg->avg_perubahan > 0)
+                                                                <span class="badge badge-success">
+                                                                    <i class="mdi mdi-arrow-up"></i> +{{ number_format($kanreg->avg_perubahan, 2) }}
+                                                                </span>
+                                                            @elseif($kanreg->avg_perubahan < 0)
+                                                                <span class="badge badge-danger">
+                                                                    <i class="mdi mdi-arrow-down"></i> {{ number_format($kanreg->avg_perubahan, 2) }}
+                                                                </span>
+                                                            @else
+                                                                <span class="badge badge-secondary">0.00</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if($kanreg->status == 'Naik')
+                                                                <span class="badge badge-success">
+                                                                    <i class="mdi mdi-trending-up"></i> Naik
+                                                                </span>
+                                                            @elseif($kanreg->status == 'Turun')
+                                                                <span class="badge badge-danger">
+                                                                    <i class="mdi mdi-trending-down"></i> Turun
+                                                                </span>
+                                                            @else
+                                                                <span class="badge badge-secondary">
+                                                                    <i class="mdi mdi-minus"></i> Stagnan
+                                                                </span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -2436,69 +2456,6 @@
                             </div>
                         </div>
 
-                        <!-- Kantor Regional Statistics Table -->
-                        ${data.kanreg_stats && data.kanreg_stats.length > 0 ? `
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">
-                                    <i class="mdi mdi-office-building text-primary"></i> Statistik Per Kantor Regional
-                                </h5>
-                                <div class="btn-group" role="group">
-                                    <a href="{{ route('dashboard.monev.export-comparison-kanreg-excel') }}?previous_date=${data.previous_period}&current_date=${data.current_period}"
-                                       class="btn btn-sm btn-success">
-                                        <i class="mdi mdi-file-excel"></i> Excel
-                                    </a>
-                                    <a href="{{ route('dashboard.monev.export-comparison-kanreg-pdf') }}?previous_date=${data.previous_period}&current_date=${data.current_period}"
-                                       class="btn btn-sm btn-danger"
-                                       target="_blank">
-                                        <i class="mdi mdi-file-pdf"></i> PDF
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-sm">
-                                    <thead class="table-primary">
-                                        <tr>
-                                            <th width="5%" class="text-center">#</th>
-                                            <th width="30%">Kantor Regional</th>
-                                            <th width="10%" class="text-center">Total Instansi</th>
-                                            <th width="10%" class="text-center">Naik</th>
-                                            <th width="10%" class="text-center">Stagnan</th>
-                                            <th width="10%" class="text-center">Turun</th>
-                                            <th width="15%" class="text-center">Rata-rata Perubahan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${data.kanreg_stats.map((kanreg, index) => {
-                                            const avgPerubahanBadge = kanreg.avg_perubahan > 0
-                                                ? `<span class="badge badge-success"><i class="mdi mdi-arrow-up"></i> +${formatNumber(kanreg.avg_perubahan, 2)}</span>`
-                                                : kanreg.avg_perubahan < 0
-                                                ? `<span class="badge badge-danger"><i class="mdi mdi-arrow-down"></i> ${formatNumber(kanreg.avg_perubahan, 2)}</span>`
-                                                : `<span class="badge badge-secondary">0.00</span>`;
-
-                                            return `
-                                            <tr>
-                                                <td class="text-center fw-bold">${index + 1}</td>
-                                                <td><strong>${kanreg.nama_kanreg}</strong></td>
-                                                <td class="text-center">${kanreg.total_instansi}</td>
-                                                <td class="text-center">
-                                                    <span class="badge badge-success">${kanreg.naik}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge badge-warning">${kanreg.stagnan}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge badge-danger">${kanreg.turun}</span>
-                                                </td>
-                                                <td class="text-center">${avgPerubahanBadge}</td>
-                                            </tr>`;
-                                        }).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        ` : ''}
-
                         <!-- Comparison Table -->
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered">
@@ -2640,6 +2597,82 @@
                 </div>
             </div>
         </div>`;
+
+        // Kantor Regional Statistics Table (DI BAWAH TABLE INSTANSI)
+        if (data.kanreg_stats && data.kanreg_stats.length > 0) {
+            html += `
+        <div class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">
+                    <i class="mdi mdi-office-building text-primary"></i> Statistik Per Kantor Regional
+                </h5>
+                <div class="btn-group" role="group">
+                    <a href="{{ route('dashboard.monev.export-comparison-kanreg-excel') }}?previous_date=${data.previous_period}&current_date=${data.current_period}" class="btn btn-sm btn-success">
+                        <i class="mdi mdi-file-excel"></i> Excel
+                    </a>
+                    <a href="{{ route('dashboard.monev.export-comparison-kanreg-pdf') }}?previous_date=${data.previous_period}&current_date=${data.current_period}" class="btn btn-sm btn-danger" target="_blank">
+                        <i class="mdi mdi-file-pdf"></i> PDF
+                    </a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-primary">
+                        <tr>
+                            <th width="3%" class="text-center">#</th>
+                            <th width="20%">Kantor Regional</th>
+                            <th width="8%" class="text-center">Total Instansi</th>
+                            <th width="10%" class="text-center">Skor Sebelumnya</th>
+                            <th width="10%" class="text-center">Skor Sesudahnya</th>
+                            <th width="8%" class="text-center">Naik</th>
+                            <th width="8%" class="text-center">Stagnan</th>
+                            <th width="8%" class="text-center">Turun</th>
+                            <th width="10%" class="text-center">Rata-rata Perubahan</th>
+                            <th width="10%" class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            data.kanreg_stats.forEach((kanreg, index) => {
+                let avgPerubahanBadge;
+                if (kanreg.avg_perubahan > 0) {
+                    avgPerubahanBadge = `<span class="badge badge-success"><i class="mdi mdi-arrow-up"></i> +${parseFloat(kanreg.avg_perubahan).toFixed(2)}</span>`;
+                } else if (kanreg.avg_perubahan < 0) {
+                    avgPerubahanBadge = `<span class="badge badge-danger"><i class="mdi mdi-arrow-down"></i> ${parseFloat(kanreg.avg_perubahan).toFixed(2)}</span>`;
+                } else {
+                    avgPerubahanBadge = `<span class="badge badge-secondary">0.00</span>`;
+                }
+
+                let statusBadge;
+                if (kanreg.status === 'Naik') {
+                    statusBadge = `<span class="badge badge-success"><i class="mdi mdi-trending-up"></i> Naik</span>`;
+                } else if (kanreg.status === 'Turun') {
+                    statusBadge = `<span class="badge badge-danger"><i class="mdi mdi-trending-down"></i> Turun</span>`;
+                } else {
+                    statusBadge = `<span class="badge badge-secondary"><i class="mdi mdi-minus"></i> Stagnan</span>`;
+                }
+
+                html += `
+                        <tr>
+                            <td class="text-center fw-bold">${index + 1}</td>
+                            <td><strong>${kanreg.nama_kanreg}</strong></td>
+                            <td class="text-center">${kanreg.total_instansi}</td>
+                            <td class="text-center">${parseFloat(kanreg.skor_sebelumnya).toFixed(2)}</td>
+                            <td class="text-center">${parseFloat(kanreg.skor_sesudahnya).toFixed(2)}</td>
+                            <td class="text-center"><span class="badge badge-success">${kanreg.naik}</span></td>
+                            <td class="text-center"><span class="badge badge-warning">${kanreg.stagnan}</span></td>
+                            <td class="text-center"><span class="badge badge-danger">${kanreg.turun}</span></td>
+                            <td class="text-center">${avgPerubahanBadge}</td>
+                            <td class="text-center">${statusBadge}</td>
+                        </tr>`;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+        }
 
         comparisonContainer.innerHTML = html;
     }

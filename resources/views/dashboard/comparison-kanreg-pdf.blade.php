@@ -129,38 +129,52 @@
     <table>
         <thead>
             <tr>
-                <th width="25" class="text-center">No</th>
-                <th width="200">Kantor Regional</th>
-                <th width="60" class="text-center">Total<br>Instansi</th>
-                <th width="50" class="text-center">Naik</th>
-                <th width="50" class="text-center">Stagnan</th>
-                <th width="50" class="text-center">Turun</th>
-                <th width="80" class="text-center">Rata-rata<br>Perubahan</th>
+                <th width="20" class="text-center">No</th>
+                <th width="140">Kantor Regional</th>
+                <th width="45" class="text-center">Total<br>Instansi</th>
+                <th width="55" class="text-center">Skor<br>Sebelumnya</th>
+                <th width="55" class="text-center">Skor<br>Sesudahnya</th>
+                <th width="35" class="text-center">Naik</th>
+                <th width="40" class="text-center">Stagnan</th>
+                <th width="35" class="text-center">Turun</th>
+                <th width="60" class="text-center">Rata-rata<br>Perubahan</th>
+                <th width="55" class="text-center">Status</th>
             </tr>
         </thead>
         <tbody>
             @foreach($kanregStats as $index => $stat)
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
-                <td><strong>{{ $stat['nama_kanreg'] }}</strong></td>
-                <td class="text-center">{{ $stat['total_instansi'] }}</td>
+                <td><strong>{{ $stat->nama_kanreg }}</strong></td>
+                <td class="text-center">{{ $stat->total_instansi }}</td>
+                <td class="text-center">{{ number_format($stat->skor_sebelumnya, 2) }}</td>
+                <td class="text-center">{{ number_format($stat->skor_sesudahnya, 2) }}</td>
                 <td class="text-center">
-                    <span class="status-naik">{{ $stat['naik'] }}</span>
+                    <span class="status-naik">{{ $stat->naik }}</span>
                 </td>
                 <td class="text-center">
-                    <span class="status-stagnan">{{ $stat['stagnan'] }}</span>
+                    <span class="status-stagnan">{{ $stat->stagnan }}</span>
                 </td>
                 <td class="text-center">
-                    <span class="status-turun">{{ $stat['turun'] }}</span>
+                    <span class="status-turun">{{ $stat->turun }}</span>
                 </td>
                 <td class="text-center">
                     <strong>
-                        @if($stat['avg_perubahan'] > 0)
-                            +{{ number_format($stat['avg_perubahan'], 2) }}
+                        @if($stat->avg_perubahan > 0)
+                            +{{ number_format($stat->avg_perubahan, 2) }}
                         @else
-                            {{ number_format($stat['avg_perubahan'], 2) }}
+                            {{ number_format($stat->avg_perubahan, 2) }}
                         @endif
                     </strong>
+                </td>
+                <td class="text-center">
+                    @if($stat->status == 'Naik')
+                        <span class="status-naik">Naik</span>
+                    @elseif($stat->status == 'Turun')
+                        <span class="status-turun">Turun</span>
+                    @else
+                        <span class="status-stagnan">Stagnan</span>
+                    @endif
                 </td>
             </tr>
             @endforeach
