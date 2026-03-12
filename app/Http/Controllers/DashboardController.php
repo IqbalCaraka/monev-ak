@@ -451,12 +451,8 @@ class DashboardController extends Controller
             ->orderBy('current.kantor_regional_id')
             ->get()
             ->map(function($stat) {
-                // Set nama kanreg
-                if ($stat->kantor_regional_id == 0 || $stat->kantor_regional_id == '00' || empty($stat->kantor_regional_id)) {
-                    $stat->nama_kanreg = 'Belum Terisi / Tidak Diketahui';
-                } else {
-                    $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
-                }
+                // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
+                $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
 
                 // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
                 if ($stat->avg_perubahan > 0) {
@@ -922,7 +918,7 @@ class DashboardController extends Controller
             $dominantStatus = array_key_first($statusCounts);
 
             $sheet->setCellValue('A' . $row, $no);
-            $sheet->setCellValue('B' . $row, 'Kanreg ' . $kanreg->kantor_regional_id);
+            $sheet->setCellValue('B' . $row, 'Kantor Regional ' . str_pad($kanreg->kantor_regional_id, 2, '0', STR_PAD_LEFT));
             $sheet->setCellValue('C' . $row, $kanreg->total_instansi);
             $sheet->setCellValue('D' . $row, number_format($kanreg->rata_rata_skor, 2));
             $sheet->setCellValue('E' . $row, $dominantStatus);
@@ -1304,12 +1300,8 @@ class DashboardController extends Controller
             ->orderBy('current.kantor_regional_id')
             ->get()
             ->map(function($stat) {
-                // Set nama kanreg
-                if ($stat->kantor_regional_id == 0 || $stat->kantor_regional_id == '00' || empty($stat->kantor_regional_id)) {
-                    $stat->nama_kanreg = 'Belum Terisi / Tidak Diketahui';
-                } else {
-                    $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
-                }
+                // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
+                $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
 
                 // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
                 if ($stat->avg_perubahan > 0) {
@@ -1484,12 +1476,8 @@ class DashboardController extends Controller
             ->orderBy('current.kantor_regional_id')
             ->get()
             ->map(function($stat) {
-                // Set nama kanreg
-                if ($stat->kantor_regional_id == 0 || $stat->kantor_regional_id == '00' || empty($stat->kantor_regional_id)) {
-                    $stat->nama_kanreg = 'Belum Terisi / Tidak Diketahui';
-                } else {
-                    $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
-                }
+                // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
+                $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
 
                 // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
                 if ($stat->avg_perubahan > 0) {

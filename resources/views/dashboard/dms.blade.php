@@ -738,7 +738,7 @@
                                                     <td class="text-center fw-bold">{{ $index + 1 }}</td>
                                                     <td class="text-center">
                                                         <span class="badge badge-primary px-3 py-2">
-                                                            Kanreg {{ $kanreg->kantor_regional_id }}
+                                                            Kantor Regional {{ str_pad($kanreg->kantor_regional_id, 2, '0', STR_PAD_LEFT) }}
                                                         </span>
                                                     </td>
                                                     <td class="text-center">

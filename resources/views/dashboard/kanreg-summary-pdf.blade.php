@@ -178,7 +178,7 @@
             @endphp
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
-                <td class="text-center"><strong>Kanreg {{ $kanreg->kantor_regional_id }}</strong></td>
+                <td class="text-center"><strong>Kantor Regional {{ str_pad($kanreg->kantor_regional_id, 2, '0', STR_PAD_LEFT) }}</strong></td>
                 <td class="text-center">{{ $kanreg->total_instansi }}</td>
                 <td class="text-center">
                     <strong>{{ number_format($kanreg->rata_rata_skor, 2) }}</strong>
