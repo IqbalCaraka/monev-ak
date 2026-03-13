@@ -167,10 +167,10 @@ class DashboardController extends Controller
                 ->paginate(10)
                 ->appends(['monev_date' => $selectedMonevDate, 'monev_search' => $monevSearch]);
 
-            // Get Kantor Regional statistics
+            // Get Kantor Regional statistics dengan COALESCE untuk handle NULL jadi 0
             $monevKantorRegionalStats = DB::table('monev_dms_instansi_score')
                 ->select(
-                    'kantor_regional_id',
+                    DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
                     DB::raw('COUNT(*) as total_instansi'),
                     DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                     DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -179,9 +179,8 @@ class DashboardController extends Controller
                     DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
                 )
                 ->where('upload_date', $monevNasionalScore->upload_date)
-                ->whereNotNull('kantor_regional_id')
-                ->groupBy('kantor_regional_id')
-                ->orderBy('kantor_regional_id', 'asc')
+                ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
+                ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
                 ->get();
 
             // Period Comparison Analysis (only if there are at least 2 periods)
@@ -332,10 +331,10 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Get Kantor Regional statistics
+        // Get Kantor Regional statistics dengan COALESCE untuk handle NULL jadi 0
         $monevKantorRegionalStats = DB::table('monev_dms_instansi_score')
             ->select(
-                'kantor_regional_id',
+                DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -344,9 +343,8 @@ class DashboardController extends Controller
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
             )
             ->where('upload_date', $monevNasionalScore->upload_date)
-            ->whereNotNull('kantor_regional_id')
-            ->groupBy('kantor_regional_id')
-            ->orderBy('kantor_regional_id', 'asc')
+            ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
+            ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
             ->get();
 
         // Generate PDF
@@ -833,10 +831,10 @@ class DashboardController extends Controller
             return back()->with('error', 'Tidak ada data monev yang tersedia');
         }
 
-        // Get Kantor Regional statistics
+        // Get Kantor Regional statistics dengan COALESCE untuk handle NULL jadi 0
         $kanregStats = DB::table('monev_dms_instansi_score')
             ->select(
-                'kantor_regional_id',
+                DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -845,8 +843,8 @@ class DashboardController extends Controller
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
             )
             ->where('upload_date', $monevDate)
-            ->groupBy('kantor_regional_id')
-            ->orderBy('kantor_regional_id')
+            ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
+            ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
             ->get();
 
         if ($kanregStats->isEmpty()) {
@@ -984,10 +982,10 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Tidak ada data monev yang tersedia'], 404);
         }
 
-        // Get Kantor Regional statistics
+        // Get Kantor Regional statistics dengan COALESCE untuk handle NULL jadi 0
         $kanregStats = DB::table('monev_dms_instansi_score')
             ->select(
-                'kantor_regional_id',
+                DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -996,8 +994,8 @@ class DashboardController extends Controller
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
             )
             ->where('upload_date', $monevDate)
-            ->groupBy('kantor_regional_id')
-            ->orderBy('kantor_regional_id')
+            ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
+            ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
             ->get();
 
         if ($kanregStats->isEmpty()) {
@@ -1505,5 +1503,63 @@ class DashboardController extends Controller
             \Log::error('PDF Kanreg Comparison Error: ' . $e->getMessage());
             return response()->json(['error' => 'PDF generation failed: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function filterMonevData(Request $request)
+    {
+        $selectedMonevDate = $request->input('monev_date');
+
+        if (!$selectedMonevDate) {
+            $monevNasionalScore = MonevDmsNasional::orderBy('upload_date', 'desc')->first();
+        } else {
+            $monevNasionalScore = MonevDmsNasional::where('upload_date', $selectedMonevDate)->first();
+        }
+
+        if (!$monevNasionalScore) {
+            return response()->json(['error' => 'Data tidak ditemukan'], 404);
+        }
+
+        // Get top 5
+        $monevTopInstansi = MonevDmsInstansiScore::where('upload_date', $monevNasionalScore->upload_date)
+            ->orderBy('monev_skor_instansi', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Get bottom 5
+        $monevBottomInstansi = MonevDmsInstansiScore::where('upload_date', $monevNasionalScore->upload_date)
+            ->orderBy('monev_skor_instansi', 'asc')
+            ->limit(5)
+            ->get();
+
+        // Get all instansi with pagination
+        $monevAllInstansi = MonevDmsInstansiScore::where('upload_date', $monevNasionalScore->upload_date)
+            ->orderBy('monev_skor_instansi', 'desc')
+            ->paginate(10);
+
+        // Get Kantor Regional statistics dengan COALESCE untuk handle NULL
+        $monevKantorRegionalStats = DB::table('monev_dms_instansi_score')
+            ->select(
+                DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
+                DB::raw('COUNT(*) as total_instansi'),
+                DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Lengkap" THEN 1 END) as count_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Cukup Lengkap" THEN 1 END) as count_cukup_lengkap'),
+                DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
+            )
+            ->where('upload_date', $monevNasionalScore->upload_date)
+            ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
+            ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'nasional_score' => $monevNasionalScore,
+            'top_instansi' => $monevTopInstansi,
+            'bottom_instansi' => $monevBottomInstansi,
+            'all_instansi' => $monevAllInstansi,
+            'kantor_regional_stats' => $monevKantorRegionalStats,
+            'selected_date' => $monevNasionalScore->upload_date
+        ]);
     }
 }

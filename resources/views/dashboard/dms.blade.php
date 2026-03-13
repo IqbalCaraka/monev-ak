@@ -335,11 +335,11 @@
                             <div class="card border-success" style="border-width: 2px !important; box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
-                                        <form method="GET" action="{{ route('dashboard.dms') }}" class="d-flex align-items-center">
+                                        <div class="d-flex align-items-center">
                                             <label class="mb-0 me-3 fw-bold">
                                                 <i class="mdi mdi-filter-variant"></i> Filter Tanggal Data:
                                             </label>
-                                            <select id="monev_date" name="monev_date" class="form-select me-3" style="width: 250px;" onchange="this.form.submit()">
+                                            <select id="monev_date_filter" class="form-select me-3" style="width: 250px;">
                                                 <option value="">-- Pilih Tanggal --</option>
                                                 @foreach($monevUploads as $upload)
                                                     <option value="{{ $upload->upload_date }}"
@@ -351,16 +351,15 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @if($selectedMonevDate)
-                                                <a href="{{ route('dashboard.dms') }}" class="btn btn-secondary btn-sm">
-                                                    <i class="mdi mdi-reload"></i> Reset
-                                                </a>
-                                            @endif
-                                        </form>
+                                            <button type="button" id="reset_filter_btn" class="btn btn-secondary btn-sm me-2" style="display: {{ $selectedMonevDate ? 'inline-block' : 'none' }};">
+                                                <i class="mdi mdi-reload"></i> Reset
+                                            </button>
+                                        </div>
 
                                         <!-- Print PDF Button -->
                                         @if($monevNasionalScore)
                                         <a href="{{ route('dashboard.monev.export-pdf') }}?monev_date={{ $selectedMonevDate ?? '' }}"
+                                           id="export_pdf_btn"
                                            class="btn btn-danger btn-sm"
                                            target="_blank">
                                             <i class="mdi mdi-file-pdf"></i> Cetak PDF
