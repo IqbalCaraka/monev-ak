@@ -549,7 +549,7 @@ class DashboardController extends Controller
         foreach ($instansiList as $instansi) {
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $instansi->nama_instansi);
-            $sheet->setCellValue('C' . $row, number_format(ceil($instansi->monev_skor_instansi * 10) / 10, 1));
+            $sheet->setCellValue('C' . $row, number_format(floor($instansi->monev_skor_instansi * 10) / 10, 1));
             $sheet->setCellValue('D' . $row, $instansi->monev_status_kelengkapan);
 
             // Color code status
@@ -722,7 +722,7 @@ class DashboardController extends Controller
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $instansi->nama_instansi);
             $sheet->setCellValue('C' . $row, 'Kanreg ' . $instansi->kantor_regional_id);
-            $sheet->setCellValue('D' . $row, number_format(ceil($instansi->monev_skor_instansi * 10) / 10, 1));
+            $sheet->setCellValue('D' . $row, number_format(floor($instansi->monev_skor_instansi * 10) / 10, 1));
             $sheet->setCellValue('E' . $row, $instansi->monev_status_kelengkapan);
 
             // Color code status
@@ -918,7 +918,7 @@ class DashboardController extends Controller
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, 'Kantor Regional ' . str_pad($kanreg->kantor_regional_id, 2, '0', STR_PAD_LEFT));
             $sheet->setCellValue('C' . $row, $kanreg->total_instansi);
-            $sheet->setCellValue('D' . $row, number_format(ceil($kanreg->rata_rata_skor * 10) / 10, 1));
+            $sheet->setCellValue('D' . $row, number_format(floor($kanreg->rata_rata_skor * 10) / 10, 1));
             $sheet->setCellValue('E' . $row, $dominantStatus);
             $sheet->setCellValue('F' . $row, $kanreg->count_sangat_lengkap);
             $sheet->setCellValue('G' . $row, $kanreg->count_lengkap);
@@ -1146,9 +1146,9 @@ class DashboardController extends Controller
         foreach ($changes as $change) {
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $change['nama_instansi']);
-            $sheet->setCellValue('C' . $row, number_format(ceil($change['skor_sebelum'] * 10) / 10, 1));
-            $sheet->setCellValue('D' . $row, number_format(ceil($change['skor_sekarang'] * 10) / 10, 1));
-            $sheet->setCellValue('E' . $row, number_format(ceil($change['perubahan'] * 10) / 10, 1));
+            $sheet->setCellValue('C' . $row, number_format(floor($change['skor_sebelum'] * 10) / 10, 1));
+            $sheet->setCellValue('D' . $row, number_format(floor($change['skor_sekarang'] * 10) / 10, 1));
+            $sheet->setCellValue('E' . $row, number_format(floor($change['perubahan'] * 10) / 10, 1));
             $sheet->setCellValue('F' . $row, $change['status']);
 
             // Color code status
@@ -1371,12 +1371,12 @@ class DashboardController extends Controller
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $stat->nama_kanreg);
             $sheet->setCellValue('C' . $row, $stat->total_instansi);
-            $sheet->setCellValue('D' . $row, number_format(ceil($stat->skor_sebelumnya * 10) / 10, 1));
-            $sheet->setCellValue('E' . $row, number_format(ceil($stat->skor_sesudahnya * 10) / 10, 1));
+            $sheet->setCellValue('D' . $row, number_format(floor($stat->skor_sebelumnya * 10) / 10, 1));
+            $sheet->setCellValue('E' . $row, number_format(floor($stat->skor_sesudahnya * 10) / 10, 1));
             $sheet->setCellValue('F' . $row, $stat->naik);
             $sheet->setCellValue('G' . $row, $stat->stagnan);
             $sheet->setCellValue('H' . $row, $stat->turun);
-            $sheet->setCellValue('I' . $row, number_format(ceil($stat->avg_perubahan * 10) / 10, 1));
+            $sheet->setCellValue('I' . $row, number_format(floor($stat->avg_perubahan * 10) / 10, 1));
             $sheet->setCellValue('J' . $row, $stat->status);
 
             // Color code untuk Naik, Stagnan, Turun

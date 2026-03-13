@@ -201,14 +201,14 @@
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $change['nama_instansi'] }}</td>
-                <td class="text-center">{{ number_format(ceil($change['skor_sebelum'] * 10) / 10, 1) }}</td>
-                <td class="text-center">{{ number_format(ceil($change['skor_sekarang'] * 10) / 10, 1) }}</td>
+                <td class="text-center">{{ number_format(floor($change['skor_sebelum'] * 10) / 10, 1) }}</td>
+                <td class="text-center">{{ number_format(floor($change['skor_sekarang'] * 10) / 10, 1) }}</td>
                 <td class="text-center">
                     <strong>
                         @if($change['perubahan'] > 0)
-                            +{{ number_format(ceil($change['perubahan'] * 10) / 10, 1) }}
+                            +{{ number_format(floor($change['perubahan'] * 10) / 10, 1) }}
                         @else
-                            {{ number_format(ceil($change['perubahan'] * 10) / 10, 1) }}
+                            {{ number_format(floor($change['perubahan'] * 10) / 10, 1) }}
                         @endif
                     </strong>
                 </td>

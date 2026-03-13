@@ -192,7 +192,7 @@
                 <td>{{ $instansi->nama_instansi }}</td>
                 <td class="text-center">Kanreg {{ str_pad($instansi->kantor_regional_id ?? '0', 2, '0', STR_PAD_LEFT) }}</td>
                 <td class="text-center">
-                    <strong>{{ number_format(ceil($instansi->monev_skor_instansi * 10) / 10, 1) }}</strong>
+                    <strong>{{ number_format(floor($instansi->monev_skor_instansi * 10) / 10, 1) }}</strong>
                 </td>
                 <td class="text-center">
                     @php

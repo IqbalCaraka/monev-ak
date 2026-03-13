@@ -147,8 +147,8 @@
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td><strong>{{ $stat->nama_kanreg }}</strong></td>
                 <td class="text-center">{{ $stat->total_instansi }}</td>
-                <td class="text-center">{{ number_format(ceil($stat->skor_sebelumnya * 10) / 10, 1) }}</td>
-                <td class="text-center">{{ number_format(ceil($stat->skor_sesudahnya * 10) / 10, 1) }}</td>
+                <td class="text-center">{{ number_format(floor($stat->skor_sebelumnya * 10) / 10, 1) }}</td>
+                <td class="text-center">{{ number_format(floor($stat->skor_sesudahnya * 10) / 10, 1) }}</td>
                 <td class="text-center">
                     <span class="status-naik">{{ $stat->naik }}</span>
                 </td>
@@ -161,9 +161,9 @@
                 <td class="text-center">
                     <strong>
                         @if($stat->avg_perubahan > 0)
-                            +{{ number_format(ceil($stat->avg_perubahan * 10) / 10, 1) }}
+                            +{{ number_format(floor($stat->avg_perubahan * 10) / 10, 1) }}
                         @else
-                            {{ number_format(ceil($stat->avg_perubahan * 10) / 10, 1) }}
+                            {{ number_format(floor($stat->avg_perubahan * 10) / 10, 1) }}
                         @endif
                     </strong>
                 </td>

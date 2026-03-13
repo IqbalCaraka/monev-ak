@@ -181,7 +181,7 @@
                 <td class="text-center"><strong>Kantor Regional {{ str_pad($kanreg->kantor_regional_id, 2, '0', STR_PAD_LEFT) }}</strong></td>
                 <td class="text-center">{{ $kanreg->total_instansi }}</td>
                 <td class="text-center">
-                    <strong>{{ number_format(ceil($kanreg->rata_rata_skor * 10) / 10, 1) }}</strong>
+                    <strong>{{ number_format(floor($kanreg->rata_rata_skor * 10) / 10, 1) }}</strong>
                 </td>
                 <td class="text-center">
                     <span class="status-badge {{ $statusClass }}">
@@ -199,7 +199,7 @@
             <tr>
                 <td colspan="2" class="text-center"><strong>TOTAL</strong></td>
                 <td class="text-center"><strong>{{ $kanregStats->sum('total_instansi') }}</strong></td>
-                <td class="text-center"><strong>{{ number_format(ceil($kanregStats->avg('rata_rata_skor') * 10) / 10, 1) }}</strong></td>
+                <td class="text-center"><strong>{{ number_format(floor($kanregStats->avg('rata_rata_skor') * 10) / 10, 1) }}</strong></td>
                 <td></td>
                 <td class="text-center"><strong>{{ $kanregStats->sum('count_sangat_lengkap') }}</strong></td>
                 <td class="text-center"><strong>{{ $kanregStats->sum('count_lengkap') }}</strong></td>

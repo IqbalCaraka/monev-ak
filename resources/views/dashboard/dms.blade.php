@@ -195,19 +195,19 @@
                                                     <td class="text-center fw-bold">{{ $index + 1 }}</td>
                                                     <td>{{ $change['nama_instansi'] }}</td>
                                                     <td class="text-center">
-                                                        <span class="badge badge-secondary">{{ number_format(ceil($change['skor_sebelum'] * 10) / 10, 1) }}</span>
+                                                        <span class="badge badge-secondary">{{ number_format(floor($change['skor_sebelum'] * 10) / 10, 1) }}</span>
                                                     </td>
                                                     <td class="text-center">
-                                                        <span class="badge badge-info">{{ number_format(ceil($change['skor_sekarang'] * 10) / 10, 1) }}</span>
+                                                        <span class="badge badge-info">{{ number_format(floor($change['skor_sekarang'] * 10) / 10, 1) }}</span>
                                                     </td>
                                                     <td class="text-center">
                                                         @if($change['perubahan'] > 0)
                                                             <span class="badge badge-success">
-                                                                <i class="mdi mdi-arrow-up"></i> +{{ number_format(ceil($change['perubahan'] * 10) / 10, 1) }}
+                                                                <i class="mdi mdi-arrow-up"></i> +{{ number_format(floor($change['perubahan'] * 10) / 10, 1) }}
                                                             </span>
                                                         @elseif($change['perubahan'] < 0)
                                                             <span class="badge badge-danger">
-                                                                <i class="mdi mdi-arrow-down"></i> {{ number_format(ceil($change['perubahan'] * 10) / 10, 1) }}
+                                                                <i class="mdi mdi-arrow-down"></i> {{ number_format(floor($change['perubahan'] * 10) / 10, 1) }}
                                                             </span>
                                                         @else
                                                             <span class="badge badge-secondary">0.0</span>
@@ -265,8 +265,8 @@
                                                         <td class="text-center fw-bold">{{ $index + 1 }}</td>
                                                         <td><strong>{{ $kanreg->nama_kanreg }}</strong></td>
                                                         <td class="text-center">{{ $kanreg->total_instansi }}</td>
-                                                        <td class="text-center">{{ number_format(ceil($kanreg->skor_sebelumnya * 10) / 10, 1) }}</td>
-                                                        <td class="text-center">{{ number_format(ceil($kanreg->skor_sesudahnya * 10) / 10, 1) }}</td>
+                                                        <td class="text-center">{{ number_format(floor($kanreg->skor_sebelumnya * 10) / 10, 1) }}</td>
+                                                        <td class="text-center">{{ number_format(floor($kanreg->skor_sesudahnya * 10) / 10, 1) }}</td>
                                                         <td class="text-center">
                                                             <span class="badge badge-success">{{ $kanreg->naik }}</span>
                                                         </td>
@@ -279,11 +279,11 @@
                                                         <td class="text-center">
                                                             @if($kanreg->avg_perubahan > 0)
                                                                 <span class="badge badge-success">
-                                                                    <i class="mdi mdi-arrow-up"></i> +{{ number_format(ceil($kanreg->avg_perubahan * 10) / 10, 1) }}
+                                                                    <i class="mdi mdi-arrow-up"></i> +{{ number_format(floor($kanreg->avg_perubahan * 10) / 10, 1) }}
                                                                 </span>
                                                             @elseif($kanreg->avg_perubahan < 0)
                                                                 <span class="badge badge-danger">
-                                                                    <i class="mdi mdi-arrow-down"></i> {{ number_format(ceil($kanreg->avg_perubahan * 10) / 10, 1) }}
+                                                                    <i class="mdi mdi-arrow-down"></i> {{ number_format(floor($kanreg->avg_perubahan * 10) / 10, 1) }}
                                                                 </span>
                                                             @else
                                                                 <span class="badge badge-secondary">0.0</span>
@@ -473,7 +473,7 @@
                                         <div class="col-lg-3 col-md-6 mb-3">
                                             <div class="p-3 bg-gradient-primary text-white rounded">
                                                 <p class="mb-1 opacity-75">Rata-rata Skor Nasional</p>
-                                                <h2 class="mb-0 fw-bold">{{ number_format(ceil($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</h2>
+                                                <h2 class="mb-0 fw-bold">{{ number_format(floor($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</h2>
                                                 <small class="opacity-75">Dari {{ number_format($monevNasionalScore->total_instansi) }} instansi</small>
                                             </div>
                                         </div>
@@ -627,7 +627,7 @@
                                                     <td class="text-muted">{{ Str::limit($inst->nama_instansi, 40) }}</td>
                                                     <td class="text-end">
                                                         <span class="badge badge-success px-3 py-2">
-                                                            {{ number_format(ceil($inst->monev_skor_instansi * 10) / 10, 1) }}
+                                                            {{ number_format(floor($inst->monev_skor_instansi * 10) / 10, 1) }}
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -665,7 +665,7 @@
                                                     <td class="text-muted">{{ Str::limit($inst->nama_instansi, 40) }}</td>
                                                     <td class="text-end">
                                                         <span class="badge badge-danger px-3 py-2">
-                                                            {{ number_format(ceil($inst->monev_skor_instansi * 10) / 10, 1) }}
+                                                            {{ number_format(floor($inst->monev_skor_instansi * 10) / 10, 1) }}
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -748,7 +748,7 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <strong class="text-primary" style="font-size: 1.1em;">
-                                                            {{ number_format(ceil($kanreg->rata_rata_skor * 10) / 10, 1) }}
+                                                            {{ number_format(floor($kanreg->rata_rata_skor * 10) / 10, 1) }}
                                                         </strong>
                                                     </td>
                                                     <td class="text-center">
@@ -823,7 +823,7 @@
                                                     </th>
                                                     <th class="text-center">
                                                         <strong class="text-dark" style="font-size: 1.1em;">
-                                                            {{ number_format(ceil($monevKantorRegionalStats->avg('rata_rata_skor') * 10) / 10, 1) }}
+                                                            {{ number_format(floor($monevKantorRegionalStats->avg('rata_rata_skor') * 10) / 10, 1) }}
                                                         </strong>
                                                     </th>
                                                     <th></th>
@@ -949,7 +949,7 @@
                                                             </td>
                                                             <td class="text-center">
                                                                 <span class="badge {{ $instansi->monev_skor_instansi > 90 ? 'badge-success' : ($instansi->monev_skor_instansi >= 55.6 ? 'badge-primary' : ($instansi->monev_skor_instansi >= 30 ? 'badge-warning' : 'badge-danger')) }} px-3 py-2">
-                                                                    {{ number_format(ceil($instansi->monev_skor_instansi * 10) / 10, 1) }}
+                                                                    {{ number_format(floor($instansi->monev_skor_instansi * 10) / 10, 1) }}
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">
@@ -1015,7 +1015,7 @@
                                         </div>
                                         <div class="col-md-3">
                                             <p class="text-muted mb-1 small">Rata-rata Skor Nasional</p>
-                                            <p class="mb-0 fw-bold text-primary">{{ number_format(ceil($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</p>
+                                            <p class="mb-0 fw-bold text-primary">{{ number_format(floor($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</p>
                                         </div>
                                         <div class="col-md-3">
                                             <p class="text-muted mb-1 small">Diupload Pada</p>
@@ -2384,8 +2384,10 @@
             return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
         };
 
-        const formatNumber = (num, decimals = 2) => {
-            return parseFloat(num).toFixed(decimals);
+        const formatNumber = (num, decimals = 1) => {
+            // Truncate to specified decimals (floor/cut off)
+            const multiplier = Math.pow(10, decimals);
+            return (Math.floor(parseFloat(num) * multiplier) / multiplier).toFixed(decimals);
         };
 
         const getBadgeClass = (perubahan) => {
@@ -2476,7 +2478,7 @@
 
         // Calculate pagination
         const totalItems = allComparisons.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const totalPages = Math.floor(totalItems / itemsPerPage);
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
         const paginatedData = allComparisons.slice(startIndex, endIndex);
@@ -2505,23 +2507,23 @@
                                         <td class="text-center fw-bold">${globalIndex}</td>
                                         <td>${namaInstansi}</td>
                                         <td class="text-center">
-                                            <span class="badge badge-secondary">${formatNumber(change.skor_sebelum, 2)}</span>
+                                            <span class="badge badge-secondary">${formatNumber(change.skor_sebelum)}</span>
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge badge-info">${formatNumber(change.skor_sekarang, 2)}</span>
+                                            <span class="badge badge-info">${formatNumber(change.skor_sekarang)}</span>
                                         </td>
                                         <td class="text-center">`;
 
             if (change.perubahan > 0) {
                 html += `<span class="badge badge-success">
-                            <i class="mdi mdi-arrow-up"></i> +${formatNumber(change.perubahan, 2)}
+                            <i class="mdi mdi-arrow-up"></i> +${formatNumber(change.perubahan)}
                          </span>`;
             } else if (change.perubahan < 0) {
                 html += `<span class="badge badge-danger">
-                            <i class="mdi mdi-arrow-down"></i> ${formatNumber(change.perubahan, 2)}
+                            <i class="mdi mdi-arrow-down"></i> ${formatNumber(change.perubahan)}
                          </span>`;
             } else {
-                html += `<span class="badge badge-secondary">0.00</span>`;
+                html += `<span class="badge badge-secondary">0.0</span>`;
             }
 
             html += `</td>
@@ -2636,11 +2638,11 @@
             data.kanreg_stats.forEach((kanreg, index) => {
                 let avgPerubahanBadge;
                 if (kanreg.avg_perubahan > 0) {
-                    avgPerubahanBadge = `<span class="badge badge-success"><i class="mdi mdi-arrow-up"></i> +${parseFloat(kanreg.avg_perubahan).toFixed(2)}</span>`;
+                    avgPerubahanBadge = `<span class="badge badge-success"><i class="mdi mdi-arrow-up"></i> +${formatNumber(kanreg.avg_perubahan)}</span>`;
                 } else if (kanreg.avg_perubahan < 0) {
-                    avgPerubahanBadge = `<span class="badge badge-danger"><i class="mdi mdi-arrow-down"></i> ${parseFloat(kanreg.avg_perubahan).toFixed(2)}</span>`;
+                    avgPerubahanBadge = `<span class="badge badge-danger"><i class="mdi mdi-arrow-down"></i> ${formatNumber(kanreg.avg_perubahan)}</span>`;
                 } else {
-                    avgPerubahanBadge = `<span class="badge badge-secondary">0.00</span>`;
+                    avgPerubahanBadge = `<span class="badge badge-secondary">0.0</span>`;
                 }
 
                 let statusBadge;
@@ -2657,8 +2659,8 @@
                             <td class="text-center fw-bold">${index + 1}</td>
                             <td><strong>${kanreg.nama_kanreg}</strong></td>
                             <td class="text-center">${kanreg.total_instansi}</td>
-                            <td class="text-center">${parseFloat(kanreg.skor_sebelumnya).toFixed(2)}</td>
-                            <td class="text-center">${parseFloat(kanreg.skor_sesudahnya).toFixed(2)}</td>
+                            <td class="text-center">${formatNumber(kanreg.skor_sebelumnya)}</td>
+                            <td class="text-center">${formatNumber(kanreg.skor_sesudahnya)}</td>
                             <td class="text-center"><span class="badge badge-success">${kanreg.naik}</span></td>
                             <td class="text-center"><span class="badge badge-warning">${kanreg.stagnan}</span></td>
                             <td class="text-center"><span class="badge badge-danger">${kanreg.turun}</span></td>
@@ -2679,7 +2681,7 @@
 
     function changeComparisonPage(page) {
         if (!currentComparisonData) return;
-        const totalPages = Math.ceil((currentComparisonData.all_comparisons || []).length / itemsPerPage);
+        const totalPages = Math.floor((currentComparisonData.all_comparisons || []).length / itemsPerPage);
         if (page < 1 || page > totalPages) return;
 
         currentPage = page;
