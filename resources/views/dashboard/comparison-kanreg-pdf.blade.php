@@ -147,8 +147,8 @@
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td><strong>{{ $stat->nama_kanreg }}</strong></td>
                 <td class="text-center">{{ $stat->total_instansi }}</td>
-                <td class="text-center">{{ number_format($stat->skor_sebelumnya, 2) }}</td>
-                <td class="text-center">{{ number_format($stat->skor_sesudahnya, 2) }}</td>
+                <td class="text-center">{{ number_format(ceil($stat->skor_sebelumnya * 10) / 10, 1) }}</td>
+                <td class="text-center">{{ number_format(ceil($stat->skor_sesudahnya * 10) / 10, 1) }}</td>
                 <td class="text-center">
                     <span class="status-naik">{{ $stat->naik }}</span>
                 </td>

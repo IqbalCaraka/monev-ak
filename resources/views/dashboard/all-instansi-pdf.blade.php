@@ -192,7 +192,7 @@
                 <td>{{ $instansi->nama_instansi }}</td>
                 <td class="text-center">{{ $instansi->kantor_regional_id }}</td>
                 <td class="text-center">
-                    <strong>{{ number_format($instansi->monev_skor_instansi, 2) }}</strong>
+                    <strong>{{ number_format(ceil($instansi->monev_skor_instansi * 10) / 10, 1) }}</strong>
                 </td>
                 <td class="text-center">
                     @php

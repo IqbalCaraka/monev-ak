@@ -195,10 +195,10 @@
                                                     <td class="text-center fw-bold">{{ $index + 1 }}</td>
                                                     <td>{{ $change['nama_instansi'] }}</td>
                                                     <td class="text-center">
-                                                        <span class="badge badge-secondary">{{ number_format($change['skor_sebelum'], 2) }}</span>
+                                                        <span class="badge badge-secondary">{{ number_format(ceil($change['skor_sebelum'] * 10) / 10, 1) }}</span>
                                                     </td>
                                                     <td class="text-center">
-                                                        <span class="badge badge-info">{{ number_format($change['skor_sekarang'], 2) }}</span>
+                                                        <span class="badge badge-info">{{ number_format(ceil($change['skor_sekarang'] * 10) / 10, 1) }}</span>
                                                     </td>
                                                     <td class="text-center">
                                                         @if($change['perubahan'] > 0)
@@ -265,8 +265,8 @@
                                                         <td class="text-center fw-bold">{{ $index + 1 }}</td>
                                                         <td><strong>{{ $kanreg->nama_kanreg }}</strong></td>
                                                         <td class="text-center">{{ $kanreg->total_instansi }}</td>
-                                                        <td class="text-center">{{ number_format($kanreg->skor_sebelumnya, 2) }}</td>
-                                                        <td class="text-center">{{ number_format($kanreg->skor_sesudahnya, 2) }}</td>
+                                                        <td class="text-center">{{ number_format(ceil($kanreg->skor_sebelumnya * 10) / 10, 1) }}</td>
+                                                        <td class="text-center">{{ number_format(ceil($kanreg->skor_sesudahnya * 10) / 10, 1) }}</td>
                                                         <td class="text-center">
                                                             <span class="badge badge-success">{{ $kanreg->naik }}</span>
                                                         </td>
@@ -473,7 +473,7 @@
                                         <div class="col-lg-3 col-md-6 mb-3">
                                             <div class="p-3 bg-gradient-primary text-white rounded">
                                                 <p class="mb-1 opacity-75">Rata-rata Skor Nasional</p>
-                                                <h2 class="mb-0 fw-bold">{{ number_format($monevNasionalScore->monev_skor_nasional, 2) }}</h2>
+                                                <h2 class="mb-0 fw-bold">{{ number_format(ceil($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</h2>
                                                 <small class="opacity-75">Dari {{ number_format($monevNasionalScore->total_instansi) }} instansi</small>
                                             </div>
                                         </div>
@@ -627,7 +627,7 @@
                                                     <td class="text-muted">{{ Str::limit($inst->nama_instansi, 40) }}</td>
                                                     <td class="text-end">
                                                         <span class="badge badge-success px-3 py-2">
-                                                            {{ number_format($inst->monev_skor_instansi, 2) }}
+                                                            {{ number_format(ceil($inst->monev_skor_instansi * 10) / 10, 1) }}
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -665,7 +665,7 @@
                                                     <td class="text-muted">{{ Str::limit($inst->nama_instansi, 40) }}</td>
                                                     <td class="text-end">
                                                         <span class="badge badge-danger px-3 py-2">
-                                                            {{ number_format($inst->monev_skor_instansi, 2) }}
+                                                            {{ number_format(ceil($inst->monev_skor_instansi * 10) / 10, 1) }}
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -748,7 +748,7 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <strong class="text-primary" style="font-size: 1.1em;">
-                                                            {{ number_format($kanreg->rata_rata_skor, 2) }}
+                                                            {{ number_format(ceil($kanreg->rata_rata_skor * 10) / 10, 1) }}
                                                         </strong>
                                                     </td>
                                                     <td class="text-center">
@@ -823,7 +823,7 @@
                                                     </th>
                                                     <th class="text-center">
                                                         <strong class="text-dark" style="font-size: 1.1em;">
-                                                            {{ number_format($monevKantorRegionalStats->avg('rata_rata_skor'), 2) }}
+                                                            {{ number_format(ceil($monevKantorRegionalStats->avg('rata_rata_skor') * 10) / 10, 1) }}
                                                         </strong>
                                                     </th>
                                                     <th></th>
@@ -949,7 +949,7 @@
                                                             </td>
                                                             <td class="text-center">
                                                                 <span class="badge {{ $instansi->monev_skor_instansi > 90 ? 'badge-success' : ($instansi->monev_skor_instansi >= 55.6 ? 'badge-primary' : ($instansi->monev_skor_instansi >= 30 ? 'badge-warning' : 'badge-danger')) }} px-3 py-2">
-                                                                    {{ number_format($instansi->monev_skor_instansi, 2) }}
+                                                                    {{ number_format(ceil($instansi->monev_skor_instansi * 10) / 10, 1) }}
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">
@@ -1015,7 +1015,7 @@
                                         </div>
                                         <div class="col-md-3">
                                             <p class="text-muted mb-1 small">Rata-rata Skor Nasional</p>
-                                            <p class="mb-0 fw-bold text-primary">{{ number_format($monevNasionalScore->monev_skor_nasional, 2) }}</p>
+                                            <p class="mb-0 fw-bold text-primary">{{ number_format(ceil($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</p>
                                         </div>
                                         <div class="col-md-3">
                                             <p class="text-muted mb-1 small">Diupload Pada</p>

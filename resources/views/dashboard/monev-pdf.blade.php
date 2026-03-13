@@ -210,7 +210,7 @@
 
     <div style="text-align: center; padding: 15px; background-color: #3498db; color: white; margin-bottom: 15px; border-radius: 4px;">
         <div style="font-size: 11px; margin-bottom: 5px;">Rata-rata Skor Nasional</div>
-        <div style="font-size: 24px; font-weight: bold;">{{ number_format($monevNasionalScore->monev_skor_nasional, 2) }}</div>
+        <div style="font-size: 24px; font-weight: bold;">{{ number_format(ceil($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</div>
         <div style="font-size: 9px; opacity: 0.8;">Dari {{ number_format($monevNasionalScore->total_instansi) }} Instansi</div>
     </div>
 
@@ -270,7 +270,7 @@
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>{{ Str::limit($inst->nama_instansi, 35) }}</td>
                         <td class="text-center">
-                            <span class="badge badge-success">{{ number_format($inst->monev_skor_instansi, 2) }}</span>
+                            <span class="badge badge-success">{{ number_format(ceil($inst->monev_skor_instansi * 10) / 10, 1) }}</span>
                         </td>
                     </tr>
                     @empty
@@ -298,7 +298,7 @@
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>{{ Str::limit($inst->nama_instansi, 35) }}</td>
                         <td class="text-center">
-                            <span class="badge badge-danger">{{ number_format($inst->monev_skor_instansi, 2) }}</span>
+                            <span class="badge badge-danger">{{ number_format(ceil($inst->monev_skor_instansi * 10) / 10, 1) }}</span>
                         </td>
                     </tr>
                     @empty
@@ -346,7 +346,7 @@
                     <span class="badge badge-info">{{ number_format($kanreg->total_instansi) }}</span>
                 </td>
                 <td class="text-center">
-                    <strong style="color: #3498db;">{{ number_format($kanreg->rata_rata_skor, 2) }}</strong>
+                    <strong style="color: #3498db;">{{ number_format(ceil($kanreg->rata_rata_skor * 10) / 10, 1) }}</strong>
                 </td>
                 <td class="text-center">
                     <span class="badge badge-success">{{ number_format($kanreg->count_sangat_lengkap) }}</span>
