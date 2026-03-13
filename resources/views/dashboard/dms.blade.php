@@ -2687,6 +2687,76 @@
         // Scroll to top of comparison section
         comparisonContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    // AJAX Filter for Section 2 (Data Monitoring & Evaluasi)
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterSelect = document.getElementById('monev_date_filter');
+        const resetBtn = document.getElementById('reset_filter_btn');
+        const exportPdfBtn = document.getElementById('export_pdf_btn');
+
+        if (filterSelect) {
+            filterSelect.addEventListener('change', function() {
+                const selectedDate = this.value;
+                loadMonevData(selectedDate);
+
+                // Show/hide reset button
+                if (resetBtn) {
+                    resetBtn.style.display = selectedDate ? 'inline-block' : 'none';
+                }
+
+                // Update export PDF link
+                if (exportPdfBtn) {
+                    exportPdfBtn.href = "{{ route('dashboard.monev.export-pdf') }}?monev_date=" + selectedDate;
+                }
+            });
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                filterSelect.value = '';
+                filterSelect.dispatchEvent(new Event('change'));
+            });
+        }
+
+        function loadMonevData(date) {
+            // Show loading state
+            showLoadingState();
+
+            fetch("{{ route('dashboard.monev.filter') }}?monev_date=" + date)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateMonevContent(data);
+                    } else {
+                        alert('Gagal memuat data: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat memuat data');
+                })
+                .finally(() => {
+                    hideLoadingState();
+                });
+        }
+
+        function showLoadingState() {
+            // You can add a loading spinner here
+            document.body.style.cursor = 'wait';
+        }
+
+        function hideLoadingState() {
+            document.body.style.cursor = 'default';
+        }
+
+        function updateMonevContent(data) {
+            // Update semua konten Section 2 akan ditambahkan di sini
+            console.log('Data loaded:', data);
+
+            // Untuk sementara reload page (nanti akan diupdate dengan dynamic content)
+            window.location.href = "{{ route('dashboard.dms') }}?monev_date=" + data.selected_date;
+        }
+    });
 </script>
 @endpush
 
