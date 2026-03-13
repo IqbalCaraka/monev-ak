@@ -1204,4 +1204,334 @@ class AktivitasPegawaiController extends Controller
 
         return 'Unknown';
     }
+
+    /**
+     * Export detail aktivitas pegawai ke Excel dengan breakdown per hari/minggu/bulan
+     */
+    public function exportPegawaiExcel(Request $request, $nip)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        // Get pegawai info
+        $pegawai = Pegawai::where('nip', $nip)->first();
+        if (!$pegawai) {
+            $logInfo = DB::table('log_aktivitas')
+                ->where('created_by_nip', $nip)
+                ->select('created_by_nama')
+                ->first();
+
+            $pegawai = (object) [
+                'nip' => $nip,
+                'nama' => $logInfo->created_by_nama ?? $nip,
+                'jabatan' => '-',
+                'golongan' => '-',
+            ];
+        }
+
+        // Get aktivitas breakdown
+        $dailyBreakdown = $this->getPegawaiDailyBreakdown($nip, $dateFrom, $dateTo);
+        $weeklyBreakdown = $this->getPegawaiWeeklyBreakdown($nip, $dateFrom, $dateTo);
+        $monthlyBreakdown = $this->getPegawaiMonthlyBreakdown($nip, $dateFrom, $dateTo);
+        $detailAktivitas = $dateFrom || $dateTo
+            ? $this->getDetailAktivitasFiltered($nip, $dateFrom, $dateTo)
+            : PegawaiAktivitasSummary::where('nip', $nip)->orderByDesc('total_aktivitas')->get();
+
+        // Create Excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header Info
+        $sheet->setCellValue('A1', 'LAPORAN AKTIVITAS PEGAWAI');
+        $sheet->mergeCells('A1:E1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A2', 'NIP: ' . $pegawai->nip);
+        $sheet->setCellValue('A3', 'Nama: ' . $pegawai->nama);
+        $periodText = 'Periode: ';
+        if ($dateFrom && $dateTo) {
+            $periodText .= date('d M Y', strtotime($dateFrom)) . ' - ' . date('d M Y', strtotime($dateTo));
+        } elseif ($dateFrom) {
+            $periodText .= 'Dari ' . date('d M Y', strtotime($dateFrom));
+        } elseif ($dateTo) {
+            $periodText .= 'Sampai ' . date('d M Y', strtotime($dateTo));
+        } else {
+            $periodText .= 'Semua Periode';
+        }
+        $sheet->setCellValue('A4', $periodText);
+
+        $row = 6;
+
+        // SECTION 1: RINGKASAN PER JENIS AKTIVITAS
+        $sheet->setCellValue('A' . $row, 'RINGKASAN PER JENIS AKTIVITAS');
+        $sheet->mergeCells('A' . $row . ':C' . $row);
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A' . $row)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('E3F2FD');
+        $row++;
+
+        $sheet->setCellValue('A' . $row, 'Jenis Aktivitas');
+        $sheet->setCellValue('B' . $row, 'Total');
+        $sheet->setCellValue('C' . $row, 'Terakhir Aktivitas');
+        $sheet->getStyle('A' . $row . ':C' . $row)->getFont()->setBold(true);
+        $row++;
+
+        foreach ($detailAktivitas as $detail) {
+            $sheet->setCellValue('A' . $row, $detail->kategori_aktivitas);
+            $sheet->setCellValue('B' . $row, $detail->total_aktivitas);
+            $sheet->setCellValue('C' . $row, $detail->last_activity_at ? date('d M Y H:i', strtotime($detail->last_activity_at)) : '-');
+            $row++;
+        }
+
+        $row += 2;
+
+        // SECTION 2: BREAKDOWN PER HARI
+        $sheet->setCellValue('A' . $row, 'BREAKDOWN PER HARI');
+        $sheet->mergeCells('A' . $row . ':D' . $row);
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A' . $row)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('FFF3E0');
+        $row++;
+
+        $sheet->setCellValue('A' . $row, 'Tanggal');
+        $sheet->setCellValue('B' . $row, 'Hari');
+        $sheet->setCellValue('C' . $row, 'Jenis Aktivitas');
+        $sheet->setCellValue('D' . $row, 'Jumlah');
+        $sheet->getStyle('A' . $row . ':D' . $row)->getFont()->setBold(true);
+        $row++;
+
+        foreach ($dailyBreakdown as $daily) {
+            $sheet->setCellValue('A' . $row, date('d M Y', strtotime($daily->tanggal)));
+            $sheet->setCellValue('B' . $row, $daily->hari);
+            $sheet->setCellValue('C' . $row, $daily->kategori_aktivitas);
+            $sheet->setCellValue('D' . $row, $daily->total);
+            $row++;
+        }
+
+        $row += 2;
+
+        // SECTION 3: BREAKDOWN PER MINGGU
+        $sheet->setCellValue('A' . $row, 'BREAKDOWN PER MINGGU');
+        $sheet->mergeCells('A' . $row . ':D' . $row);
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A' . $row)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('E8F5E9');
+        $row++;
+
+        $sheet->setCellValue('A' . $row, 'Minggu Ke');
+        $sheet->setCellValue('B' . $row, 'Rentang Tanggal');
+        $sheet->setCellValue('C' . $row, 'Jenis Aktivitas');
+        $sheet->setCellValue('D' . $row, 'Jumlah');
+        $sheet->getStyle('A' . $row . ':D' . $row)->getFont()->setBold(true);
+        $row++;
+
+        foreach ($weeklyBreakdown as $weekly) {
+            $sheet->setCellValue('A' . $row, 'Minggu ' . $weekly->minggu_ke);
+            $sheet->setCellValue('B' . $row, $weekly->rentang_tanggal);
+            $sheet->setCellValue('C' . $row, $weekly->kategori_aktivitas);
+            $sheet->setCellValue('D' . $row, $weekly->total);
+            $row++;
+        }
+
+        $row += 2;
+
+        // SECTION 4: BREAKDOWN PER BULAN
+        $sheet->setCellValue('A' . $row, 'BREAKDOWN PER BULAN');
+        $sheet->mergeCells('A' . $row . ':C' . $row);
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A' . $row)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('FCE4EC');
+        $row++;
+
+        $sheet->setCellValue('A' . $row, 'Bulan');
+        $sheet->setCellValue('B' . $row, 'Jenis Aktivitas');
+        $sheet->setCellValue('C' . $row, 'Jumlah');
+        $sheet->getStyle('A' . $row . ':C' . $row)->getFont()->setBold(true);
+        $row++;
+
+        foreach ($monthlyBreakdown as $monthly) {
+            $sheet->setCellValue('A' . $row, $monthly->bulan);
+            $sheet->setCellValue('B' . $row, $monthly->kategori_aktivitas);
+            $sheet->setCellValue('C' . $row, $monthly->total);
+            $row++;
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Download
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $filename = 'Aktivitas_' . $pegawai->nip . '_' . date('Ymd_His') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Export detail aktivitas pegawai ke PDF dengan breakdown per hari/minggu/bulan
+     */
+    public function exportPegawaiPdf(Request $request, $nip)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        // Get pegawai info
+        $pegawai = Pegawai::where('nip', $nip)->first();
+        if (!$pegawai) {
+            $logInfo = DB::table('log_aktivitas')
+                ->where('created_by_nip', $nip)
+                ->select('created_by_nama')
+                ->first();
+
+            $pegawai = (object) [
+                'nip' => $nip,
+                'nama' => $logInfo->created_by_nama ?? $nip,
+                'jabatan' => '-',
+                'golongan' => '-',
+            ];
+        }
+
+        // Get aktivitas breakdown
+        $dailyBreakdown = $this->getPegawaiDailyBreakdown($nip, $dateFrom, $dateTo);
+        $weeklyBreakdown = $this->getPegawaiWeeklyBreakdown($nip, $dateFrom, $dateTo);
+        $monthlyBreakdown = $this->getPegawaiMonthlyBreakdown($nip, $dateFrom, $dateTo);
+        $detailAktivitas = $dateFrom || $dateTo
+            ? $this->getDetailAktivitasFiltered($nip, $dateFrom, $dateTo)
+            : PegawaiAktivitasSummary::where('nip', $nip)->orderByDesc('total_aktivitas')->get();
+
+        $totalAktivitas = $detailAktivitas->sum('total_aktivitas');
+
+        // Prepare period text
+        $periodText = '';
+        if ($dateFrom && $dateTo) {
+            $periodText = date('d M Y', strtotime($dateFrom)) . ' - ' . date('d M Y', strtotime($dateTo));
+        } elseif ($dateFrom) {
+            $periodText = 'Dari ' . date('d M Y', strtotime($dateFrom));
+        } elseif ($dateTo) {
+            $periodText = 'Sampai ' . date('d M Y', strtotime($dateTo));
+        } else {
+            $periodText = 'Semua Periode';
+        }
+
+        // Load PDF
+        $pdf = \PDF::loadView('statistik.detail-aktivitas-pegawai-pdf', compact(
+            'pegawai',
+            'detailAktivitas',
+            'dailyBreakdown',
+            'weeklyBreakdown',
+            'monthlyBreakdown',
+            'totalAktivitas',
+            'periodText',
+            'dateFrom',
+            'dateTo'
+        ));
+
+        $pdf->setPaper('a4', 'portrait');
+
+        // Download PDF
+        $filename = 'Aktivitas_' . $pegawai->nip . '_' . date('Ymd_His') . '.pdf';
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Helper: Get daily breakdown of activities for specific pegawai
+     */
+    private function getPegawaiDailyBreakdown($nip, $dateFrom = null, $dateTo = null)
+    {
+        $query = DB::table('log_aktivitas')
+            ->selectRaw('
+                DATE(created_at_log) as tanggal,
+                day_name as hari,
+                ' . $this->getCategoryCase() . ' as kategori_aktivitas,
+                COUNT(*) as total
+            ')
+            ->where('created_by_nip', $nip);
+
+        if ($dateFrom) {
+            $query->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        return $query->groupBy('tanggal', 'hari', 'kategori_aktivitas')
+            ->orderBy('tanggal')
+            ->orderBy('kategori_aktivitas')
+            ->get();
+    }
+
+    /**
+     * Helper: Get weekly breakdown of activities for specific pegawai
+     */
+    private function getPegawaiWeeklyBreakdown($nip, $dateFrom = null, $dateTo = null)
+    {
+        $query = DB::table('log_aktivitas')
+            ->selectRaw('
+                YEAR(created_at_log) as tahun,
+                WEEK(created_at_log, 1) as minggu_ke,
+                DATE(MIN(created_at_log)) as tanggal_mulai,
+                DATE(MAX(created_at_log)) as tanggal_akhir,
+                ' . $this->getCategoryCase() . ' as kategori_aktivitas,
+                COUNT(*) as total
+            ')
+            ->where('created_by_nip', $nip);
+
+        if ($dateFrom) {
+            $query->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        $results = $query->groupBy('tahun', 'minggu_ke', 'kategori_aktivitas')
+            ->orderBy('tahun')
+            ->orderBy('minggu_ke')
+            ->orderBy('kategori_aktivitas')
+            ->get();
+
+        // Add formatted date range
+        foreach ($results as $result) {
+            $result->rentang_tanggal = date('d M', strtotime($result->tanggal_mulai)) . ' - ' . date('d M Y', strtotime($result->tanggal_akhir));
+        }
+
+        return $results;
+    }
+
+    /**
+     * Helper: Get monthly breakdown of activities for specific pegawai
+     */
+    private function getPegawaiMonthlyBreakdown($nip, $dateFrom = null, $dateTo = null)
+    {
+        $query = DB::table('log_aktivitas')
+            ->selectRaw('
+                DATE_FORMAT(created_at_log, "%Y-%m") as bulan_value,
+                DATE_FORMAT(created_at_log, "%M %Y") as bulan,
+                ' . $this->getCategoryCase() . ' as kategori_aktivitas,
+                COUNT(*) as total
+            ')
+            ->where('created_by_nip', $nip);
+
+        if ($dateFrom) {
+            $query->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        return $query->groupBy('bulan_value', 'bulan', 'kategori_aktivitas')
+            ->orderBy('bulan_value')
+            ->orderBy('kategori_aktivitas')
+            ->get();
+    }
 }

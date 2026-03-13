@@ -183,7 +183,7 @@
                                 <hr class="my-2">
                                 <p class="mb-0">
                                     <i class="mdi mdi-alert-circle"></i>
-                                    <small>CSV harus memiliki kolom <strong>status_arsip</strong> (JSON format). Setiap sheet akan mengelompokkan PNS berdasarkan status: <span class="badge bg-success">LENGKAP (dokumen ada)</span> dan <span class="badge bg-danger">TIDAK LENGKAP (riwayat ada, dokumen tidak ada)</span></small>
+                                    <small>CSV harus memiliki kolom <strong>status_arsip</strong> (JSON format). Delimiter otomatis terdeteksi (koma atau titik koma). Setiap sheet akan mengelompokkan PNS berdasarkan status: <span class="badge bg-success">LENGKAP (dokumen ada)</span> dan <span class="badge bg-danger">TIDAK LENGKAP (riwayat ada, dokumen tidak ada)</span></small>
                                 </p>
                             </div>
 

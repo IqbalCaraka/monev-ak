@@ -60,8 +60,17 @@ class UbahFormatController extends Controller
                 return back()->with('error', 'Gagal membuka file CSV');
             }
 
-            // Skip header
-            $header = fgetcsv($handle);
+            // Detect delimiter by reading first line
+            $firstLine = fgets($handle);
+            rewind($handle);
+
+            // Count occurrences of common delimiters
+            $commaCount = substr_count($firstLine, ',');
+            $semicolonCount = substr_count($firstLine, ';');
+            $delimiter = ($semicolonCount > $commaCount) ? ';' : ',';
+
+            // Skip header - use detected delimiter
+            $header = fgetcsv($handle, 0, $delimiter);
 
             // Find column index for status_arsip, status_cpns_pns, and skor_arsip_2026
             $statusArsipIndex = array_search('status_arsip', $header);
@@ -73,7 +82,7 @@ class UbahFormatController extends Controller
             $skorArsipIndex = array_search('Nilai Arsip 2026', $header);
 
             $data = [];
-            while (($row = fgetcsv($handle)) !== false) {
+            while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
                 if (count($row) < $statusArsipIndex + 1) continue;
 
                 $nip = $row[0] ?? '';

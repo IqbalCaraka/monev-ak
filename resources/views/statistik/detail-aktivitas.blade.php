@@ -38,6 +38,18 @@
                             @endif
                         </div>
                         <div class="col-md-3 text-end">
+                            <div class="btn-group me-2" role="group">
+                                <a href="{{ route('aktivitas-pegawai.export-pegawai-excel', ['nip' => $pegawai->nip, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
+                                   class="btn btn-sm btn-success"
+                                   title="Download Excel">
+                                    <i class="ti-download"></i> Excel
+                                </a>
+                                <a href="{{ route('aktivitas-pegawai.export-pegawai-pdf', ['nip' => $pegawai->nip, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
+                                   class="btn btn-sm btn-danger"
+                                   title="Download PDF">
+                                    <i class="ti-download"></i> PDF
+                                </a>
+                            </div>
                             <a href="{{ route('aktivitas-pegawai.index') }}" class="btn btn-sm btn-outline-secondary">
                                 <i class="ti-arrow-left"></i> Kembali
                             </a>
