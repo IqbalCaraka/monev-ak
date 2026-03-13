@@ -190,7 +190,7 @@
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $instansi->nama_instansi }}</td>
-                <td class="text-center">{{ $instansi->kantor_regional_id }}</td>
+                <td class="text-center">Kanreg {{ str_pad($instansi->kantor_regional_id ?? '0', 2, '0', STR_PAD_LEFT) }}</td>
                 <td class="text-center">
                     <strong>{{ number_format(ceil($instansi->monev_skor_instansi * 10) / 10, 1) }}</strong>
                 </td>

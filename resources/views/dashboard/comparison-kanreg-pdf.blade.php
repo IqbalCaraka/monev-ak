@@ -161,9 +161,9 @@
                 <td class="text-center">
                     <strong>
                         @if($stat->avg_perubahan > 0)
-                            +{{ number_format($stat->avg_perubahan, 2) }}
+                            +{{ number_format(ceil($stat->avg_perubahan * 10) / 10, 1) }}
                         @else
-                            {{ number_format($stat->avg_perubahan, 2) }}
+                            {{ number_format(ceil($stat->avg_perubahan * 10) / 10, 1) }}
                         @endif
                     </strong>
                 </td>

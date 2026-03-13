@@ -203,14 +203,14 @@
                                                     <td class="text-center">
                                                         @if($change['perubahan'] > 0)
                                                             <span class="badge badge-success">
-                                                                <i class="mdi mdi-arrow-up"></i> +{{ number_format($change['perubahan'], 2) }}
+                                                                <i class="mdi mdi-arrow-up"></i> +{{ number_format(ceil($change['perubahan'] * 10) / 10, 1) }}
                                                             </span>
                                                         @elseif($change['perubahan'] < 0)
                                                             <span class="badge badge-danger">
-                                                                <i class="mdi mdi-arrow-down"></i> {{ number_format($change['perubahan'], 2) }}
+                                                                <i class="mdi mdi-arrow-down"></i> {{ number_format(ceil($change['perubahan'] * 10) / 10, 1) }}
                                                             </span>
                                                         @else
-                                                            <span class="badge badge-secondary">0.00</span>
+                                                            <span class="badge badge-secondary">0.0</span>
                                                         @endif
                                                     </td>
                                                     <td class="text-center">
@@ -279,14 +279,14 @@
                                                         <td class="text-center">
                                                             @if($kanreg->avg_perubahan > 0)
                                                                 <span class="badge badge-success">
-                                                                    <i class="mdi mdi-arrow-up"></i> +{{ number_format($kanreg->avg_perubahan, 2) }}
+                                                                    <i class="mdi mdi-arrow-up"></i> +{{ number_format(ceil($kanreg->avg_perubahan * 10) / 10, 1) }}
                                                                 </span>
                                                             @elseif($kanreg->avg_perubahan < 0)
                                                                 <span class="badge badge-danger">
-                                                                    <i class="mdi mdi-arrow-down"></i> {{ number_format($kanreg->avg_perubahan, 2) }}
+                                                                    <i class="mdi mdi-arrow-down"></i> {{ number_format(ceil($kanreg->avg_perubahan * 10) / 10, 1) }}
                                                                 </span>
                                                             @else
-                                                                <span class="badge badge-secondary">0.00</span>
+                                                                <span class="badge badge-secondary">0.0</span>
                                                             @endif
                                                         </td>
                                                         <td class="text-center">
