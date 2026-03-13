@@ -335,11 +335,11 @@
                             <div class="card border-success" style="border-width: 2px !important; box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
+                                        <form method="GET" action="{{ route('dashboard.dms') }}" class="d-flex align-items-center">
                                             <label class="mb-0 me-3 fw-bold">
                                                 <i class="mdi mdi-filter-variant"></i> Filter Tanggal Data:
                                             </label>
-                                            <select id="monev_date_filter" class="form-select me-3" style="width: 250px;">
+                                            <select id="monev_date" name="monev_date" class="form-select me-3" style="width: 250px;" onchange="this.form.submit()">
                                                 <option value="">-- Pilih Tanggal --</option>
                                                 @foreach($monevUploads as $upload)
                                                     <option value="{{ $upload->upload_date }}"
@@ -351,15 +351,16 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <button type="button" id="reset_filter_btn" class="btn btn-secondary btn-sm me-2" style="display: {{ $selectedMonevDate ? 'inline-block' : 'none' }};">
-                                                <i class="mdi mdi-reload"></i> Reset
-                                            </button>
-                                        </div>
+                                            @if($selectedMonevDate)
+                                                <a href="{{ route('dashboard.dms') }}" class="btn btn-secondary btn-sm">
+                                                    <i class="mdi mdi-reload"></i> Reset
+                                                </a>
+                                            @endif
+                                        </form>
 
                                         <!-- Print PDF Button -->
                                         @if($monevNasionalScore)
-                                        <a href="{{ route('dashboard.monev.export-pdf') }}?monev_date={{ $selectedMonevDate ?? '' }}"
-                                           id="export_pdf_btn"
+                                        <a href="{{ route('dashboard.monev.export-pdf') }}?monev_date={{ $selectedMonevDate ?? $monevNasionalScore->upload_date }}"
                                            class="btn btn-danger btn-sm"
                                            target="_blank">
                                             <i class="mdi mdi-file-pdf"></i> Cetak PDF
@@ -700,12 +701,12 @@
                                             </span>
                                             @if($monevNasionalScore)
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('dashboard.monev.export-kanreg-summary-excel', ['monev_date' => $monevNasionalScore->upload_date]) }}"
+                                                <a href="{{ route('dashboard.monev.export-kanreg-summary-excel', ['monev_date' => $selectedMonevDate ?? $monevNasionalScore->upload_date]) }}"
                                                    class="btn btn-sm btn-success"
                                                    title="Download Excel">
                                                     <i class="mdi mdi-file-excel"></i> Excel
                                                 </a>
-                                                <a href="{{ route('dashboard.monev.export-kanreg-summary-pdf', ['monev_date' => $monevNasionalScore->upload_date]) }}"
+                                                <a href="{{ route('dashboard.monev.export-kanreg-summary-pdf', ['monev_date' => $selectedMonevDate ?? $monevNasionalScore->upload_date]) }}"
                                                    class="btn btn-sm btn-danger"
                                                    target="_blank"
                                                    title="Download PDF">
@@ -874,12 +875,12 @@
                                             </span>
                                             @if($monevNasionalScore)
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('dashboard.monev.export-all-excel', ['monev_date' => $monevNasionalScore->upload_date]) }}"
+                                                <a href="{{ route('dashboard.monev.export-all-excel', ['monev_date' => $selectedMonevDate ?? $monevNasionalScore->upload_date]) }}"
                                                    class="btn btn-sm btn-success"
                                                    title="Download Excel">
                                                     <i class="mdi mdi-file-excel"></i> Excel
                                                 </a>
-                                                <a href="{{ route('dashboard.monev.export-all-pdf', ['monev_date' => $monevNasionalScore->upload_date]) }}"
+                                                <a href="{{ route('dashboard.monev.export-all-pdf', ['monev_date' => $selectedMonevDate ?? $monevNasionalScore->upload_date]) }}"
                                                    class="btn btn-sm btn-danger"
                                                    target="_blank"
                                                    title="Download PDF">
@@ -2687,76 +2688,6 @@
         // Scroll to top of comparison section
         comparisonContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-
-    // AJAX Filter for Section 2 (Data Monitoring & Evaluasi)
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterSelect = document.getElementById('monev_date_filter');
-        const resetBtn = document.getElementById('reset_filter_btn');
-        const exportPdfBtn = document.getElementById('export_pdf_btn');
-
-        if (filterSelect) {
-            filterSelect.addEventListener('change', function() {
-                const selectedDate = this.value;
-                loadMonevData(selectedDate);
-
-                // Show/hide reset button
-                if (resetBtn) {
-                    resetBtn.style.display = selectedDate ? 'inline-block' : 'none';
-                }
-
-                // Update export PDF link
-                if (exportPdfBtn) {
-                    exportPdfBtn.href = "{{ route('dashboard.monev.export-pdf') }}?monev_date=" + selectedDate;
-                }
-            });
-        }
-
-        if (resetBtn) {
-            resetBtn.addEventListener('click', function() {
-                filterSelect.value = '';
-                filterSelect.dispatchEvent(new Event('change'));
-            });
-        }
-
-        function loadMonevData(date) {
-            // Show loading state
-            showLoadingState();
-
-            fetch("{{ route('dashboard.monev.filter') }}?monev_date=" + date)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateMonevContent(data);
-                    } else {
-                        alert('Gagal memuat data: ' + (data.error || 'Unknown error'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memuat data');
-                })
-                .finally(() => {
-                    hideLoadingState();
-                });
-        }
-
-        function showLoadingState() {
-            // You can add a loading spinner here
-            document.body.style.cursor = 'wait';
-        }
-
-        function hideLoadingState() {
-            document.body.style.cursor = 'default';
-        }
-
-        function updateMonevContent(data) {
-            // Update semua konten Section 2 akan ditambahkan di sini
-            console.log('Data loaded:', data);
-
-            // Untuk sementara reload page (nanti akan diupdate dengan dynamic content)
-            window.location.href = "{{ route('dashboard.dms') }}?monev_date=" + data.selected_date;
-        }
-    });
 </script>
 @endpush
 
