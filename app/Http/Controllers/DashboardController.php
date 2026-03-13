@@ -170,7 +170,12 @@ class DashboardController extends Controller
             // Get Kantor Regional statistics dengan COALESCE untuk handle NULL jadi 0
             $monevKantorRegionalStats = DB::table('monev_dms_instansi_score')
                 ->select(
-                    DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
+                    DB::raw('CASE
+                        WHEN kantor_regional_id IS NULL THEN "0"
+                        WHEN kantor_regional_id = "\\N" THEN "0"
+                        WHEN kantor_regional_id = "\\\\N" THEN "0"
+                        ELSE kantor_regional_id
+                    END as kantor_regional_id'),
                     DB::raw('COUNT(*) as total_instansi'),
                     DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                     DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -179,8 +184,18 @@ class DashboardController extends Controller
                     DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
                 )
                 ->where('upload_date', $monevNasionalScore->upload_date)
-                ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
-                ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
+                ->groupBy(DB::raw('CASE
+                    WHEN kantor_regional_id IS NULL THEN "0"
+                    WHEN kantor_regional_id = "\\N" THEN "0"
+                    WHEN kantor_regional_id = "\\\\N" THEN "0"
+                    ELSE kantor_regional_id
+                END'))
+                ->orderBy(DB::raw('CASE
+                    WHEN kantor_regional_id IS NULL THEN "0"
+                    WHEN kantor_regional_id = "\\N" THEN "0"
+                    WHEN kantor_regional_id = "\\\\N" THEN "0"
+                    ELSE kantor_regional_id
+                END'), 'asc')
                 ->get();
 
             // Period Comparison Analysis (only if there are at least 2 periods)
@@ -334,7 +349,7 @@ class DashboardController extends Controller
         // Get Kantor Regional statistics dengan COALESCE untuk handle NULL jadi 0
         $monevKantorRegionalStats = DB::table('monev_dms_instansi_score')
             ->select(
-                DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
+                DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -343,8 +358,8 @@ class DashboardController extends Controller
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
             )
             ->where('upload_date', $monevNasionalScore->upload_date)
-            ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
-            ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
+            ->groupBy(DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END'))
+            ->orderBy(DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END'), 'asc')
             ->get();
 
         // Generate PDF
@@ -436,7 +451,7 @@ class DashboardController extends Controller
             })
             ->where('current.upload_date', $currentPeriod)
             ->select(
-                DB::raw('COALESCE(current.kantor_regional_id, "0") as kantor_regional_id'),
+                DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
                 DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
@@ -445,8 +460,8 @@ class DashboardController extends Controller
                 DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
                 DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
             )
-            ->groupBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
-            ->orderBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
+            ->groupBy(DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END'))
+            ->orderBy(DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END'))
             ->get()
             ->map(function($stat) {
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
@@ -834,7 +849,7 @@ class DashboardController extends Controller
         // Get Kantor Regional statistics dengan COALESCE untuk handle NULL jadi 0
         $kanregStats = DB::table('monev_dms_instansi_score')
             ->select(
-                DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
+                DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -843,8 +858,8 @@ class DashboardController extends Controller
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
             )
             ->where('upload_date', $monevDate)
-            ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
-            ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
+            ->groupBy(DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END'))
+            ->orderBy(DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END'), 'asc')
             ->get();
 
         if ($kanregStats->isEmpty()) {
@@ -985,7 +1000,7 @@ class DashboardController extends Controller
         // Get Kantor Regional statistics dengan COALESCE untuk handle NULL jadi 0
         $kanregStats = DB::table('monev_dms_instansi_score')
             ->select(
-                DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
+                DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -994,8 +1009,8 @@ class DashboardController extends Controller
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
             )
             ->where('upload_date', $monevDate)
-            ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
-            ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
+            ->groupBy(DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END'))
+            ->orderBy(DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END'), 'asc')
             ->get();
 
         if ($kanregStats->isEmpty()) {
@@ -1285,7 +1300,7 @@ class DashboardController extends Controller
             })
             ->where('current.upload_date', $currentDate)
             ->select(
-                DB::raw('COALESCE(current.kantor_regional_id, "0") as kantor_regional_id'),
+                DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
                 DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
@@ -1294,8 +1309,8 @@ class DashboardController extends Controller
                 DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
                 DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
             )
-            ->groupBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
-            ->orderBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
+            ->groupBy(DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END'))
+            ->orderBy(DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END'))
             ->get()
             ->map(function($stat) {
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
@@ -1461,7 +1476,7 @@ class DashboardController extends Controller
             })
             ->where('current.upload_date', $currentDate)
             ->select(
-                DB::raw('COALESCE(current.kantor_regional_id, "0") as kantor_regional_id'),
+                DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
                 DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
@@ -1470,8 +1485,8 @@ class DashboardController extends Controller
                 DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
                 DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
             )
-            ->groupBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
-            ->orderBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
+            ->groupBy(DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END'))
+            ->orderBy(DB::raw('CASE WHEN current.kantor_regional_id IS NULL THEN "0" WHEN current.kantor_regional_id = "\\N" THEN "0" WHEN current.kantor_regional_id = "\\\\N" THEN "0" ELSE current.kantor_regional_id END'))
             ->get()
             ->map(function($stat) {
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
@@ -1539,7 +1554,7 @@ class DashboardController extends Controller
         // Get Kantor Regional statistics dengan COALESCE untuk handle NULL
         $monevKantorRegionalStats = DB::table('monev_dms_instansi_score')
             ->select(
-                DB::raw('COALESCE(kantor_regional_id, "0") as kantor_regional_id'),
+                DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(monev_skor_instansi) as rata_rata_skor'),
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Sangat Lengkap" THEN 1 END) as count_sangat_lengkap'),
@@ -1548,8 +1563,8 @@ class DashboardController extends Controller
                 DB::raw('COUNT(CASE WHEN monev_status_kelengkapan = "Kurang Lengkap" THEN 1 END) as count_kurang_lengkap')
             )
             ->where('upload_date', $monevNasionalScore->upload_date)
-            ->groupBy(DB::raw('COALESCE(kantor_regional_id, "0")'))
-            ->orderBy(DB::raw('COALESCE(kantor_regional_id, "0")'), 'asc')
+            ->groupBy(DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END'))
+            ->orderBy(DB::raw('CASE WHEN kantor_regional_id IS NULL THEN "0" WHEN kantor_regional_id = "\\N" THEN "0" WHEN kantor_regional_id = "\\\\N" THEN "0" ELSE kantor_regional_id END'), 'asc')
             ->get();
 
         return response()->json([
