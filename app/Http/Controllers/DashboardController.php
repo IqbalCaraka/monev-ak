@@ -436,7 +436,7 @@ class DashboardController extends Controller
             })
             ->where('current.upload_date', $currentPeriod)
             ->select(
-                'current.kantor_regional_id',
+                DB::raw('COALESCE(current.kantor_regional_id, "0") as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
                 DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
@@ -445,8 +445,8 @@ class DashboardController extends Controller
                 DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
                 DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
             )
-            ->groupBy('current.kantor_regional_id')
-            ->orderBy('current.kantor_regional_id')
+            ->groupBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
+            ->orderBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
             ->get()
             ->map(function($stat) {
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
@@ -1285,7 +1285,7 @@ class DashboardController extends Controller
             })
             ->where('current.upload_date', $currentDate)
             ->select(
-                'current.kantor_regional_id',
+                DB::raw('COALESCE(current.kantor_regional_id, "0") as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
                 DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
@@ -1294,8 +1294,8 @@ class DashboardController extends Controller
                 DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
                 DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
             )
-            ->groupBy('current.kantor_regional_id')
-            ->orderBy('current.kantor_regional_id')
+            ->groupBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
+            ->orderBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
             ->get()
             ->map(function($stat) {
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
@@ -1461,7 +1461,7 @@ class DashboardController extends Controller
             })
             ->where('current.upload_date', $currentDate)
             ->select(
-                'current.kantor_regional_id',
+                DB::raw('COALESCE(current.kantor_regional_id, "0") as kantor_regional_id'),
                 DB::raw('COUNT(*) as total_instansi'),
                 DB::raw('AVG(previous.monev_skor_instansi) as skor_sebelumnya'),
                 DB::raw('AVG(current.monev_skor_instansi) as skor_sesudahnya'),
@@ -1470,8 +1470,8 @@ class DashboardController extends Controller
                 DB::raw('SUM(CASE WHEN current.monev_skor_instansi - previous.monev_skor_instansi = 0 THEN 1 ELSE 0 END) as stagnan'),
                 DB::raw('AVG(current.monev_skor_instansi - previous.monev_skor_instansi) as avg_perubahan')
             )
-            ->groupBy('current.kantor_regional_id')
-            ->orderBy('current.kantor_regional_id')
+            ->groupBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
+            ->orderBy(DB::raw('COALESCE(current.kantor_regional_id, "0")'))
             ->get()
             ->map(function($stat) {
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
