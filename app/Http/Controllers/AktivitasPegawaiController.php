@@ -7,6 +7,10 @@ use App\Models\Pegawai;
 use App\Models\Pic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class AktivitasPegawaiController extends Controller
 {
@@ -1533,5 +1537,783 @@ class AktivitasPegawaiController extends Controller
             ->orderBy('bulan_value')
             ->orderBy('kategori_aktivitas')
             ->get();
+    }
+
+    /**
+     * Export detail aktivitas pegawai with processed NIP and Instansi
+     */
+    public function exportDetailExcel(Request $request, $nip)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        // Get pegawai info
+        $pegawai = Pegawai::where('nip', $nip)->first();
+
+        if (!$pegawai) {
+            $logInfo = DB::table('log_aktivitas')
+                ->where('created_by_nip', $nip)
+                ->select('created_by_nama')
+                ->first();
+
+            $pegawai = (object) [
+                'nip' => $nip,
+                'nama' => $logInfo->created_by_nama ?? $nip,
+            ];
+        }
+
+        // Get aktivitas summary per kategori
+        $query = DB::table('log_aktivitas')
+            ->selectRaw($this->getCategoryCase() . ' as kategori_aktivitas, COUNT(*) as total_aktivitas')
+            ->where('created_by_nip', $nip);
+
+        if ($dateFrom) {
+            $query->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        $aktivitasSummary = $query->groupBy('kategori_aktivitas')
+            ->orderByDesc('total_aktivitas')
+            ->get();
+
+        // Get list NIP dan instansi yang diproses
+        // Extract NIP from details column (format: "... PNS NAME (NIP) ...")
+        $subquery = DB::table('log_aktivitas')
+            ->selectRaw('
+                CASE
+                    WHEN details LIKE "%(%)"
+                    THEN SUBSTRING_INDEX(SUBSTRING_INDEX(details, "(", -1), ")", 1)
+                    ELSE NULL
+                END as extracted_nip,
+                event_name,
+                inject_type,
+                details,
+                created_at_log
+            ')
+            ->where('created_by_nip', $nip)
+            ->whereNotNull('details');
+
+        if ($dateFrom) {
+            $subquery->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $subquery->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        $processedData = DB::table(DB::raw('(' . $subquery->toSql() . ') as extracted'))
+            ->mergeBindings($subquery)
+            ->join('dms_pns as dp', 'extracted.extracted_nip', '=', 'dp.nip')
+            ->select(
+                'dp.nip',
+                'dp.nama',
+                'dp.instansi_nama',
+                DB::raw('CASE
+                    WHEN extracted.inject_type = "mapping"
+                        THEN "Mapping Dokumen"
+                    WHEN extracted.inject_type = "unggah"
+                        THEN "Inject Dokumen"
+                    WHEN extracted.event_name = "unggah_dokumen"
+                        THEN "Unggah Dokumen"
+                    WHEN extracted.event_name = "mapping_dokumen" AND extracted.inject_type IS NULL
+                        THEN "Mapping Dokumen"
+                    ELSE "Lainnya"
+                END as kategori_aktivitas'),
+                DB::raw('COUNT(*) as jumlah_aktivitas')
+            )
+            ->groupBy('dp.nip', 'dp.nama', 'dp.instansi_nama', 'kategori_aktivitas')
+            ->orderBy('dp.instansi_nama')
+            ->orderBy('dp.nama')
+            ->get();
+
+        // Get count of unidentified activities
+        $unidentifiedCount = DB::table('log_aktivitas')
+            ->where('created_by_nip', $nip)
+            ->where(function($q) {
+                $q->whereNull('details')
+                  ->orWhereRaw('details NOT LIKE "%(%)"');
+            });
+
+        if ($dateFrom) {
+            $unidentifiedCount->where('created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $unidentifiedCount->where('created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        $unidentifiedCount = $unidentifiedCount->count();
+
+        // Create Excel
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->removeSheetByIndex(0);
+
+        // Sheet 1: Ringkasan Aktivitas
+        $this->createRingkasanSheet($spreadsheet, $pegawai, $aktivitasSummary, $dateFrom, $dateTo, $unidentifiedCount);
+
+        // Sheet 2: Detail NIP yang Diproses
+        $this->createDetailNIPSheet($spreadsheet, $processedData, $unidentifiedCount);
+
+        // Set active sheet
+        $spreadsheet->setActiveSheetIndex(0);
+
+        // Save and download
+        $filename = 'Detail_Aktivitas_' . $nip . '_' . date('YmdHis') . '.xlsx';
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Create ringkasan aktivitas sheet
+     */
+    private function createRingkasanSheet($spreadsheet, $pegawai, $aktivitasSummary, $dateFrom, $dateTo, $unidentifiedCount = 0)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $sheet->setTitle('Ringkasan Aktivitas');
+
+        $row = 1;
+
+        // Header Info
+        $sheet->setCellValue('A' . $row, 'DETAIL AKTIVITAS PEGAWAI');
+        $sheet->mergeCells('A' . $row . ':D' . $row);
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
+        $row += 2;
+
+        // Pegawai Info
+        $sheet->setCellValue('A' . $row, 'NIP');
+        $sheet->setCellValue('B' . $row, $pegawai->nip);
+        $row++;
+        $sheet->setCellValue('A' . $row, 'Nama');
+        $sheet->setCellValue('B' . $row, $pegawai->nama);
+        $row++;
+
+        // Period
+        if ($dateFrom || $dateTo) {
+            $sheet->setCellValue('A' . $row, 'Periode');
+            $periodText = ($dateFrom ? date('d/m/Y', strtotime($dateFrom)) : 'Awal') . ' - ' .
+                         ($dateTo ? date('d/m/Y', strtotime($dateTo)) : 'Akhir');
+            $sheet->setCellValue('B' . $row, $periodText);
+            $row++;
+        }
+
+        $row += 2;
+
+        // Table Header
+        $sheet->setCellValue('A' . $row, 'No');
+        $sheet->setCellValue('B' . $row, 'Jenis Aktivitas');
+        $sheet->setCellValue('C' . $row, 'Jumlah');
+        $sheet->setCellValue('D' . $row, 'Persentase');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ];
+        $sheet->getStyle('A' . $row . ':D' . $row)->applyFromArray($headerStyle);
+        $row++;
+
+        // Data
+        $no = 1;
+        $total = $aktivitasSummary->sum('total_aktivitas');
+
+        foreach ($aktivitasSummary as $item) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item->kategori_aktivitas);
+            $sheet->setCellValue('C' . $row, number_format($item->total_aktivitas));
+            $percentage = $total > 0 ? ($item->total_aktivitas / $total * 100) : 0;
+            $sheet->setCellValue('D' . $row, number_format($percentage, 1) . '%');
+            $row++;
+        }
+
+        // Total row
+        $sheet->setCellValue('A' . $row, '');
+        $sheet->setCellValue('B' . $row, 'TOTAL');
+        $sheet->setCellValue('C' . $row, number_format($total));
+        $sheet->setCellValue('D' . $row, '100%');
+        $sheet->getStyle('B' . $row . ':D' . $row)->getFont()->setBold(true);
+
+        // Auto-size columns
+        foreach (range('A', 'D') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+    }
+
+    /**
+     * Create detail NIP yang diproses sheet
+     */
+    private function createDetailNIPSheet($spreadsheet, $processedData, $unidentifiedCount = 0)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $sheet->setTitle('Detail NIP Diproses');
+
+        $row = 1;
+
+        // Header
+        $sheet->setCellValue('A' . $row, 'DETAIL NIP DAN INSTANSI YANG DIPROSES');
+        $sheet->mergeCells('A' . $row . ':E' . $row);
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
+        $row += 2;
+
+        // Table Header
+        $sheet->setCellValue('A' . $row, 'No');
+        $sheet->setCellValue('B' . $row, 'NIP');
+        $sheet->setCellValue('C' . $row, 'Nama PNS');
+        $sheet->setCellValue('D' . $row, 'Instansi');
+        $sheet->setCellValue('E' . $row, 'Jenis Aktivitas');
+        $sheet->setCellValue('F' . $row, 'Jumlah');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '70AD47']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ];
+        $sheet->getStyle('A' . $row . ':F' . $row)->applyFromArray($headerStyle);
+        $row++;
+
+        // Data
+        $no = 1;
+        $totalAktivitas = 0;
+
+        if ($processedData->count() > 0) {
+            foreach ($processedData as $item) {
+                $sheet->setCellValue('A' . $row, $no++);
+                $sheet->setCellValue('B' . $row, $item->nip);
+                $sheet->setCellValue('C' . $row, $item->nama);
+                $sheet->setCellValue('D' . $row, $item->instansi_nama);
+                $sheet->setCellValue('E' . $row, $item->kategori_aktivitas);
+                $sheet->setCellValue('F' . $row, number_format($item->jumlah_aktivitas));
+                $totalAktivitas += $item->jumlah_aktivitas;
+                $row++;
+            }
+
+            // Total row
+            $sheet->setCellValue('A' . $row, '');
+            $sheet->setCellValue('B' . $row, '');
+            $sheet->setCellValue('C' . $row, '');
+            $sheet->setCellValue('D' . $row, '');
+            $sheet->setCellValue('E' . $row, 'TOTAL');
+            $sheet->setCellValue('F' . $row, number_format($totalAktivitas));
+            $sheet->getStyle('E' . $row . ':F' . $row)->getFont()->setBold(true);
+        } else {
+            $sheet->setCellValue('A' . $row, 'Tidak ada data NIP yang diproses');
+            $sheet->mergeCells('A' . $row . ':F' . $row);
+            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'F') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+    }
+
+    /**
+     * Show efektivitas kerja page
+     */
+    public function efektivitasKerja()
+    {
+        return view('statistik.efektivitas-kerja');
+    }
+
+    /**
+     * Get efektivitas kerja data (mapping non-inject / jam kerja ASN)
+     * Jam kerja: Senin-Kamis = 7.5 jam, Jumat = 7.5 jam
+     */
+    public function getEfektivitasKerja(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        if (!$dateFrom || !$dateTo) {
+            return response()->json(['error' => 'Tanggal mulai dan akhir harus diisi'], 400);
+        }
+
+        // Hitung total hari kerja (exclude Sabtu & Minggu)
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5; // 7.5 jam per hari
+
+        // OPTIMIZED: Get both total mapping dan per pegawai dalam single query
+        // Join ke dms_pns untuk mendapatkan instansi_nama
+        $results = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COALESCE(dp.instansi_nama, "Tidak Diketahui") as instansi_nama'),
+                DB::raw('COUNT(*) as total_mapping')
+            )
+            ->where('la.event_name', 'mapping_dokumen')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'dp.instansi_nama', 'la.created_by_nama')
+            ->orderByDesc('total_mapping')
+            ->get();
+
+        // Calculate total dari sum (tanpa query tambahan)
+        $totalMapping = $results->sum('total_mapping');
+
+        // Map efektivitas per pegawai
+        $efektivitasPerPegawai = $results->map(function ($item) use ($totalWorkingHours) {
+            $item->efektivitas = $totalWorkingHours > 0
+                ? round($item->total_mapping / $totalWorkingHours, 2)
+                : 0;
+            return $item;
+        });
+
+        // Calculate overall efektivitas
+        $efektivitasTotal = $totalWorkingHours > 0
+            ? round($totalMapping / $totalWorkingHours, 2)
+            : 0;
+
+        return response()->json([
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+            'total_working_days' => $totalWorkingDays,
+            'total_working_hours' => $totalWorkingHours,
+            'total_mapping' => $totalMapping,
+            'efektivitas_total' => $efektivitasTotal,
+            'efektivitas_per_pegawai' => $efektivitasPerPegawai,
+        ]);
+    }
+
+    /**
+     * Calculate working days (exclude weekends)
+     */
+    private function calculateWorkingDays($dateFrom, $dateTo)
+    {
+        $start = new \DateTime($dateFrom);
+        $end = new \DateTime($dateTo);
+        $end->modify('+1 day'); // Include end date
+
+        $interval = new \DateInterval('P1D');
+        $dateRange = new \DatePeriod($start, $interval, $end);
+
+        $workingDays = 0;
+        foreach ($dateRange as $date) {
+            $dayOfWeek = $date->format('N'); // 1 (Mon) to 7 (Sun)
+            if ($dayOfWeek < 6) { // Monday to Friday
+                $workingDays++;
+            }
+        }
+
+        return $workingDays;
+    }
+
+    /**
+     * Export efektivitas kerja to Excel
+     */
+    public function exportEfektivitasExcel(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        $groupBy = $request->get('group_by', 'daily'); // daily, weekly, monthly
+
+        if (!$dateFrom || !$dateTo) {
+            return back()->with('error', 'Tanggal mulai dan akhir harus diisi');
+        }
+
+        $spreadsheet = new Spreadsheet();
+
+        // Sheet 1: Ringkasan Total
+        $this->createEfektivitasSummarySheet($spreadsheet, $dateFrom, $dateTo);
+
+        // Sheet 2: List Pegawai (Ranking)
+        $this->createEfektivitasPerPegawaiSheet($spreadsheet, $dateFrom, $dateTo);
+
+        // Sheet 3: Per Minggu (7 hari)
+        $this->createEfektivitasPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, 'weekly');
+
+        // Sheet 4: Per Hari
+        $this->createEfektivitasPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, 'daily');
+
+        $filename = 'Efektivitas_Kerja_' . date('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    /**
+     * Export efektivitas kerja to PDF
+     */
+    public function exportEfektivitasPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        $groupBy = $request->get('group_by', 'daily');
+
+        if (!$dateFrom || !$dateTo) {
+            return response()->json(['error' => 'Tanggal mulai dan akhir harus diisi'], 400);
+        }
+
+        // Get data
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        // Get total mapping (semua pegawai)
+        $totalMapping = DB::table('log_aktivitas')
+            ->where('event_name', 'mapping_dokumen')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->count();
+
+        $efektivitasTotal = $totalWorkingHours > 0
+            ? round($totalMapping / $totalWorkingHours, 2)
+            : 0;
+
+        // Get per pegawai data (ranking)
+        $efektivitasPerPegawai = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COUNT(*) as total_mapping')
+            )
+            ->where('la.event_name', 'mapping_dokumen')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'la.created_by_nama')
+            ->orderByDesc('total_mapping')
+            ->get()
+            ->map(function ($item) use ($totalWorkingHours) {
+                return [
+                    'nip' => $item->nip,
+                    'nama' => $item->nama,
+                    'total_mapping' => $item->total_mapping,
+                    'efektivitas' => $totalWorkingHours > 0 ? round($item->total_mapping / $totalWorkingHours, 2) : 0,
+                ];
+            })
+            ->toArray();
+
+        // Get per periode data (per minggu dan per hari)
+        $efektivitasPerMinggu = $this->getEfektivitasPerPeriode($dateFrom, $dateTo, 'weekly');
+        $efektivitasPerHari = $this->getEfektivitasPerPeriode($dateFrom, $dateTo, 'daily');
+
+        $data = [
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+            'total_working_days' => $totalWorkingDays,
+            'total_working_hours' => $totalWorkingHours,
+            'total_mapping' => $totalMapping,
+            'efektivitas_total' => $efektivitasTotal,
+            'efektivitas_per_pegawai' => $efektivitasPerPegawai,
+            'efektivitas_per_minggu' => $efektivitasPerMinggu,
+            'efektivitas_per_hari' => $efektivitasPerHari,
+        ];
+
+        $pdf = \PDF::loadView('pdf.efektivitas-kerja', $data);
+        $pdf->setPaper('a4', 'landscape');
+
+        $filename = 'Efektivitas_Kerja_' . date('Ymd_His') . '.pdf';
+        return $pdf->stream($filename);
+    }
+
+    private function createEfektivitasSummarySheet($spreadsheet, $dateFrom, $dateTo)
+    {
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Ringkasan Total');
+
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        $totalMapping = DB::table('log_aktivitas')
+            ->where('event_name', 'mapping_dokumen')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->count();
+
+        $efektivitasTotal = $totalWorkingHours > 0
+            ? round($totalMapping / $totalWorkingHours, 2)
+            : 0;
+
+        $row = 1;
+        $sheet->setCellValue('A' . $row, 'LAPORAN EFEKTIVITAS KERJA MAPPING NON-INJECT');
+        $sheet->mergeCells('A' . $row . ':B' . $row);
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
+        $row += 2;
+
+        $sheet->setCellValue('A' . $row, 'Periode');
+        $sheet->setCellValue('B' . $row, date('d/m/Y', strtotime($dateFrom)) . ' - ' . date('d/m/Y', strtotime($dateTo)));
+        $row++;
+
+        $sheet->setCellValue('A' . $row, 'Total Hari Kerja');
+        $sheet->setCellValue('B' . $row, $totalWorkingDays . ' hari');
+        $row++;
+
+        $sheet->setCellValue('A' . $row, 'Total Jam Kerja');
+        $sheet->setCellValue('B' . $row, $totalWorkingHours . ' jam (7.5 jam/hari)');
+        $row++;
+
+        $sheet->setCellValue('A' . $row, 'Total Mapping Non-Inject');
+        $sheet->setCellValue('B' . $row, number_format($totalMapping, 0, ',', '.') . ' dokumen');
+        $row++;
+
+        $sheet->setCellValue('A' . $row, 'Efektivitas Total');
+        $sheet->setCellValue('B' . $row, $efektivitasTotal . ' dok/jam');
+        $sheet->getStyle('A' . $row . ':B' . $row)->getFont()->setBold(true);
+        $sheet->getStyle('A' . $row . ':B' . $row)->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('FFEB3B');
+
+        $sheet->getColumnDimension('A')->setAutoSize(true);
+        $sheet->getColumnDimension('B')->setAutoSize(true);
+    }
+
+    private function createEfektivitasPerPegawaiSheet($spreadsheet, $dateFrom, $dateTo)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $sheet->setTitle('Ranking Pegawai');
+
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        $efektivitasPerPegawai = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COALESCE(dp.instansi_nama, "Tidak Diketahui") as instansi_nama'),
+                DB::raw('COUNT(*) as total_mapping')
+            )
+            ->where('la.event_name', 'mapping_dokumen')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'dp.instansi_nama', 'la.created_by_nama')
+            ->orderByDesc('total_mapping')
+            ->get()
+            ->map(function ($item) use ($totalWorkingHours) {
+                $item->efektivitas = $totalWorkingHours > 0
+                    ? round($item->total_mapping / $totalWorkingHours, 2)
+                    : 0;
+                return $item;
+            });
+
+        $row = 1;
+        $sheet->setCellValue('A' . $row, 'No');
+        $sheet->setCellValue('B' . $row, 'NIP');
+        $sheet->setCellValue('C' . $row, 'Nama');
+        $sheet->setCellValue('D' . $row, 'Total Mapping');
+        $sheet->setCellValue('E' . $row, 'Efektivitas (dok/jam)');
+
+        $sheet->getStyle('A' . $row . ':E' . $row)->getFont()->setBold(true);
+        $sheet->getStyle('A' . $row . ':E' . $row)->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('4CAF50');
+
+        $row++;
+        $no = 1;
+        foreach ($efektivitasPerPegawai as $item) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item->nip);
+            $sheet->setCellValue('C' . $row, $item->nama);
+            $sheet->setCellValue('D' . $row, $item->total_mapping);
+            $sheet->setCellValue('E' . $row, $item->efektivitas);
+
+            // Format numbers in Excel (not as string)
+            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0');
+
+            $row++;
+        }
+
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+    }
+
+    private function createEfektivitasPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, $groupBy)
+    {
+        $sheet = $spreadsheet->createSheet();
+
+        // Set title based on groupBy
+        if ($groupBy === 'daily') {
+            $sheet->setTitle('Per Hari');
+        } elseif ($groupBy === 'weekly') {
+            $sheet->setTitle('Per Minggu');
+        } else {
+            $sheet->setTitle('Per Bulan');
+        }
+
+        $efektivitasPerPeriode = $this->getEfektivitasPerPeriode($dateFrom, $dateTo, $groupBy);
+
+        $row = 1;
+        $sheet->setCellValue('A' . $row, 'Periode');
+        $sheet->setCellValue('B' . $row, 'Hari Kerja');
+        $sheet->setCellValue('C' . $row, 'Jam Kerja');
+        $sheet->setCellValue('D' . $row, 'Total Mapping');
+        $sheet->setCellValue('E' . $row, 'Efektivitas (dok/jam)');
+
+        $sheet->getStyle('A' . $row . ':E' . $row)->getFont()->setBold(true);
+        $sheet->getStyle('A' . $row . ':E' . $row)->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('2196F3');
+
+        $row++;
+        foreach ($efektivitasPerPeriode as $item) {
+            $sheet->setCellValue('A' . $row, $item['periode']);
+            $sheet->setCellValue('B' . $row, $item['working_days']);
+            $sheet->setCellValue('C' . $row, $item['working_hours']);
+            $sheet->setCellValue('D' . $row, $item['total_mapping']);
+            $sheet->setCellValue('E' . $row, $item['efektivitas']);
+
+            // Format numbers in Excel (not as string)
+            $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('#,##0.0');
+            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0');
+
+            $row++;
+        }
+
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+    }
+
+    private function getEfektivitasPerPeriode($dateFrom, $dateTo, $groupBy)
+    {
+        $result = [];
+
+        if ($groupBy === 'daily') {
+            $start = new \DateTime($dateFrom);
+            $end = new \DateTime($dateTo);
+            $end->modify('+1 day');
+
+            $interval = new \DateInterval('P1D');
+            $dateRange = new \DatePeriod($start, $interval, $end);
+
+            foreach ($dateRange as $date) {
+                $dayOfWeek = $date->format('N');
+                if ($dayOfWeek >= 6) continue; // Skip weekends
+
+                $dateStr = $date->format('Y-m-d');
+                $workingHours = 7.5;
+
+                // Hitung total mapping
+                $totalMapping = DB::table('log_aktivitas')
+                    ->where('event_name', 'mapping_dokumen')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [$dateStr . ' 00:00:00', $dateStr . ' 23:59:59'])
+                    ->count();
+
+                // Ambil day_name dari database (ambil 1 record saja untuk menghemat proses)
+                $dayNameRecord = DB::table('log_aktivitas')
+                    ->where('event_name', 'mapping_dokumen')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [$dateStr . ' 00:00:00', $dateStr . ' 23:59:59'])
+                    ->whereNotNull('day_name')
+                    ->value('day_name');
+
+                $dayName = $dayNameRecord ?? $this->getDayNameIndo($dayOfWeek);
+
+                $result[] = [
+                    'periode' => $date->format('d/m/Y') . ' (' . $dayName . ')',
+                    'working_days' => 1,
+                    'working_hours' => $workingHours,
+                    'total_mapping' => $totalMapping,
+                    'efektivitas' => round($totalMapping / $workingHours, 2),
+                ];
+            }
+        } elseif ($groupBy === 'weekly') {
+            $start = new \DateTime($dateFrom);
+            $end = new \DateTime($dateTo);
+
+            // Mulai dari tanggal yang dipilih user (tidak mundur ke Senin)
+            $weekStart = clone $start;
+
+            while ($weekStart <= $end) {
+                $weekEnd = clone $weekStart;
+                $weekEnd->modify('+6 days');
+
+                // Jangan melewati tanggal akhir yang dipilih user
+                if ($weekEnd > $end) {
+                    $weekEnd = clone $end;
+                }
+
+                $workingDays = $this->calculateWorkingDays($weekStart->format('Y-m-d'), $weekEnd->format('Y-m-d'));
+                $workingHours = $workingDays * 7.5;
+
+                $totalMapping = DB::table('log_aktivitas')
+                    ->where('event_name', 'mapping_dokumen')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [
+                        $weekStart->format('Y-m-d') . ' 00:00:00',
+                        $weekEnd->format('Y-m-d') . ' 23:59:59'
+                    ])
+                    ->count();
+
+                $result[] = [
+                    'periode' => 'Minggu ' . $weekStart->format('d/m/Y') . ' - ' . $weekEnd->format('d/m/Y'),
+                    'working_days' => $workingDays,
+                    'working_hours' => $workingHours,
+                    'total_mapping' => $totalMapping,
+                    'efektivitas' => $workingHours > 0 ? round($totalMapping / $workingHours, 2) : 0,
+                ];
+
+                $weekStart->modify('+7 days');
+            }
+        } elseif ($groupBy === 'monthly') {
+            $start = new \DateTime($dateFrom);
+            $end = new \DateTime($dateTo);
+
+            $monthStart = clone $start;
+            $monthStart->modify('first day of this month');
+
+            while ($monthStart <= $end) {
+                $monthEnd = clone $monthStart;
+                $monthEnd->modify('last day of this month');
+
+                if ($monthEnd > $end) {
+                    $monthEnd = clone $end;
+                }
+
+                $workingDays = $this->calculateWorkingDays($monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d'));
+                $workingHours = $workingDays * 7.5;
+
+                $totalMapping = DB::table('log_aktivitas')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [
+                        $monthStart->format('Y-m-d') . ' 00:00:00',
+                        $monthEnd->format('Y-m-d') . ' 23:59:59'
+                    ])
+                    ->count();
+
+                $result[] = [
+                    'periode' => $monthStart->format('F Y'),
+                    'working_days' => $workingDays,
+                    'working_hours' => $workingHours,
+                    'total_mapping' => $totalMapping,
+                    'efektivitas' => $workingHours > 0 ? round($totalMapping / $workingHours, 2) : 0,
+                ];
+
+                $monthStart->modify('first day of next month');
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get Indonesian day name from day number (1-7)
+     */
+    private function getDayNameIndo($dayNumber)
+    {
+        $days = [
+            1 => 'Senin',
+            2 => 'Selasa',
+            3 => 'Rabu',
+            4 => 'Kamis',
+            5 => 'Jumat',
+            6 => 'Sabtu',
+            7 => 'Minggu'
+        ];
+
+        return $days[$dayNumber] ?? 'Unknown';
     }
 }

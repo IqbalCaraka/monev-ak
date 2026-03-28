@@ -47,6 +47,17 @@ Route::prefix('statistik')->group(function () {
     Route::post('aktivitas-pegawai/upload', [AktivitasPegawaiController::class, 'uploadCsv'])->name('aktivitas-pegawai.upload');
     Route::get('aktivitas-pegawai/{nip}/export-excel', [AktivitasPegawaiController::class, 'exportPegawaiExcel'])->name('aktivitas-pegawai.export-pegawai-excel');
     Route::get('aktivitas-pegawai/{nip}/export-pdf', [AktivitasPegawaiController::class, 'exportPegawaiPdf'])->name('aktivitas-pegawai.export-pegawai-pdf');
+    Route::get('aktivitas-pegawai/{nip}/export-detail-excel', [AktivitasPegawaiController::class, 'exportDetailExcel'])->name('aktivitas-pegawai.export-detail-excel');
+    Route::get('efektivitas-kerja', [AktivitasPegawaiController::class, 'efektivitasKerja'])->name('efektivitas-kerja.index');
+    Route::get('efektivitas-kerja/data', [AktivitasPegawaiController::class, 'getEfektivitasKerja'])->name('efektivitas-kerja.data');
+    Route::get('efektivitas-kerja/export-excel', [AktivitasPegawaiController::class, 'exportEfektivitasExcel'])->name('efektivitas-kerja.export-excel');
+    Route::get('efektivitas-kerja/export-pdf', [AktivitasPegawaiController::class, 'exportEfektivitasPdf'])->name('efektivitas-kerja.export-pdf');
+
+    // Efektivitas Approval routes
+    Route::get('efektivitas-approval', [AktivitasPegawaiController::class, 'efektivitasApproval'])->name('efektivitas-approval.index');
+    Route::get('efektivitas-approval/data', [AktivitasPegawaiController::class, 'getEfektivitasApproval'])->name('efektivitas-approval.data');
+    Route::get('efektivitas-approval/export-excel', [AktivitasPegawaiController::class, 'exportEfektivitasApprovalExcel'])->name('efektivitas-approval.export-excel');
+    Route::get('efektivitas-approval/export-pdf', [AktivitasPegawaiController::class, 'exportEfektivitasApprovalPdf'])->name('efektivitas-approval.export-pdf');
     Route::get('aktivitas-pegawai/{nip}', [AktivitasPegawaiController::class, 'show'])->name('aktivitas-pegawai.show');
     Route::get('aktivitas-pegawai/{nip}/{kategori}', [AktivitasPegawaiController::class, 'detailKategori'])->name('aktivitas-pegawai.detail-kategori');
 

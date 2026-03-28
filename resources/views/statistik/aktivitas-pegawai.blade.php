@@ -163,6 +163,21 @@
             </div>
         </div>
     </div>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card bg-gradient-info text-white">
+            <div class="card-body">
+                <p class="card-title text-md-center text-xl-left">Efektivitas Kerja</p>
+                <div class="d-flex flex-wrap justify-content-between justify-content-md-center justify-content-xl-between align-items-center">
+                    <h3 class="mb-0 mb-md-2 mb-xl-0 order-md-1 order-xl-0"><i class="mdi mdi-chart-line"></i></h3>
+                    <i class="mdi mdi-calculator icon-md mb-0 mb-md-3 mb-xl-0"></i>
+                </div>
+                <a href="{{ route('efektivitas-kerja.index') }}" class="btn btn-sm btn-light mt-2 w-100">
+                    <i class="mdi mdi-chart-line me-1"></i> Hitung Efektivitas
+                </a>
+                <p class="small mt-2 mb-0 opacity-75">Mapping Non-Inject / Jam Kerja</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Top 5 Kategori & Statistik PIC DMS -->
@@ -1044,15 +1059,32 @@ function loadMappingDokumen(page = 1) {
                 document.getElementById('mappingTotalPNS').textContent = totalPNS.toLocaleString();
                 summaryContainer.style.display = 'block';
 
-                // Pagination (simple version for now)
+                // Pagination with navigation buttons
                 if (result.pagination.last_page > 1) {
-                    paginationContainer.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="text-muted small">
-                                Menampilkan ${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total} pegawai
-                            </div>
-                        </div>
-                    `;
+                    let paginationHTML = '<nav class="mt-3"><ul class="pagination pagination-sm mb-0">';
+
+                    // Previous button
+                    if (result.pagination.current_page > 1) {
+                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadMappingDokumen(${result.pagination.current_page - 1}); return false;">«</a></li>`;
+                    }
+
+                    // Page numbers
+                    let startPage = Math.max(1, result.pagination.current_page - 2);
+                    let endPage = Math.min(result.pagination.last_page, startPage + 4);
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        const active = i === result.pagination.current_page ? 'active' : '';
+                        paginationHTML += `<li class="page-item ${active}"><a class="page-link" href="#" onclick="loadMappingDokumen(${i}); return false;">${i}</a></li>`;
+                    }
+
+                    // Next button
+                    if (result.pagination.current_page < result.pagination.last_page) {
+                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadMappingDokumen(${result.pagination.current_page + 1}); return false;">»</a></li>`;
+                    }
+
+                    paginationHTML += '</ul></nav>';
+                    paginationHTML += `<div class="text-muted small mt-2">Menampilkan ${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total} pegawai</div>`;
+                    paginationContainer.innerHTML = paginationHTML;
                 }
             } else {
                 tableBody.innerHTML = `
@@ -1129,15 +1161,32 @@ function loadInjectDokumen(page = 1) {
                 document.getElementById('injectTotalPNS').textContent = totalPNS.toLocaleString();
                 summaryContainer.style.display = 'block';
 
-                // Pagination (simple version for now)
+                // Pagination with navigation buttons
                 if (result.pagination.last_page > 1) {
-                    paginationContainer.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="text-muted small">
-                                Menampilkan ${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total} pegawai
-                            </div>
-                        </div>
-                    `;
+                    let paginationHTML = '<nav class="mt-3"><ul class="pagination pagination-sm mb-0">';
+
+                    // Previous button
+                    if (result.pagination.current_page > 1) {
+                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadInjectDokumen(${result.pagination.current_page - 1}); return false;">«</a></li>`;
+                    }
+
+                    // Page numbers
+                    let startPage = Math.max(1, result.pagination.current_page - 2);
+                    let endPage = Math.min(result.pagination.last_page, startPage + 4);
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        const active = i === result.pagination.current_page ? 'active' : '';
+                        paginationHTML += `<li class="page-item ${active}"><a class="page-link" href="#" onclick="loadInjectDokumen(${i}); return false;">${i}</a></li>`;
+                    }
+
+                    // Next button
+                    if (result.pagination.current_page < result.pagination.last_page) {
+                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadInjectDokumen(${result.pagination.current_page + 1}); return false;">»</a></li>`;
+                    }
+
+                    paginationHTML += '</ul></nav>';
+                    paginationHTML += `<div class="text-muted small mt-2">Menampilkan ${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total} pegawai</div>`;
+                    paginationContainer.innerHTML = paginationHTML;
                 }
             } else {
                 tableBody.innerHTML = `
@@ -1214,15 +1263,31 @@ function loadPicStats(page = 1) {
                     paginationInfo.innerHTML = `${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total}`;
                 }
 
-                // Pagination (simple version for now)
+                // Pagination with navigation buttons
                 if (result.pagination.last_page > 1) {
-                    paginationContainer.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="text-muted small">
-                                Halaman ${result.pagination.current_page} dari ${result.pagination.last_page}
-                            </div>
-                        </div>
-                    `;
+                    let paginationHTML = '<nav><ul class="pagination pagination-sm mb-0">';
+
+                    // Previous button
+                    if (result.pagination.current_page > 1) {
+                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadPicStats(${result.pagination.current_page - 1}); return false;">«</a></li>`;
+                    }
+
+                    // Page numbers
+                    let startPage = Math.max(1, result.pagination.current_page - 2);
+                    let endPage = Math.min(result.pagination.last_page, startPage + 4);
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        const active = i === result.pagination.current_page ? 'active' : '';
+                        paginationHTML += `<li class="page-item ${active}"><a class="page-link" href="#" onclick="loadPicStats(${i}); return false;">${i}</a></li>`;
+                    }
+
+                    // Next button
+                    if (result.pagination.current_page < result.pagination.last_page) {
+                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadPicStats(${result.pagination.current_page + 1}); return false;">»</a></li>`;
+                    }
+
+                    paginationHTML += '</ul></nav>';
+                    paginationContainer.innerHTML = paginationHTML;
                 }
             } else {
                 tableBody.innerHTML = `
@@ -1245,6 +1310,7 @@ function loadPicStats(page = 1) {
             `;
         });
 }
+
 </script>
 
 @endsection
