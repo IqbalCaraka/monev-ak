@@ -102,10 +102,21 @@ class ProcessCsvToExcel implements ShouldQueue
     private function parseCsv()
     {
         $fullPath = storage_path('app/' . $this->csvPath);
+
+        // Check if file exists
+        if (!file_exists($fullPath)) {
+            throw new \Exception("File CSV tidak ditemukan: {$fullPath}. Path yang dicari: " . $this->csvPath);
+        }
+
+        // Check if file is readable
+        if (!is_readable($fullPath)) {
+            throw new \Exception("File CSV tidak dapat dibaca: {$fullPath}. Check file permissions.");
+        }
+
         $handle = fopen($fullPath, 'r');
 
         if ($handle === false) {
-            throw new \Exception('Gagal membuka file CSV');
+            throw new \Exception("Gagal membuka file CSV: {$fullPath}");
         }
 
         // Detect delimiter
