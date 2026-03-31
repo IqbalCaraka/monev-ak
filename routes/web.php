@@ -80,8 +80,11 @@ Route::prefix('skor-arsip')->group(function () {
     Route::post('/process', [PerhitunganSkorArsipController::class, 'process'])->name('skor-arsip.process');
 });
 
-// Ubah Format - CSV to Excel converter
+// Ubah Format - CSV to Excel converter with Queue Processing
 Route::post('/ubah-format/process', [\App\Http\Controllers\UbahFormatController::class, 'processUpload'])->name('ubah-format.process');
+Route::get('/ubah-format/status/{jobId}', [\App\Http\Controllers\UbahFormatController::class, 'showStatus'])->name('ubah-format.status');
+Route::get('/ubah-format/check-status/{jobId}', [\App\Http\Controllers\UbahFormatController::class, 'checkStatus'])->name('ubah-format.check-status');
+Route::get('/ubah-format/download/{filename}', [\App\Http\Controllers\UbahFormatController::class, 'download'])->name('ubah-format.download');
 
 // DMS Routes
 Route::prefix('dms')->group(function () {

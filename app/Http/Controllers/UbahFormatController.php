@@ -44,7 +44,7 @@ class UbahFormatController extends Controller
     ];
 
     /**
-     * Process uploaded CSV and generate Excel
+     * Process uploaded CSV and generate Excel (using Queue Job)
      */
     public function processUpload(Request $request)
     {
@@ -52,94 +52,80 @@ class UbahFormatController extends Controller
             'csv_file' => 'required|file|mimes:csv,txt|max:512000', // Max 500MB
         ]);
 
-        // Set unlimited execution time and increase memory for large files
-        set_time_limit(0);
-        ini_set('memory_limit', '1024M');
-
         try {
             $file = $request->file('csv_file');
-            $handle = fopen($file->getPathname(), 'r');
 
-            if ($handle === false) {
-                return back()->with('error', 'Gagal membuka file CSV');
-            }
+            // Store CSV file temporarily
+            $originalFilename = $file->getClientOriginalName();
+            $csvPath = $file->store('csv_uploads');
 
-            // Detect delimiter by reading first line
-            $firstLine = fgets($handle);
-            rewind($handle);
+            // Create job record in database
+            $jobId = \DB::table('csv_processing_jobs')->insertGetId([
+                'user_id' => auth()->id() ?? null,
+                'csv_filename' => $originalFilename,
+                'csv_path' => $csvPath,
+                'status' => 'pending',
+                'message' => 'Menunggu diproses...',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-            // Count occurrences of common delimiters
-            $commaCount = substr_count($firstLine, ',');
-            $semicolonCount = substr_count($firstLine, ';');
-            $delimiter = ($semicolonCount > $commaCount) ? ';' : ',';
+            // Dispatch job to queue
+            \App\Jobs\ProcessCsvToExcel::dispatch($csvPath, auth()->id() ?? null, $jobId);
 
-            // Skip header - use detected delimiter
-            $header = fgetcsv($handle, 0, $delimiter);
-
-            // Find column index for status_arsip, status_cpns_pns, and skor_arsip_2026
-            $statusArsipIndex = array_search('status_arsip', $header);
-            if ($statusArsipIndex === false) {
-                return back()->with('error', 'Kolom "status_arsip" tidak ditemukan di CSV');
-            }
-
-            $statusCpnsPnsIndex = array_search('status_cpns_pns', $header);
-            $skorArsipIndex = array_search('Nilai Arsip 2026', $header);
-
-            $data = [];
-            while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
-                if (count($row) < $statusArsipIndex + 1) continue;
-
-                $nip = $row[0] ?? '';
-                $nama = $row[1] ?? '';
-                $statusArsip = $row[$statusArsipIndex] ?? '';
-                $statusCpnsPns = $statusCpnsPnsIndex !== false ? ($row[$statusCpnsPnsIndex] ?? '') : '';
-                $skorArsip = $skorArsipIndex !== false ? ($row[$skorArsipIndex] ?? '') : '';
-
-                if (empty($nip) || empty($statusArsip)) continue;
-
-                // Parse JSON
-                $statusData = json_decode($statusArsip, true);
-                if (!$statusData) continue;
-
-                // Tentukan kategori kelengkapan berdasarkan skor
-                $kategoriKelengkapan = $this->getKategoriKelengkapan($skorArsip);
-
-                $data[] = [
-                    'nip' => $nip,
-                    'nama' => $nama,
-                    'status_cpns_pns' => $statusCpnsPns,
-                    'skor_arsip_2026' => $skorArsip,
-                    'kategori_kelengkapan' => $kategoriKelengkapan,
-                    'status_arsip' => $statusData,
-                ];
-            }
-
-            fclose($handle);
-
-            if (empty($data)) {
-                return back()->with('error', 'Tidak ada data yang valid untuk diproses');
-            }
-
-            // Generate Excel
-            $excelPath = $this->generateExcel($data);
-
-            // Store path in session for download
-            $filename = basename($excelPath);
-            session(['excel_download' => $filename]);
-
-            // Copy to public folder for download
-            $publicPath = public_path('temp/' . $filename);
-            if (!file_exists(public_path('temp'))) {
-                mkdir(public_path('temp'), 0755, true);
-            }
-            copy($excelPath, $publicPath);
-            unlink($excelPath);
-
-            return back()->with('success', 'Excel berhasil di-generate! Download akan dimulai otomatis...');
+            // Redirect to status page
+            return redirect()->route('ubah-format.status', ['jobId' => $jobId])
+                ->with('success', 'File berhasil diunggah! Proses konversi dimulai di background...');
 
         } catch (\Exception $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Show processing status page
+     */
+    public function showStatus($jobId)
+    {
+        $job = \DB::table('csv_processing_jobs')->where('id', $jobId)->first();
+
+        if (!$job) {
+            return redirect()->route('ubah-format.index')->with('error', 'Job tidak ditemukan');
+        }
+
+        return view('ubah-format.status', compact('job'));
+    }
+
+    /**
+     * Check job status (AJAX)
+     */
+    public function checkStatus($jobId)
+    {
+        $job = \DB::table('csv_processing_jobs')->where('id', $jobId)->first();
+
+        if (!$job) {
+            return response()->json(['error' => 'Job tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'status' => $job->status,
+            'message' => $job->message,
+            'output_file' => $job->output_file,
+        ]);
+    }
+
+    /**
+     * Download generated Excel file
+     */
+    public function download($filename)
+    {
+        $filePath = public_path('temp/' . $filename);
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File tidak ditemukan');
+        }
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 
     /**

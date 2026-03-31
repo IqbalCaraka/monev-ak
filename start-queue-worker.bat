@@ -1,6 +1,14 @@
 @echo off
-cd /d C:\laragon\www\monev_dit_ak
-:loop
-php artisan queue:work --sleep=3 --tries=3 --max-time=7200 --timeout=7200 --memory=2048
-timeout /t 5 /nobreak
-goto loop
+echo ========================================
+echo   Laravel Queue Worker - Monev DIT AK
+echo ========================================
+echo.
+echo Starting queue worker...
+echo Press Ctrl+C to stop
+echo.
+echo IMPORTANT: Restart this worker after code changes!
+echo.
+
+php artisan queue:work --tries=1 --timeout=3600 --verbose
+
+pause
