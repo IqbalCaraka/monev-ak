@@ -101,11 +101,12 @@ class ProcessCsvToExcel implements ShouldQueue
      */
     private function parseCsv()
     {
-        $fullPath = storage_path('app/' . $this->csvPath);
+        // Use base_path() to get correct project root, then append storage path
+        $fullPath = base_path('storage/app/' . $this->csvPath);
 
         // Check if file exists
         if (!file_exists($fullPath)) {
-            throw new \Exception("File CSV tidak ditemukan: {$fullPath}. Path yang dicari: " . $this->csvPath);
+            throw new \Exception("File CSV tidak ditemukan: {$fullPath}. Path yang dicari: " . $this->csvPath . ". Base path: " . base_path());
         }
 
         // Check if file is readable
@@ -202,10 +203,10 @@ class ProcessCsvToExcel implements ShouldQueue
 
         // Save to storage
         $filename = 'Kelengkapan_Arsip_' . date('YmdHis') . '.xlsx';
-        $tempPath = storage_path('app/temp_excel/' . $filename);
+        $tempPath = base_path('storage/app/temp_excel/' . $filename);
 
-        if (!file_exists(storage_path('app/temp_excel'))) {
-            mkdir(storage_path('app/temp_excel'), 0755, true);
+        if (!file_exists(base_path('storage/app/temp_excel'))) {
+            mkdir(base_path('storage/app/temp_excel'), 0755, true);
         }
 
         $writer = new Xlsx($spreadsheet);
