@@ -52,6 +52,10 @@ class UbahFormatController extends Controller
             'csv_file' => 'required|file|mimes:csv,txt|max:512000', // Max 500MB
         ]);
 
+        // Set unlimited execution time and increase memory for large files
+        set_time_limit(0);
+        ini_set('memory_limit', '1024M');
+
         try {
             $file = $request->file('csv_file');
             $handle = fopen($file->getPathname(), 'r');

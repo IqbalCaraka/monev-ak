@@ -201,7 +201,7 @@
                                            name="csv_file"
                                            accept=".csv,.txt"
                                            required>
-                                    <small class="text-muted">Format: CSV, Max: 500MB</small>
+                                    <small class="text-muted">Format: CSV, Max: 500MB. <strong>Proses file besar (>10MB) membutuhkan waktu beberapa menit.</strong></small>
                                 </div>
 
                                 <div id="filePreviewUbah" class="mb-4" style="display: none;">
@@ -220,9 +220,12 @@
                                 </div>
 
                                 <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-success">
+                                    <button type="submit" class="btn btn-success" id="btnGenerateExcel">
                                         <i class="mdi mdi-file-excel"></i> Generate Excel
                                     </button>
+                                </div>
+                                <div class="alert alert-warning mt-3" style="display: none;" id="processingAlert">
+                                    <i class="mdi mdi-clock-outline"></i> <strong>Sedang memproses file...</strong> Mohon tunggu, ini mungkin memakan waktu beberapa menit untuk file besar.
                                 </div>
                             </form>
 
@@ -260,7 +263,7 @@
             <span class="visually-hidden">Loading...</span>
         </div>
         <p class="text-light mt-3 mb-0">Memproses file CSV...</p>
-        <small class="text-light">Mohon tunggu</small>
+        <small class="text-light">Mohon tunggu, file besar membutuhkan waktu 3-5 menit</small>
     </div>
 </div>
 
@@ -348,6 +351,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show loading on form submit
         uploadFormUbah.addEventListener('submit', function(e) {
             loadingOverlay.style.display = 'flex';
+            document.getElementById('processingAlert').style.display = 'block';
+            document.getElementById('btnGenerateExcel').disabled = true;
         });
     }
 

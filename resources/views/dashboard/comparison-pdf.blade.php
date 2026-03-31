@@ -162,15 +162,41 @@
             <tr>
                 <td style="width: 33.33%; background-color: #27ae60;">
                     <div style="font-size: 16px;">{{ $countNaik }}</div>
-                    <div style="font-size: 7px;">Instansi Naik</div>
+                    <div style="font-size: 7px;">Instansi Naik (Skor)</div>
                 </td>
                 <td style="width: 33.33%; background-color: #f39c12;">
                     <div style="font-size: 16px;">{{ $countStagnan }}</div>
-                    <div style="font-size: 7px;">Instansi Stagnan</div>
+                    <div style="font-size: 7px;">Instansi Stagnan (Skor)</div>
                 </td>
                 <td style="width: 33.33%; background-color: #e74c3c;">
                     <div style="font-size: 16px;">{{ $countTurun }}</div>
-                    <div style="font-size: 7px;">Instansi Turun</div>
+                    <div style="font-size: 7px;">Instansi Turun (Skor)</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Perubahan Kategori Kelengkapan -->
+    <div style="margin-bottom: 15px;">
+        <div style="background-color: #ecf0f1; padding: 6px 8px; margin-bottom: 8px; border-left: 4px solid #9b59b6;">
+            <strong style="font-size: 9px; color: #2c3e50;">PERUBAHAN KATEGORI KELENGKAPAN</strong>
+        </div>
+        <table cellpadding="6">
+            <tr>
+                <td style="width: 33.33%; background-color: #27ae60; color: white; font-weight: bold; text-align: center;">
+                    <div style="font-size: 14px;">{{ $countKategoriNaik }}</div>
+                    <div style="font-size: 7px;">Naik Kategori</div>
+                    <div style="font-size: 6px; margin-top: 2px; opacity: 0.9;">Contoh: Cukup → Lengkap</div>
+                </td>
+                <td style="width: 33.33%; background-color: #3498db; color: white; font-weight: bold; text-align: center;">
+                    <div style="font-size: 14px;">{{ $countKategoriStagnan }}</div>
+                    <div style="font-size: 7px;">Stagnan Kategori</div>
+                    <div style="font-size: 6px; margin-top: 2px; opacity: 0.9;">Tetap di kategori sama</div>
+                </td>
+                <td style="width: 33.33%; background-color: #e74c3c; color: white; font-weight: bold; text-align: center;">
+                    <div style="font-size: 14px;">{{ $countKategoriTurun }}</div>
+                    <div style="font-size: 7px;">Turun Kategori</div>
+                    <div style="font-size: 6px; margin-top: 2px; opacity: 0.9;">Contoh: Lengkap → Cukup</div>
                 </td>
             </tr>
         </table>

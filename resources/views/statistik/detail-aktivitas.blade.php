@@ -41,8 +41,13 @@
                             <div class="btn-group me-2" role="group">
                                 <a href="{{ route('aktivitas-pegawai.export-pegawai-excel', ['nip' => $pegawai->nip, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
                                    class="btn btn-sm btn-success"
-                                   title="Download Excel">
-                                    <i class="ti-download"></i> Excel
+                                   title="Download Excel (Breakdown per Hari/Minggu/Bulan)">
+                                    <i class="ti-download"></i> Excel Breakdown
+                                </a>
+                                <a href="{{ route('aktivitas-pegawai.export-detail-excel', ['nip' => $pegawai->nip, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
+                                   class="btn btn-sm btn-success"
+                                   title="Download Excel Detail (NIP & Instansi yang Diproses)">
+                                    <i class="ti-file-text"></i> Excel Detail
                                 </a>
                                 <a href="{{ route('aktivitas-pegawai.export-pegawai-pdf', ['nip' => $pegawai->nip, 'date_from' => $dateFrom, 'date_to' => $dateTo]) }}"
                                    class="btn btn-sm btn-danger"

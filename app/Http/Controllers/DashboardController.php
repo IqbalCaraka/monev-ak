@@ -244,21 +244,31 @@ class DashboardController extends Controller
                     foreach ($currentScores as $idInstansi => $current) {
                         if (isset($previousScores[$idInstansi])) {
                             $previous = $previousScores[$idInstansi];
-                            $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
+
+                            // Truncate skor sebelum dan sekarang ke 1 desimal
+                            $skorSebelumTruncated = floor($previous->monev_skor_instansi * 10) / 10;
+                            $skorSekarangTruncated = floor($current->monev_skor_instansi * 10) / 10;
+
+                            // Hitung selisih dari skor yang sudah di-truncate
+                            $scoreDiff = $skorSekarangTruncated - $skorSebelumTruncated;
+
+                            // Round dulu ke 6 desimal untuk menghindari floating point error, baru truncate ke 1 desimal
+                            $scoreDiffRounded = round($scoreDiff, 6);
+                            $scoreDiffTruncated = floor($scoreDiffRounded * 10) / 10;
 
                             $changes[] = [
                                 'id_instansi' => $idInstansi,
                                 'nama_instansi' => $current->nama_instansi,
-                                'skor_sebelum' => $previous->monev_skor_instansi,
-                                'skor_sekarang' => $current->monev_skor_instansi,
-                                'perubahan' => $scoreDiff,
-                                'perubahan_abs' => abs($scoreDiff)
+                                'skor_sebelum' => $skorSebelumTruncated,
+                                'skor_sekarang' => $skorSekarangTruncated,
+                                'perubahan' => $scoreDiffTruncated,
+                                'perubahan_abs' => abs($scoreDiffTruncated)
                             ];
 
                             // Count trends
-                            if ($scoreDiff > 0.5) {
+                            if ($scoreDiffTruncated > 0.5) {
                                 $countNaik++;
-                            } elseif ($scoreDiff < -0.5) {
+                            } elseif ($scoreDiffTruncated < -0.5) {
                                 $countTurun++;
                             } else {
                                 $countStagnan++;
@@ -399,43 +409,79 @@ class DashboardController extends Controller
 
         // Get scores from both periods
         $currentScores = MonevDmsInstansiScore::where('upload_date', $currentPeriod)
-            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi')
+            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi', 'monev_status_kelengkapan')
             ->get()
             ->keyBy('id_instansi');
 
         $previousScores = MonevDmsInstansiScore::where('upload_date', $previousPeriod)
-            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi')
+            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi', 'monev_status_kelengkapan')
             ->get()
             ->keyBy('id_instansi');
+
+        // Helper function to get category rank
+        $getCategoryRank = function($category) {
+            $ranks = [
+                'Sangat Lengkap' => 4,
+                'Lengkap' => 3,
+                'Cukup Lengkap' => 2,
+                'Kurang Lengkap' => 1
+            ];
+            return $ranks[$category] ?? 0;
+        };
 
         // Calculate changes
         $changes = [];
         $countNaik = 0;
         $countTurun = 0;
         $countStagnan = 0;
+        $countKategoriNaik = 0;
+        $countKategoriTurun = 0;
+        $countKategoriStagnan = 0;
 
         foreach ($currentScores as $idInstansi => $current) {
             if (isset($previousScores[$idInstansi])) {
                 $previous = $previousScores[$idInstansi];
-                $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
+
+                // Truncate skor sebelum dan sekarang ke 1 desimal
+                $skorSebelumTruncated = floor($previous->monev_skor_instansi * 10) / 10;
+                $skorSekarangTruncated = floor($current->monev_skor_instansi * 10) / 10;
+
+                // Hitung selisih dari skor yang sudah di-truncate
+                $scoreDiff = $skorSekarangTruncated - $skorSebelumTruncated;
+
+                // Round dulu ke 6 desimal untuk menghindari floating point error, baru truncate ke 1 desimal
+                $scoreDiffRounded = round($scoreDiff, 6);
+                $scoreDiffTruncated = floor($scoreDiffRounded * 10) / 10;
 
                 $changes[] = [
                     'id_instansi' => $idInstansi,
                     'nama_instansi' => $current->nama_instansi,
                     'kantor_regional_id' => $current->kantor_regional_id,
-                    'skor_sebelum' => $previous->monev_skor_instansi,
-                    'skor_sekarang' => $current->monev_skor_instansi,
-                    'perubahan' => $scoreDiff,
-                    'perubahan_abs' => abs($scoreDiff)
+                    'skor_sebelum' => $skorSebelumTruncated,
+                    'skor_sekarang' => $skorSekarangTruncated,
+                    'perubahan' => $scoreDiffTruncated,
+                    'perubahan_abs' => abs($scoreDiffTruncated)
                 ];
 
-                // Count trends - Stagnan hanya jika benar-benar 0
-                if ($scoreDiff > 0) {
+                // Count trends - Stagnan hanya jika benar-benar 0 setelah truncate
+                if ($scoreDiffTruncated > 0) {
                     $countNaik++;
-                } elseif ($scoreDiff < 0) {
+                } elseif ($scoreDiffTruncated < 0) {
                     $countTurun++;
                 } else {
                     $countStagnan++;
+                }
+
+                // Count category changes
+                $previousCategoryRank = $getCategoryRank($previous->monev_status_kelengkapan);
+                $currentCategoryRank = $getCategoryRank($current->monev_status_kelengkapan);
+
+                if ($currentCategoryRank > $previousCategoryRank) {
+                    $countKategoriNaik++;
+                } elseif ($currentCategoryRank < $previousCategoryRank) {
+                    $countKategoriTurun++;
+                } else {
+                    $countKategoriStagnan++;
                 }
             }
         }
@@ -475,10 +521,14 @@ class DashboardController extends Controller
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
                 $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
 
-                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
-                if ($stat->avg_perubahan > 0) {
+                // Round dulu ke 6 desimal untuk menghindari floating point error, baru truncate ke 1 desimal
+                $perubahanRounded = round($stat->avg_perubahan, 6);
+                $perubahanTruncated = floor($perubahanRounded * 10) / 10;
+
+                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan perubahan yang sudah di-truncate)
+                if ($perubahanTruncated > 0) {
                     $stat->status = 'Naik';
-                } elseif ($stat->avg_perubahan < 0) {
+                } elseif ($perubahanTruncated < 0) {
                     $stat->status = 'Turun';
                 } else {
                     $stat->status = 'Stagnan';
@@ -498,6 +548,9 @@ class DashboardController extends Controller
             'count_naik' => $countNaik,
             'count_turun' => $countTurun,
             'count_stagnan' => $countStagnan,
+            'count_kategori_naik' => $countKategoriNaik,
+            'count_kategori_turun' => $countKategoriTurun,
+            'count_kategori_stagnan' => $countKategoriStagnan,
             'total_compared' => count($changes)
         ];
 
@@ -1070,14 +1123,24 @@ class DashboardController extends Controller
         foreach ($currentScores as $idInstansi => $current) {
             if (isset($previousScores[$idInstansi])) {
                 $previous = $previousScores[$idInstansi];
-                $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
 
-                // Determine status - Stagnan hanya jika benar-benar 0
+                // Truncate skor sebelum dan sekarang ke 1 desimal
+                $skorSebelumTruncated = floor($previous->monev_skor_instansi * 10) / 10;
+                $skorSekarangTruncated = floor($current->monev_skor_instansi * 10) / 10;
+
+                // Hitung selisih dari skor yang sudah di-truncate
+                $scoreDiff = $skorSekarangTruncated - $skorSebelumTruncated;
+
+                // Round dulu ke 6 desimal untuk menghindari floating point error, baru truncate ke 1 desimal
+                $scoreDiffRounded = round($scoreDiff, 6);
+                $scoreDiffTruncated = floor($scoreDiffRounded * 10) / 10;
+
+                // Determine status - Stagnan hanya jika benar-benar 0.0 setelah truncate
                 $status = 'Stagnan';
-                if ($scoreDiff > 0) {
+                if ($scoreDiffTruncated > 0) {
                     $status = 'Naik';
                     $countNaik++;
-                } elseif ($scoreDiff < 0) {
+                } elseif ($scoreDiffTruncated < 0) {
                     $status = 'Turun';
                     $countTurun++;
                 } else {
@@ -1086,9 +1149,9 @@ class DashboardController extends Controller
 
                 $changes[] = [
                     'nama_instansi' => $current->nama_instansi,
-                    'skor_sebelum' => $previous->monev_skor_instansi,
-                    'skor_sekarang' => $current->monev_skor_instansi,
-                    'perubahan' => $scoreDiff,
+                    'skor_sebelum' => $skorSebelumTruncated,
+                    'skor_sekarang' => $skorSekarangTruncated,
+                    'perubahan' => $scoreDiffTruncated,  // Gunakan nilai yang sudah di-truncate
                     'status' => $status
                 ];
             }
@@ -1228,43 +1291,79 @@ class DashboardController extends Controller
 
         // Get scores from both periods
         $currentScores = MonevDmsInstansiScore::where('upload_date', $currentDate)
-            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi', 'monev_status_kelengkapan')
             ->get()
             ->keyBy('id_instansi');
 
         $previousScores = MonevDmsInstansiScore::where('upload_date', $previousDate)
-            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi', 'monev_status_kelengkapan')
             ->get()
             ->keyBy('id_instansi');
+
+        // Helper function to get category rank
+        $getCategoryRank = function($category) {
+            $ranks = [
+                'Sangat Lengkap' => 4,
+                'Lengkap' => 3,
+                'Cukup Lengkap' => 2,
+                'Kurang Lengkap' => 1
+            ];
+            return $ranks[$category] ?? 0;
+        };
 
         // Calculate changes
         $changes = [];
         $countNaik = 0;
         $countTurun = 0;
         $countStagnan = 0;
+        $countKategoriNaik = 0;
+        $countKategoriTurun = 0;
+        $countKategoriStagnan = 0;
 
         foreach ($currentScores as $idInstansi => $current) {
             if (isset($previousScores[$idInstansi])) {
                 $previous = $previousScores[$idInstansi];
-                $scoreDiff = $current->monev_skor_instansi - $previous->monev_skor_instansi;
 
-                // Determine status - Stagnan hanya jika benar-benar 0
+                // Truncate skor sebelum dan sekarang ke 1 desimal
+                $skorSebelumTruncated = floor($previous->monev_skor_instansi * 10) / 10;
+                $skorSekarangTruncated = floor($current->monev_skor_instansi * 10) / 10;
+
+                // Hitung selisih dari skor yang sudah di-truncate
+                $scoreDiff = $skorSekarangTruncated - $skorSebelumTruncated;
+
+                // Round dulu ke 6 desimal untuk menghindari floating point error, baru truncate ke 1 desimal
+                $scoreDiffRounded = round($scoreDiff, 6);
+                $scoreDiffTruncated = floor($scoreDiffRounded * 10) / 10;
+
+                // Determine status - Stagnan hanya jika benar-benar 0.0 setelah truncate
                 $status = 'Stagnan';
-                if ($scoreDiff > 0) {
+                if ($scoreDiffTruncated > 0) {
                     $status = 'Naik';
                     $countNaik++;
-                } elseif ($scoreDiff < 0) {
+                } elseif ($scoreDiffTruncated < 0) {
                     $status = 'Turun';
                     $countTurun++;
                 } else {
                     $countStagnan++;
                 }
 
+                // Count category changes
+                $previousCategoryRank = $getCategoryRank($previous->monev_status_kelengkapan);
+                $currentCategoryRank = $getCategoryRank($current->monev_status_kelengkapan);
+
+                if ($currentCategoryRank > $previousCategoryRank) {
+                    $countKategoriNaik++;
+                } elseif ($currentCategoryRank < $previousCategoryRank) {
+                    $countKategoriTurun++;
+                } else {
+                    $countKategoriStagnan++;
+                }
+
                 $changes[] = [
                     'nama_instansi' => $current->nama_instansi,
-                    'skor_sebelum' => $previous->monev_skor_instansi,
-                    'skor_sekarang' => $current->monev_skor_instansi,
-                    'perubahan' => $scoreDiff,
+                    'skor_sebelum' => $skorSebelumTruncated,
+                    'skor_sekarang' => $skorSekarangTruncated,
+                    'perubahan' => $scoreDiffTruncated,  // Gunakan nilai yang sudah di-truncate
                     'status' => $status
                 ];
             }
@@ -1277,7 +1376,7 @@ class DashboardController extends Controller
 
         // Render HTML
         try {
-            $html = view('dashboard.comparison-pdf', compact('changes', 'previousDate', 'currentDate', 'countNaik', 'countTurun', 'countStagnan'))->render();
+            $html = view('dashboard.comparison-pdf', compact('changes', 'previousDate', 'currentDate', 'countNaik', 'countTurun', 'countStagnan', 'countKategoriNaik', 'countKategoriTurun', 'countKategoriStagnan'))->render();
 
             $pdf = \PDF::loadHTML($html);
             $pdf->setPaper('a4', 'landscape');
@@ -1324,10 +1423,14 @@ class DashboardController extends Controller
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
                 $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
 
-                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
-                if ($stat->avg_perubahan > 0) {
+                // Round dulu ke 6 desimal untuk menghindari floating point error, baru truncate ke 1 desimal
+                $perubahanRounded = round($stat->avg_perubahan, 6);
+                $perubahanTruncated = floor($perubahanRounded * 10) / 10;
+
+                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan perubahan yang sudah di-truncate)
+                if ($perubahanTruncated > 0) {
                     $stat->status = 'Naik';
-                } elseif ($stat->avg_perubahan < 0) {
+                } elseif ($perubahanTruncated < 0) {
                     $stat->status = 'Turun';
                 } else {
                     $stat->status = 'Stagnan';
@@ -1500,10 +1603,14 @@ class DashboardController extends Controller
                 // Set nama kanreg - semua kantor regional termasuk 00 adalah valid
                 $stat->nama_kanreg = 'Kantor Regional ' . str_pad($stat->kantor_regional_id, 2, '0', STR_PAD_LEFT);
 
-                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan rata-rata perubahan)
-                if ($stat->avg_perubahan > 0) {
+                // Round dulu ke 6 desimal untuk menghindari floating point error, baru truncate ke 1 desimal
+                $perubahanRounded = round($stat->avg_perubahan, 6);
+                $perubahanTruncated = floor($perubahanRounded * 10) / 10;
+
+                // Tentukan status kanreg (Naik/Stagnan/Turun berdasarkan perubahan yang sudah di-truncate)
+                if ($perubahanTruncated > 0) {
                     $stat->status = 'Naik';
-                } elseif ($stat->avg_perubahan < 0) {
+                } elseif ($perubahanTruncated < 0) {
                     $stat->status = 'Turun';
                 } else {
                     $stat->status = 'Stagnan';

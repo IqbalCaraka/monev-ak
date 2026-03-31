@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Laporan Efektivitas Kerja Mapping Non-Inject</title>
+    <title>Laporan Efektivitas Approval Dokumen MyASN</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -87,7 +87,7 @@
 </head>
 <body>
     <h1>Laporan Efektivitas Kerja</h1>
-    <h2>Mapping Dokumen Non-Inject</h2>
+    <h2>Approval Dokumen MyASN</h2>
 
     <!-- Info Periode -->
     <p style="text-align: center; font-weight: bold; margin-bottom: 20px;">
@@ -110,8 +110,8 @@
             <td>{{ $total_working_hours }} jam (7.5 jam/hari)</td>
         </tr>
         <tr>
-            <td>Total Mapping Non-Inject</td>
-            <td>{{ number_format($total_mapping, 0, ',', '.') }} dokumen</td>
+            <td>Total Approval Dokumen MyASN</td>
+            <td>{{ number_format($total_approval, 0, ',', '.') }} dokumen</td>
         </tr>
         <tr class="highlight">
             <td>Efektivitas Total</td>
@@ -120,7 +120,7 @@
     </table>
 
     <!-- Metrik Detail -->
-    <div class="section-title" style="background-color: #3F51B5; margin-top: 10px;">METRIK DETAIL</div>
+    <div class="section-title" style="background-color: #4CAF50; margin-top: 10px;">METRIK DETAIL</div>
     <table class="info-table">
         <tr>
             <td>Total Pegawai</td>
@@ -128,15 +128,15 @@
         </tr>
         <tr>
             <td>Rata-rata per Pegawai</td>
-            <td><strong>{{ number_format($avg_per_person, 2, ',', '.') }}</strong> dokumen/pegawai</td>
+            <td><strong>{{ number_format($avg_per_person, 2, ',', '.') }}</strong> approval/pegawai</td>
         </tr>
         <tr>
-            <td>Waktu per Dokumen</td>
-            <td><strong>{{ number_format($minutes_per_doc, 2, ',', '.') }}</strong> menit/dokumen</td>
+            <td>Waktu per Approval</td>
+            <td><strong>{{ number_format($minutes_per_approval, 2, ',', '.') }}</strong> menit/approval</td>
         </tr>
         <tr>
-            <td>Dokumen per Menit</td>
-            <td><strong>{{ $docs_per_minute }}</strong> dokumen/menit</td>
+            <td>Approval per Menit</td>
+            <td><strong>{{ $approvals_per_minute }}</strong> approval/menit</td>
         </tr>
     </table>
 
@@ -151,8 +151,8 @@
                 <th width="8%">No</th>
                 <th width="22%">NIP</th>
                 <th width="40%">Nama</th>
-                <th width="15%">Total Mapping</th>
-                <th width="15%">Efektivitas<br><span style="font-size: 8pt; font-weight: normal;">(dokumen/jam)</span></th>
+                <th width="15%">Total Approval</th>
+                <th width="15%">Efektivitas<br><span style="font-size: 8pt; font-weight: normal;">(approval/jam)</span></th>
             </tr>
         </thead>
         <tbody>
@@ -161,7 +161,7 @@
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $item['nip'] }}</td>
                 <td>{{ $item['nama'] }}</td>
-                <td class="text-center">{{ number_format($item['total_mapping'], 0, ',', '.') }}</td>
+                <td class="text-center">{{ number_format($item['total_approval'], 0, ',', '.') }}</td>
                 <td class="text-center"><strong>{{ $item['efektivitas'] }}</strong></td>
             </tr>
             @endforeach
@@ -181,8 +181,8 @@
                 <th width="40%">Periode</th>
                 <th width="15%">Hari Kerja</th>
                 <th width="15%">Jam Kerja</th>
-                <th width="15%">Total Mapping</th>
-                <th width="15%">Efektivitas<br><span style="font-size: 8pt; font-weight: normal;">(dokumen/jam)</span></th>
+                <th width="15%">Total Approval</th>
+                <th width="15%">Efektivitas<br><span style="font-size: 8pt; font-weight: normal;">(approval/jam)</span></th>
             </tr>
         </thead>
         <tbody>
@@ -191,7 +191,7 @@
                 <td>{{ $item['periode'] }}</td>
                 <td class="text-center">{{ $item['working_days'] }}</td>
                 <td class="text-center">{{ number_format($item['working_hours'], 1, ',', '.') }}</td>
-                <td class="text-center">{{ number_format($item['total_mapping'], 0, ',', '.') }}</td>
+                <td class="text-center">{{ number_format($item['total_approval'], 0, ',', '.') }}</td>
                 <td class="text-center"><strong>{{ $item['efektivitas'] }}</strong></td>
             </tr>
             @endforeach
@@ -214,8 +214,8 @@
                 <th width="40%">Tanggal</th>
                 <th width="15%">Hari Kerja</th>
                 <th width="15%">Jam Kerja</th>
-                <th width="15%">Total Mapping</th>
-                <th width="15%">Efektivitas<br><span style="font-size: 8pt; font-weight: normal;">(dokumen/jam)</span></th>
+                <th width="15%">Total Approval</th>
+                <th width="15%">Efektivitas<br><span style="font-size: 8pt; font-weight: normal;">(approval/jam)</span></th>
             </tr>
         </thead>
         <tbody>
@@ -224,7 +224,7 @@
                 <td>{{ $item['periode'] }}</td>
                 <td class="text-center">{{ $item['working_days'] }}</td>
                 <td class="text-center">{{ number_format($item['working_hours'], 1, ',', '.') }}</td>
-                <td class="text-center">{{ number_format($item['total_mapping'], 0, ',', '.') }}</td>
+                <td class="text-center">{{ number_format($item['total_approval'], 0, ',', '.') }}</td>
                 <td class="text-center"><strong>{{ $item['efektivitas'] }}</strong></td>
             </tr>
             @endforeach
@@ -237,7 +237,7 @@
     </table>
 
     <div class="footer">
-        <p>Dicetak pada {{ date('d/m/Y H:i:s') }} | Laporan Efektivitas Kerja Mapping Non-Inject</p>
+        <p>Dicetak pada {{ date('d/m/Y H:i:s') }} | Laporan Efektivitas Approval Dokumen MyASN</p>
     </div>
 </body>
 </html>

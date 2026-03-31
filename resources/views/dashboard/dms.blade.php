@@ -2441,19 +2441,50 @@
                             <div class="col-md-4">
                                 <div class="alert alert-success mb-0 text-center">
                                     <h4 class="mb-1">${data.count_naik}</h4>
-                                    <small>Instansi Naik</small>
+                                    <small>Instansi Naik (Skor)</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="alert alert-warning mb-0 text-center">
                                     <h4 class="mb-1">${data.count_stagnan}</h4>
-                                    <small>Instansi Stagnan</small>
+                                    <small>Instansi Stagnan (Skor)</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="alert alert-danger mb-0 text-center">
                                     <h4 class="mb-1">${data.count_turun}</h4>
-                                    <small>Instansi Turun</small>
+                                    <small>Instansi Turun (Skor)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Perubahan Kategori -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h6 class="text-muted mb-2"><i class="mdi mdi-chart-line"></i> Perubahan Kategori Kelengkapan:</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-success mb-0 text-center" style="background-color: #d4edda; border-color: #c3e6cb;">
+                                    <i class="mdi mdi-arrow-up-circle text-success" style="font-size: 24px;"></i>
+                                    <h4 class="mb-1 text-success">${data.count_kategori_naik}</h4>
+                                    <small class="text-success"><strong>Naik Kategori</strong></small>
+                                    <div class="small text-muted">Contoh: Cukup → Lengkap</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-info mb-0 text-center" style="background-color: #d1ecf1; border-color: #bee5eb;">
+                                    <i class="mdi mdi-minus-circle text-info" style="font-size: 24px;"></i>
+                                    <h4 class="mb-1 text-info">${data.count_kategori_stagnan}</h4>
+                                    <small class="text-info"><strong>Stagnan Kategori</strong></small>
+                                    <div class="small text-muted">Tetap di kategori yang sama</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-danger mb-0 text-center" style="background-color: #f8d7da; border-color: #f5c6cb;">
+                                    <i class="mdi mdi-arrow-down-circle text-danger" style="font-size: 24px;"></i>
+                                    <h4 class="mb-1 text-danger">${data.count_kategori_turun}</h4>
+                                    <small class="text-danger"><strong>Turun Kategori</strong></small>
+                                    <div class="small text-muted">Contoh: Lengkap → Cukup</div>
                                 </div>
                             </div>
                         </div>
@@ -2487,16 +2518,17 @@
             const globalIndex = startIndex + index + 1;
             const namaInstansi = change.nama_instansi.length > 50 ? change.nama_instansi.substring(0, 50) + '...' : change.nama_instansi;
 
-            // Determine status - Stagnan hanya jika benar-benar 0
+            // Determine status based on truncated value - Stagnan hanya jika benar-benar 0.0
+            const perubahanTruncated = Math.floor(change.perubahan * 10) / 10;
             let statusBadge = 'badge-warning';
             let statusText = 'Stagnan';
             let statusIcon = 'mdi-minus';
 
-            if (change.perubahan > 0) {
+            if (perubahanTruncated > 0) {
                 statusBadge = 'badge-success';
                 statusText = 'Naik';
                 statusIcon = 'mdi-trending-up';
-            } else if (change.perubahan < 0) {
+            } else if (perubahanTruncated < 0) {
                 statusBadge = 'badge-danger';
                 statusText = 'Turun';
                 statusIcon = 'mdi-trending-down';
@@ -2636,11 +2668,14 @@
                     <tbody>`;
 
             data.kanreg_stats.forEach((kanreg, index) => {
+                // Truncate avg_perubahan untuk display
+                const avgPerubahanTruncated = Math.floor(kanreg.avg_perubahan * 10) / 10;
+
                 let avgPerubahanBadge;
-                if (kanreg.avg_perubahan > 0) {
-                    avgPerubahanBadge = `<span class="badge badge-success"><i class="mdi mdi-arrow-up"></i> +${formatNumber(kanreg.avg_perubahan)}</span>`;
-                } else if (kanreg.avg_perubahan < 0) {
-                    avgPerubahanBadge = `<span class="badge badge-danger"><i class="mdi mdi-arrow-down"></i> ${formatNumber(kanreg.avg_perubahan)}</span>`;
+                if (avgPerubahanTruncated > 0) {
+                    avgPerubahanBadge = `<span class="badge badge-success"><i class="mdi mdi-arrow-up"></i> +${formatNumber(avgPerubahanTruncated)}</span>`;
+                } else if (avgPerubahanTruncated < 0) {
+                    avgPerubahanBadge = `<span class="badge badge-danger"><i class="mdi mdi-arrow-down"></i> ${formatNumber(avgPerubahanTruncated)}</span>`;
                 } else {
                     avgPerubahanBadge = `<span class="badge badge-secondary">0.0</span>`;
                 }

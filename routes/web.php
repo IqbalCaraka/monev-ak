@@ -58,6 +58,13 @@ Route::prefix('statistik')->group(function () {
     Route::get('efektivitas-approval/data', [AktivitasPegawaiController::class, 'getEfektivitasApproval'])->name('efektivitas-approval.data');
     Route::get('efektivitas-approval/export-excel', [AktivitasPegawaiController::class, 'exportEfektivitasApprovalExcel'])->name('efektivitas-approval.export-excel');
     Route::get('efektivitas-approval/export-pdf', [AktivitasPegawaiController::class, 'exportEfektivitasApprovalPdf'])->name('efektivitas-approval.export-pdf');
+
+    // Efektivitas Laporan Kekurangan routes
+    Route::get('efektivitas-laporan-kekurangan', [AktivitasPegawaiController::class, 'efektivitasLaporanKekurangan'])->name('efektivitas-laporan.index');
+    Route::get('efektivitas-laporan-kekurangan/data', [AktivitasPegawaiController::class, 'getEfektivitasLaporanKekurangan'])->name('efektivitas-laporan.data');
+    Route::get('efektivitas-laporan-kekurangan/export-excel', [AktivitasPegawaiController::class, 'exportEfektivitasLaporanExcel'])->name('efektivitas-laporan.export-excel');
+    Route::get('efektivitas-laporan-kekurangan/export-pdf', [AktivitasPegawaiController::class, 'exportEfektivitasLaporanPdf'])->name('efektivitas-laporan.export-pdf');
+
     Route::get('aktivitas-pegawai/{nip}', [AktivitasPegawaiController::class, 'show'])->name('aktivitas-pegawai.show');
     Route::get('aktivitas-pegawai/{nip}/{kategori}', [AktivitasPegawaiController::class, 'detailKategori'])->name('aktivitas-pegawai.detail-kategori');
 

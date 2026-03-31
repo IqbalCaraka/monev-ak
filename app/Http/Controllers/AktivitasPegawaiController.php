@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class AktivitasPegawaiController extends Controller
 {
@@ -1856,6 +1857,7 @@ class AktivitasPegawaiController extends Controller
 
         // Calculate total dari sum (tanpa query tambahan)
         $totalMapping = $results->sum('total_mapping');
+        $totalPegawai = $results->count(); // Jumlah pegawai yang ada data
 
         // Map efektivitas per pegawai
         $efektivitasPerPegawai = $results->map(function ($item) use ($totalWorkingHours) {
@@ -1870,13 +1872,35 @@ class AktivitasPegawaiController extends Controller
             ? round($totalMapping / $totalWorkingHours, 2)
             : 0;
 
+        // METRIK TAMBAHAN
+        // 1. Rata-rata dokumen per orang
+        $avgPerPerson = $totalPegawai > 0
+            ? round($totalMapping / $totalPegawai, 2)
+            : 0;
+
+        // 2. Berapa menit per 1 dokumen (waktu yang dibutuhkan untuk 1 dokumen)
+        $totalWorkingMinutes = $totalWorkingHours * 60;
+        $minutesPerDoc = $totalMapping > 0
+            ? round($totalWorkingMinutes / $totalMapping, 2)
+            : 0;
+
+        // 3. Berapa dokumen per menit (produktivitas per menit)
+        $docsPerMinute = $totalWorkingMinutes > 0
+            ? round($totalMapping / $totalWorkingMinutes, 4)
+            : 0;
+
         return response()->json([
             'date_from' => $dateFrom,
             'date_to' => $dateTo,
             'total_working_days' => $totalWorkingDays,
             'total_working_hours' => $totalWorkingHours,
+            'total_working_minutes' => $totalWorkingMinutes,
             'total_mapping' => $totalMapping,
+            'total_pegawai' => $totalPegawai,
             'efektivitas_total' => $efektivitasTotal,
+            'avg_per_person' => $avgPerPerson,
+            'minutes_per_doc' => $minutesPerDoc,
+            'docs_per_minute' => $docsPerMinute,
             'efektivitas_per_pegawai' => $efektivitasPerPegawai,
         ]);
     }
@@ -1970,6 +1994,20 @@ class AktivitasPegawaiController extends Controller
             ? round($totalMapping / $totalWorkingHours, 2)
             : 0;
 
+        // Hitung jumlah pegawai unik
+        $totalPegawai = DB::table('log_aktivitas')
+            ->where('event_name', 'mapping_dokumen')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->distinct('created_by_nip')
+            ->count('created_by_nip');
+
+        // METRIK TAMBAHAN
+        $totalWorkingMinutes = $totalWorkingHours * 60;
+        $avgPerPerson = $totalPegawai > 0 ? round($totalMapping / $totalPegawai, 2) : 0;
+        $minutesPerDoc = $totalMapping > 0 ? round($totalWorkingMinutes / $totalMapping, 2) : 0;
+        $docsPerMinute = $totalWorkingMinutes > 0 ? round($totalMapping / $totalWorkingMinutes, 4) : 0;
+
         // Get per pegawai data (ranking)
         $efektivitasPerPegawai = DB::table('log_aktivitas as la')
             ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
@@ -2003,8 +2041,13 @@ class AktivitasPegawaiController extends Controller
             'date_to' => $dateTo,
             'total_working_days' => $totalWorkingDays,
             'total_working_hours' => $totalWorkingHours,
+            'total_working_minutes' => $totalWorkingMinutes,
             'total_mapping' => $totalMapping,
+            'total_pegawai' => $totalPegawai,
             'efektivitas_total' => $efektivitasTotal,
+            'avg_per_person' => $avgPerPerson,
+            'minutes_per_doc' => $minutesPerDoc,
+            'docs_per_minute' => $docsPerMinute,
             'efektivitas_per_pegawai' => $efektivitasPerPegawai,
             'efektivitas_per_minggu' => $efektivitasPerMinggu,
             'efektivitas_per_hari' => $efektivitasPerHari,
@@ -2315,5 +2358,1093 @@ class AktivitasPegawaiController extends Controller
         ];
 
         return $days[$dayNumber] ?? 'Unknown';
+    }
+
+    /**
+     * ========================================
+     * EFEKTIVITAS APPROVAL DOKUMEN MYASN
+     * ========================================
+     */
+
+    /**
+     * Show Efektivitas Approval page
+     */
+    public function efektivitasApproval()
+    {
+        return view('statistik.efektivitas-approval');
+    }
+
+    /**
+     * Get Efektivitas Approval data (AJAX)
+     */
+    public function getEfektivitasApproval(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        if (!$dateFrom || !$dateTo) {
+            return response()->json(['error' => 'Tanggal mulai dan akhir harus diisi'], 400);
+        }
+
+        // Hitung total hari kerja dan jam kerja
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        // Query data approval per pegawai dengan JOIN ke dms_pns
+        $results = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COUNT(*) as total_approval')
+            )
+            ->where('la.event_name', 'approve_upload_dok_myasn')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'la.created_by_nama')
+            ->orderByDesc('total_approval')
+            ->get();
+
+        $totalApproval = $results->sum('total_approval');
+        $totalPegawai = $results->count();
+
+        // Hitung efektivitas per pegawai
+        $efektivitasPerPegawai = $results->map(function ($item) use ($totalWorkingHours) {
+            return [
+                'nip' => $item->nip,
+                'nama' => $item->nama,
+                'total_approval' => $item->total_approval,
+                'efektivitas' => $totalWorkingHours > 0 ? number_format($item->total_approval / $totalWorkingHours, 2) : '0.00',
+            ];
+        });
+
+        // Hitung efektivitas total
+        $efektivitasTotal = $totalWorkingHours > 0 ? number_format($totalApproval / $totalWorkingHours, 2) : '0.00';
+
+        // METRIK TAMBAHAN
+        $totalWorkingMinutes = $totalWorkingHours * 60;
+        $avgPerPerson = $totalPegawai > 0 ? round($totalApproval / $totalPegawai, 2) : 0;
+        $minutesPerApproval = $totalApproval > 0 ? round($totalWorkingMinutes / $totalApproval, 2) : 0;
+        $approvalsPerMinute = $totalWorkingMinutes > 0 ? round($totalApproval / $totalWorkingMinutes, 4) : 0;
+
+        return response()->json([
+            'total_working_days' => $totalWorkingDays,
+            'total_working_hours' => $totalWorkingHours,
+            'total_working_minutes' => $totalWorkingMinutes,
+            'total_approval' => $totalApproval,
+            'total_pegawai' => $totalPegawai,
+            'efektivitas_total' => $efektivitasTotal,
+            'avg_per_person' => $avgPerPerson,
+            'minutes_per_approval' => $minutesPerApproval,
+            'approvals_per_minute' => $approvalsPerMinute,
+            'efektivitas_per_pegawai' => $efektivitasPerPegawai,
+        ]);
+    }
+
+    /**
+     * Export Efektivitas Approval to Excel
+     */
+    public function exportEfektivitasApprovalExcel(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        if (!$dateFrom || !$dateTo) {
+            return back()->with('error', 'Tanggal mulai dan akhir harus diisi');
+        }
+
+        $spreadsheet = new Spreadsheet();
+
+        // Sheet 1: Ringkasan Total
+        $this->createEfektivitasApprovalSummarySheet($spreadsheet, $dateFrom, $dateTo);
+
+        // Sheet 2: Ranking Pegawai
+        $this->createEfektivitasApprovalPerPegawaiSheet($spreadsheet, $dateFrom, $dateTo);
+
+        // Sheet 3: Per Minggu (7 hari)
+        $this->createEfektivitasApprovalPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, 'weekly');
+
+        // Sheet 4: Per Hari
+        $this->createEfektivitasApprovalPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, 'daily');
+
+        // Set sheet 1 sebagai active sheet
+        $spreadsheet->setActiveSheetIndex(0);
+
+        // Generate filename
+        $filename = 'Efektivitas_Approval_' . date('Y-m-d', strtotime($dateFrom)) . '_sd_' . date('Y-m-d', strtotime($dateTo)) . '.xlsx';
+
+        // Download
+        $writer = new Xlsx($spreadsheet);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Create Excel Summary Sheet for Approval
+     */
+    private function createEfektivitasApprovalSummarySheet($spreadsheet, $dateFrom, $dateTo)
+    {
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Ringkasan Total');
+
+        // Header
+        $sheet->setCellValue('A1', 'RINGKASAN EFEKTIVITAS APPROVAL DOKUMEN MYASN');
+        $sheet->mergeCells('A1:B1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Periode
+        $sheet->setCellValue('A2', 'Periode:');
+        $sheet->setCellValue('B2', date('d/m/Y', strtotime($dateFrom)) . ' - ' . date('d/m/Y', strtotime($dateTo)));
+        $sheet->getStyle('A2')->getFont()->setBold(true);
+
+        // Data
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        $totalApproval = DB::table('log_aktivitas')
+            ->where('event_name', 'approve_upload_dok_myasn')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->count();
+
+        $efektivitasTotal = $totalWorkingHours > 0 ? round($totalApproval / $totalWorkingHours, 2) : 0;
+
+        $sheet->setCellValue('A4', 'Total Hari Kerja (Senin-Jumat)');
+        $sheet->setCellValue('B4', $totalWorkingDays);
+        $sheet->setCellValue('A5', 'Total Jam Kerja (7.5 jam/hari)');
+        $sheet->setCellValue('B5', $totalWorkingHours);
+        $sheet->setCellValue('A6', 'Total Approval Dokumen MyASN');
+        $sheet->setCellValue('B6', $totalApproval);
+        $sheet->setCellValue('A7', 'Efektivitas Total (dokumen/jam)');
+        $sheet->setCellValue('B7', $efektivitasTotal);
+
+        // Styling
+        $sheet->getStyle('A4:A7')->getFont()->setBold(true);
+        $sheet->getStyle('A7:B7')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFFFE599');
+        $sheet->getStyle('A7:B7')->getFont()->setBold(true);
+
+        // Number format
+        $sheet->getStyle('B4:B6')->getNumberFormat()->setFormatCode('#,##0');
+        $sheet->getStyle('B5')->getNumberFormat()->setFormatCode('#,##0.0');
+        $sheet->getStyle('B7')->getNumberFormat()->setFormatCode('#,##0.00');
+
+        // Column width
+        $sheet->getColumnDimension('A')->setWidth(40);
+        $sheet->getColumnDimension('B')->setWidth(20);
+    }
+
+    /**
+     * Create Excel Per Pegawai Sheet for Approval
+     */
+    private function createEfektivitasApprovalPerPegawaiSheet($spreadsheet, $dateFrom, $dateTo)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $sheet->setTitle('Ranking Pegawai');
+
+        // Header
+        $sheet->setCellValue('A1', 'RANKING PEGAWAI - EFEKTIVITAS APPROVAL DOKUMEN MYASN');
+        $sheet->mergeCells('A1:E1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Periode
+        $sheet->setCellValue('A2', 'Periode:');
+        $sheet->setCellValue('B2', date('d/m/Y', strtotime($dateFrom)) . ' - ' . date('d/m/Y', strtotime($dateTo)));
+        $sheet->mergeCells('B2:E2');
+
+        // Table header
+        $sheet->setCellValue('A4', 'No');
+        $sheet->setCellValue('B4', 'NIP');
+        $sheet->setCellValue('C4', 'Nama');
+        $sheet->setCellValue('D4', 'Total Approval');
+        $sheet->setCellValue('E4', 'Efektivitas (dok/jam)');
+
+        $sheet->getStyle('A4:E4')->getFont()->setBold(true);
+        $sheet->getStyle('A4:E4')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF4CAF50');
+        $sheet->getStyle('A4:E4')->getFont()->getColor()->setARGB('FFFFFFFF');
+        $sheet->getStyle('A4:E4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Get data
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        $results = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COUNT(*) as total_approval')
+            )
+            ->where('la.event_name', 'approve_upload_dok_myasn')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'la.created_by_nama')
+            ->orderByDesc('total_approval')
+            ->get();
+
+        // Fill data
+        $row = 5;
+        $no = 1;
+        foreach ($results as $item) {
+            $efektivitas = $totalWorkingHours > 0 ? round($item->total_approval / $totalWorkingHours, 2) : 0;
+
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item->nip);
+            $sheet->setCellValue('C' . $row, $item->nama);
+            $sheet->setCellValue('D' . $row, $item->total_approval);
+            $sheet->setCellValue('E' . $row, $efektivitas);
+
+            // Format
+            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('E' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+
+            $row++;
+        }
+
+        // Column width
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(35);
+        $sheet->getColumnDimension('D')->setWidth(18);
+        $sheet->getColumnDimension('E')->setWidth(22);
+
+        // Borders
+        if ($row > 5) {
+            $sheet->getStyle('A4:E' . ($row - 1))->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ]);
+        }
+    }
+
+    /**
+     * Create Excel Per Periode Sheet for Approval
+     */
+    private function createEfektivitasApprovalPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, $groupBy)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $title = $groupBy === 'weekly' ? 'Per Minggu (7 Hari)' : 'Per Hari';
+        $sheet->setTitle($title);
+
+        // Header
+        $headerText = $groupBy === 'weekly' ? 'EFEKTIVITAS APPROVAL PER MINGGU (7 HARI)' : 'EFEKTIVITAS APPROVAL PER HARI';
+        $sheet->setCellValue('A1', $headerText);
+        $sheet->mergeCells('A1:E1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Periode
+        $sheet->setCellValue('A2', 'Periode:');
+        $sheet->setCellValue('B2', date('d/m/Y', strtotime($dateFrom)) . ' - ' . date('d/m/Y', strtotime($dateTo)));
+        $sheet->mergeCells('B2:E2');
+
+        // Table header
+        $sheet->setCellValue('A4', 'Periode');
+        $sheet->setCellValue('B4', 'Hari Kerja');
+        $sheet->setCellValue('C4', 'Jam Kerja');
+        $sheet->setCellValue('D4', 'Total Approval');
+        $sheet->setCellValue('E4', 'Efektivitas (dok/jam)');
+
+        $sheet->getStyle('A4:E4')->getFont()->setBold(true);
+        $sheet->getStyle('A4:E4')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF2196F3');
+        $sheet->getStyle('A4:E4')->getFont()->getColor()->setARGB('FFFFFFFF');
+        $sheet->getStyle('A4:E4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Get data
+        $efektivitasPerPeriode = $this->getEfektivitasApprovalPerPeriode($dateFrom, $dateTo, $groupBy);
+
+        // Fill data
+        $row = 5;
+        foreach ($efektivitasPerPeriode as $item) {
+            $sheet->setCellValue('A' . $row, $item['periode']);
+            $sheet->setCellValue('B' . $row, $item['working_days']);
+            $sheet->setCellValue('C' . $row, $item['working_hours']);
+            $sheet->setCellValue('D' . $row, $item['total_approval']);
+            $sheet->setCellValue('E' . $row, $item['efektivitas']);
+
+            // Format
+            $sheet->getStyle('B' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('#,##0.0');
+            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('E' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+
+            $row++;
+        }
+
+        // Column width
+        $sheet->getColumnDimension('A')->setWidth(35);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(18);
+        $sheet->getColumnDimension('E')->setWidth(22);
+
+        // Borders
+        if ($row > 5) {
+            $sheet->getStyle('A4:E' . ($row - 1))->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ]);
+        }
+    }
+
+    /**
+     * Get Efektivitas Approval Per Periode (weekly/daily)
+     */
+    private function getEfektivitasApprovalPerPeriode($dateFrom, $dateTo, $groupBy)
+    {
+        $result = [];
+
+        if ($groupBy === 'daily') {
+            $start = new \DateTime($dateFrom);
+            $end = new \DateTime($dateTo);
+            $interval = new \DateInterval('P1D');
+            $period = new \DatePeriod($start, $interval, $end->modify('+1 day'));
+
+            foreach ($period as $date) {
+                $dateStr = $date->format('Y-m-d');
+                $dayOfWeek = (int)$date->format('N');
+
+                // Skip weekend
+                if ($dayOfWeek == 6 || $dayOfWeek == 7) {
+                    continue;
+                }
+
+                $workingDays = 1;
+                $workingHours = 7.5;
+
+                // Hitung total approval
+                $totalApproval = DB::table('log_aktivitas')
+                    ->where('event_name', 'approve_upload_dok_myasn')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [$dateStr . ' 00:00:00', $dateStr . ' 23:59:59'])
+                    ->count();
+
+                // Ambil day_name dari database
+                $dayNameRecord = DB::table('log_aktivitas')
+                    ->where('event_name', 'approve_upload_dok_myasn')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [$dateStr . ' 00:00:00', $dateStr . ' 23:59:59'])
+                    ->whereNotNull('day_name')
+                    ->value('day_name');
+
+                $dayName = $dayNameRecord ?? $this->getDayNameIndo($dayOfWeek);
+
+                $result[] = [
+                    'periode' => $dayName . ', ' . $date->format('d/m/Y'),
+                    'working_days' => $workingDays,
+                    'working_hours' => $workingHours,
+                    'total_approval' => $totalApproval,
+                    'efektivitas' => $workingHours > 0 ? round($totalApproval / $workingHours, 2) : 0,
+                ];
+            }
+        } elseif ($groupBy === 'weekly') {
+            $start = new \DateTime($dateFrom);
+            $end = new \DateTime($dateTo);
+
+            $weekStart = clone $start;
+
+            while ($weekStart <= $end) {
+                $weekEnd = clone $weekStart;
+                $weekEnd->modify('+6 days');
+
+                if ($weekEnd > $end) {
+                    $weekEnd = clone $end;
+                }
+
+                $workingDays = $this->calculateWorkingDays($weekStart->format('Y-m-d'), $weekEnd->format('Y-m-d'));
+                $workingHours = $workingDays * 7.5;
+
+                $totalApproval = DB::table('log_aktivitas')
+                    ->where('event_name', 'approve_upload_dok_myasn')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [
+                        $weekStart->format('Y-m-d') . ' 00:00:00',
+                        $weekEnd->format('Y-m-d') . ' 23:59:59'
+                    ])
+                    ->count();
+
+                $result[] = [
+                    'periode' => 'Minggu ' . $weekStart->format('d/m/Y') . ' - ' . $weekEnd->format('d/m/Y'),
+                    'working_days' => $workingDays,
+                    'working_hours' => $workingHours,
+                    'total_approval' => $totalApproval,
+                    'efektivitas' => $workingHours > 0 ? round($totalApproval / $workingHours, 2) : 0,
+                ];
+
+                $weekStart->modify('+7 days');
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Export Efektivitas Approval to PDF
+     */
+    public function exportEfektivitasApprovalPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        if (!$dateFrom || !$dateTo) {
+            return back()->with('error', 'Tanggal mulai dan akhir harus diisi');
+        }
+
+        // Get data
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        $totalApproval = DB::table('log_aktivitas')
+            ->where('event_name', 'approve_upload_dok_myasn')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->count();
+
+        $efektivitasTotal = $totalWorkingHours > 0 ? number_format($totalApproval / $totalWorkingHours, 2) : '0.00';
+
+        // Hitung jumlah pegawai unik
+        $totalPegawai = DB::table('log_aktivitas')
+            ->where('event_name', 'approve_upload_dok_myasn')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->distinct('created_by_nip')
+            ->count('created_by_nip');
+
+        // METRIK TAMBAHAN
+        $totalWorkingMinutes = $totalWorkingHours * 60;
+        $avgPerPerson = $totalPegawai > 0 ? round($totalApproval / $totalPegawai, 2) : 0;
+        $minutesPerApproval = $totalApproval > 0 ? round($totalWorkingMinutes / $totalApproval, 2) : 0;
+        $approvalsPerMinute = $totalWorkingMinutes > 0 ? round($totalApproval / $totalWorkingMinutes, 4) : 0;
+
+        // Efektivitas per pegawai
+        $results = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COUNT(*) as total_approval')
+            )
+            ->where('la.event_name', 'approve_upload_dok_myasn')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'la.created_by_nama')
+            ->orderByDesc('total_approval')
+            ->get();
+
+        $efektivitasPerPegawai = $results->map(function ($item) use ($totalWorkingHours) {
+            return [
+                'nip' => $item->nip,
+                'nama' => $item->nama,
+                'total_approval' => $item->total_approval,
+                'efektivitas' => $totalWorkingHours > 0 ? number_format($item->total_approval / $totalWorkingHours, 2) : '0.00',
+            ];
+        })->toArray();
+
+        // Efektivitas per minggu
+        $efektivitasPerMinggu = $this->getEfektivitasApprovalPerPeriode($dateFrom, $dateTo, 'weekly');
+
+        // Efektivitas per hari
+        $efektivitasPerHari = $this->getEfektivitasApprovalPerPeriode($dateFrom, $dateTo, 'daily');
+
+        // Prepare data for PDF with underscore variable names
+        $date_from = $dateFrom;
+        $date_to = $dateTo;
+        $total_working_days = $totalWorkingDays;
+        $total_working_hours = $totalWorkingHours;
+        $total_working_minutes = $totalWorkingMinutes;
+        $total_approval = $totalApproval;
+        $total_pegawai = $totalPegawai;
+        $efektivitas_total = $efektivitasTotal;
+        $avg_per_person = $avgPerPerson;
+        $minutes_per_approval = $minutesPerApproval;
+        $approvals_per_minute = $approvalsPerMinute;
+        $efektivitas_per_pegawai = $efektivitasPerPegawai;
+        $efektivitas_per_minggu = $efektivitasPerMinggu;
+        $efektivitas_per_hari = $efektivitasPerHari;
+
+        // Generate PDF
+        $pdf = PDF::loadView('pdf.efektivitas-approval', compact(
+            'date_from',
+            'date_to',
+            'total_working_days',
+            'total_working_hours',
+            'total_working_minutes',
+            'total_approval',
+            'total_pegawai',
+            'efektivitas_total',
+            'avg_per_person',
+            'minutes_per_approval',
+            'approvals_per_minute',
+            'efektivitas_per_pegawai',
+            'efektivitas_per_minggu',
+            'efektivitas_per_hari'
+        ));
+
+        $pdf->setPaper('A4', 'portrait');
+
+        $filename = 'Efektivitas_Approval_' . date('Y-m-d', strtotime($dateFrom)) . '_sd_' . date('Y-m-d', strtotime($dateTo)) . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * ========================================
+     * EFEKTIVITAS LAPORAN KEKURANGAN BERKAS
+     * ========================================
+     */
+
+    /**
+     * Show Efektivitas Laporan Kekurangan page
+     */
+    public function efektivitasLaporanKekurangan()
+    {
+        return view('statistik.efektivitas-laporan-kekurangan');
+    }
+
+    /**
+     * Get Efektivitas Laporan Kekurangan data (AJAX)
+     */
+    public function getEfektivitasLaporanKekurangan(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        if (!$dateFrom || !$dateTo) {
+            return response()->json(['error' => 'Tanggal mulai dan akhir harus diisi'], 400);
+        }
+
+        // Hitung total hari kerja dan jam kerja
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        // Query data laporan kekurangan per pegawai dengan JOIN ke dms_pns
+        $results = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COUNT(*) as total_laporan')
+            )
+            ->where('la.event_name', 'Laporan-Kekurangan-Riwayat')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'la.created_by_nama')
+            ->orderByDesc('total_laporan')
+            ->get();
+
+        $totalLaporan = $results->sum('total_laporan');
+        $totalPegawai = $results->count();
+
+        // Hitung efektivitas per pegawai
+        $efektivitasPerPegawai = $results->map(function ($item) use ($totalWorkingHours) {
+            return [
+                'nip' => $item->nip,
+                'nama' => $item->nama,
+                'total_laporan' => $item->total_laporan,
+                'efektivitas' => $totalWorkingHours > 0 ? number_format($item->total_laporan / $totalWorkingHours, 2) : '0.00',
+            ];
+        });
+
+        // Hitung efektivitas total
+        $efektivitasTotal = $totalWorkingHours > 0 ? number_format($totalLaporan / $totalWorkingHours, 2) : '0.00';
+
+        // METRIK TAMBAHAN
+        $totalWorkingMinutes = $totalWorkingHours * 60;
+        $avgPerPerson = $totalPegawai > 0 ? round($totalLaporan / $totalPegawai, 2) : 0;
+        $minutesPerLaporan = $totalLaporan > 0 ? round($totalWorkingMinutes / $totalLaporan, 2) : 0;
+        $laporanPerMinute = $totalWorkingMinutes > 0 ? round($totalLaporan / $totalWorkingMinutes, 4) : 0;
+
+        return response()->json([
+            'total_working_days' => $totalWorkingDays,
+            'total_working_hours' => $totalWorkingHours,
+            'total_working_minutes' => $totalWorkingMinutes,
+            'total_laporan' => $totalLaporan,
+            'total_pegawai' => $totalPegawai,
+            'efektivitas_total' => $efektivitasTotal,
+            'avg_per_person' => $avgPerPerson,
+            'minutes_per_laporan' => $minutesPerLaporan,
+            'laporan_per_minute' => $laporanPerMinute,
+            'efektivitas_per_pegawai' => $efektivitasPerPegawai,
+        ]);
+    }
+
+    /**
+     * Export Efektivitas Laporan Kekurangan to Excel
+     */
+    public function exportEfektivitasLaporanExcel(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        if (!$dateFrom || !$dateTo) {
+            return back()->with('error', 'Tanggal mulai dan akhir harus diisi');
+        }
+
+        $spreadsheet = new Spreadsheet();
+
+        // Sheet 1: Ringkasan Total
+        $this->createEfektivitasLaporanSummarySheet($spreadsheet, $dateFrom, $dateTo);
+
+        // Sheet 2: Ranking Pegawai
+        $this->createEfektivitasLaporanPerPegawaiSheet($spreadsheet, $dateFrom, $dateTo);
+
+        // Sheet 3: Per Minggu (7 hari)
+        $this->createEfektivitasLaporanPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, 'weekly');
+
+        // Sheet 4: Per Hari
+        $this->createEfektivitasLaporanPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, 'daily');
+
+        // Set sheet 1 sebagai active sheet
+        $spreadsheet->setActiveSheetIndex(0);
+
+        // Generate filename
+        $filename = 'Efektivitas_Laporan_Kekurangan_' . date('Y-m-d', strtotime($dateFrom)) . '_sd_' . date('Y-m-d', strtotime($dateTo)) . '.xlsx';
+
+        // Download
+        $writer = new Xlsx($spreadsheet);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Create Excel Summary Sheet for Laporan Kekurangan
+     */
+    private function createEfektivitasLaporanSummarySheet($spreadsheet, $dateFrom, $dateTo)
+    {
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Ringkasan Total');
+
+        // Header
+        $sheet->setCellValue('A1', 'RINGKASAN EFEKTIVITAS LAPORAN KEKURANGAN BERKAS');
+        $sheet->mergeCells('A1:B1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Periode
+        $sheet->setCellValue('A2', 'Periode:');
+        $sheet->setCellValue('B2', date('d/m/Y', strtotime($dateFrom)) . ' - ' . date('d/m/Y', strtotime($dateTo)));
+        $sheet->getStyle('A2')->getFont()->setBold(true);
+
+        // Data
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        $totalLaporan = DB::table('log_aktivitas')
+            ->where('event_name', 'Laporan-Kekurangan-Riwayat')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->count();
+
+        $efektivitasTotal = $totalWorkingHours > 0 ? round($totalLaporan / $totalWorkingHours, 2) : 0;
+
+        $sheet->setCellValue('A4', 'Total Hari Kerja (Senin-Jumat)');
+        $sheet->setCellValue('B4', $totalWorkingDays);
+        $sheet->setCellValue('A5', 'Total Jam Kerja (7.5 jam/hari)');
+        $sheet->setCellValue('B5', $totalWorkingHours);
+        $sheet->setCellValue('A6', 'Total Laporan Kekurangan Berkas');
+        $sheet->setCellValue('B6', $totalLaporan);
+        $sheet->setCellValue('A7', 'Efektivitas Total (laporan/jam)');
+        $sheet->setCellValue('B7', $efektivitasTotal);
+
+        // Styling
+        $sheet->getStyle('A4:A7')->getFont()->setBold(true);
+        $sheet->getStyle('A7:B7')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFFFE599');
+        $sheet->getStyle('A7:B7')->getFont()->setBold(true);
+
+        // Number format
+        $sheet->getStyle('B4:B6')->getNumberFormat()->setFormatCode('#,##0');
+        $sheet->getStyle('B5')->getNumberFormat()->setFormatCode('#,##0.0');
+        $sheet->getStyle('B7')->getNumberFormat()->setFormatCode('#,##0.00');
+
+        // Column width
+        $sheet->getColumnDimension('A')->setWidth(40);
+        $sheet->getColumnDimension('B')->setWidth(20);
+    }
+
+    /**
+     * Create Excel Per Pegawai Sheet for Laporan Kekurangan
+     */
+    private function createEfektivitasLaporanPerPegawaiSheet($spreadsheet, $dateFrom, $dateTo)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $sheet->setTitle('Ranking Pegawai');
+
+        // Header
+        $sheet->setCellValue('A1', 'RANKING PEGAWAI - EFEKTIVITAS LAPORAN KEKURANGAN BERKAS');
+        $sheet->mergeCells('A1:E1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Periode
+        $sheet->setCellValue('A2', 'Periode:');
+        $sheet->setCellValue('B2', date('d/m/Y', strtotime($dateFrom)) . ' - ' . date('d/m/Y', strtotime($dateTo)));
+        $sheet->mergeCells('B2:E2');
+
+        // Table header
+        $sheet->setCellValue('A4', 'No');
+        $sheet->setCellValue('B4', 'NIP');
+        $sheet->setCellValue('C4', 'Nama');
+        $sheet->setCellValue('D4', 'Total Laporan');
+        $sheet->setCellValue('E4', 'Efektivitas (lap/jam)');
+
+        $sheet->getStyle('A4:E4')->getFont()->setBold(true);
+        $sheet->getStyle('A4:E4')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFFFC107');
+        $sheet->getStyle('A4:E4')->getFont()->getColor()->setARGB('FFFFFFFF');
+        $sheet->getStyle('A4:E4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Get data
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        $results = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COUNT(*) as total_laporan')
+            )
+            ->where('la.event_name', 'Laporan-Kekurangan-Riwayat')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'la.created_by_nama')
+            ->orderByDesc('total_laporan')
+            ->get();
+
+        // Fill data
+        $row = 5;
+        $no = 1;
+        foreach ($results as $item) {
+            $efektivitas = $totalWorkingHours > 0 ? round($item->total_laporan / $totalWorkingHours, 2) : 0;
+
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item->nip);
+            $sheet->setCellValue('C' . $row, $item->nama);
+            $sheet->setCellValue('D' . $row, $item->total_laporan);
+            $sheet->setCellValue('E' . $row, $efektivitas);
+
+            // Format
+            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('E' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+
+            $row++;
+        }
+
+        // Column width
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(35);
+        $sheet->getColumnDimension('D')->setWidth(18);
+        $sheet->getColumnDimension('E')->setWidth(22);
+
+        // Borders
+        if ($row > 5) {
+            $sheet->getStyle('A4:E' . ($row - 1))->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ]);
+        }
+    }
+
+    /**
+     * Create Excel Per Periode Sheet for Laporan Kekurangan
+     */
+    private function createEfektivitasLaporanPerPeriodeSheet($spreadsheet, $dateFrom, $dateTo, $groupBy)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $title = $groupBy === 'weekly' ? 'Per Minggu (7 Hari)' : 'Per Hari';
+        $sheet->setTitle($title);
+
+        // Header
+        $headerText = $groupBy === 'weekly' ? 'EFEKTIVITAS LAPORAN KEKURANGAN PER MINGGU (7 HARI)' : 'EFEKTIVITAS LAPORAN KEKURANGAN PER HARI';
+        $sheet->setCellValue('A1', $headerText);
+        $sheet->mergeCells('A1:E1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Periode
+        $sheet->setCellValue('A2', 'Periode:');
+        $sheet->setCellValue('B2', date('d/m/Y', strtotime($dateFrom)) . ' - ' . date('d/m/Y', strtotime($dateTo)));
+        $sheet->mergeCells('B2:E2');
+
+        // Table header
+        $sheet->setCellValue('A4', 'Periode');
+        $sheet->setCellValue('B4', 'Hari Kerja');
+        $sheet->setCellValue('C4', 'Jam Kerja');
+        $sheet->setCellValue('D4', 'Total Laporan');
+        $sheet->setCellValue('E4', 'Efektivitas (lap/jam)');
+
+        $sheet->getStyle('A4:E4')->getFont()->setBold(true);
+        $sheet->getStyle('A4:E4')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF2196F3');
+        $sheet->getStyle('A4:E4')->getFont()->getColor()->setARGB('FFFFFFFF');
+        $sheet->getStyle('A4:E4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Get data
+        $efektivitasPerPeriode = $this->getEfektivitasLaporanPerPeriode($dateFrom, $dateTo, $groupBy);
+
+        // Fill data
+        $row = 5;
+        foreach ($efektivitasPerPeriode as $item) {
+            $sheet->setCellValue('A' . $row, $item['periode']);
+            $sheet->setCellValue('B' . $row, $item['working_days']);
+            $sheet->setCellValue('C' . $row, $item['working_hours']);
+            $sheet->setCellValue('D' . $row, $item['total_laporan']);
+            $sheet->setCellValue('E' . $row, $item['efektivitas']);
+
+            // Format
+            $sheet->getStyle('B' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('#,##0.0');
+            $sheet->getStyle('D' . $row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('E' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+
+            $row++;
+        }
+
+        // Column width
+        $sheet->getColumnDimension('A')->setWidth(35);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(18);
+        $sheet->getColumnDimension('E')->setWidth(22);
+
+        // Borders
+        if ($row > 5) {
+            $sheet->getStyle('A4:E' . ($row - 1))->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ]);
+        }
+    }
+
+    /**
+     * Get Efektivitas Laporan Kekurangan Per Periode (weekly/daily)
+     */
+    private function getEfektivitasLaporanPerPeriode($dateFrom, $dateTo, $groupBy)
+    {
+        $result = [];
+
+        if ($groupBy === 'daily') {
+            $start = new \DateTime($dateFrom);
+            $end = new \DateTime($dateTo);
+            $interval = new \DateInterval('P1D');
+            $period = new \DatePeriod($start, $interval, $end->modify('+1 day'));
+
+            foreach ($period as $date) {
+                $dateStr = $date->format('Y-m-d');
+                $dayOfWeek = (int)$date->format('N');
+
+                // Skip weekend
+                if ($dayOfWeek == 6 || $dayOfWeek == 7) {
+                    continue;
+                }
+
+                $workingDays = 1;
+                $workingHours = 7.5;
+
+                // Hitung total laporan
+                $totalLaporan = DB::table('log_aktivitas')
+                    ->where('event_name', 'Laporan-Kekurangan-Riwayat')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [$dateStr . ' 00:00:00', $dateStr . ' 23:59:59'])
+                    ->count();
+
+                // Ambil day_name dari database
+                $dayNameRecord = DB::table('log_aktivitas')
+                    ->where('event_name', 'Laporan-Kekurangan-Riwayat')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [$dateStr . ' 00:00:00', $dateStr . ' 23:59:59'])
+                    ->whereNotNull('day_name')
+                    ->value('day_name');
+
+                $dayName = $dayNameRecord ?? $this->getDayNameIndo($dayOfWeek);
+
+                $result[] = [
+                    'periode' => $dayName . ', ' . $date->format('d/m/Y'),
+                    'working_days' => $workingDays,
+                    'working_hours' => $workingHours,
+                    'total_laporan' => $totalLaporan,
+                    'efektivitas' => $workingHours > 0 ? round($totalLaporan / $workingHours, 2) : 0,
+                ];
+            }
+        } elseif ($groupBy === 'weekly') {
+            $start = new \DateTime($dateFrom);
+            $end = new \DateTime($dateTo);
+
+            $weekStart = clone $start;
+
+            while ($weekStart <= $end) {
+                $weekEnd = clone $weekStart;
+                $weekEnd->modify('+6 days');
+
+                if ($weekEnd > $end) {
+                    $weekEnd = clone $end;
+                }
+
+                $workingDays = $this->calculateWorkingDays($weekStart->format('Y-m-d'), $weekEnd->format('Y-m-d'));
+                $workingHours = $workingDays * 7.5;
+
+                $totalLaporan = DB::table('log_aktivitas')
+                    ->where('event_name', 'Laporan-Kekurangan-Riwayat')
+                    ->where('is_inject', 0)
+                    ->whereBetween('created_at_log', [
+                        $weekStart->format('Y-m-d') . ' 00:00:00',
+                        $weekEnd->format('Y-m-d') . ' 23:59:59'
+                    ])
+                    ->count();
+
+                $result[] = [
+                    'periode' => 'Minggu ' . $weekStart->format('d/m/Y') . ' - ' . $weekEnd->format('d/m/Y'),
+                    'working_days' => $workingDays,
+                    'working_hours' => $workingHours,
+                    'total_laporan' => $totalLaporan,
+                    'efektivitas' => $workingHours > 0 ? round($totalLaporan / $workingHours, 2) : 0,
+                ];
+
+                $weekStart->modify('+7 days');
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Export Efektivitas Laporan Kekurangan to PDF
+     */
+    public function exportEfektivitasLaporanPdf(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        if (!$dateFrom || !$dateTo) {
+            return back()->with('error', 'Tanggal mulai dan akhir harus diisi');
+        }
+
+        // Get data
+        $totalWorkingDays = $this->calculateWorkingDays($dateFrom, $dateTo);
+        $totalWorkingHours = $totalWorkingDays * 7.5;
+
+        $totalLaporan = DB::table('log_aktivitas')
+            ->where('event_name', 'Laporan-Kekurangan-Riwayat')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->count();
+
+        $efektivitasTotal = $totalWorkingHours > 0 ? number_format($totalLaporan / $totalWorkingHours, 2) : '0.00';
+
+        // Hitung jumlah pegawai unik
+        $totalPegawai = DB::table('log_aktivitas')
+            ->where('event_name', 'Laporan-Kekurangan-Riwayat')
+            ->where('is_inject', 0)
+            ->whereBetween('created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->distinct('created_by_nip')
+            ->count('created_by_nip');
+
+        // METRIK TAMBAHAN
+        $totalWorkingMinutes = $totalWorkingHours * 60;
+        $avgPerPerson = $totalPegawai > 0 ? round($totalLaporan / $totalPegawai, 2) : 0;
+        $minutesPerLaporan = $totalLaporan > 0 ? round($totalWorkingMinutes / $totalLaporan, 2) : 0;
+        $laporanPerMinute = $totalWorkingMinutes > 0 ? round($totalLaporan / $totalWorkingMinutes, 4) : 0;
+
+        // Efektivitas per pegawai
+        $results = DB::table('log_aktivitas as la')
+            ->leftJoin('dms_pns as dp', 'la.created_by_nip', '=', 'dp.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(dp.nama, la.created_by_nama, la.created_by_nip) as nama'),
+                DB::raw('COUNT(*) as total_laporan')
+            )
+            ->where('la.event_name', 'Laporan-Kekurangan-Riwayat')
+            ->where('la.is_inject', 0)
+            ->whereBetween('la.created_at_log', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->groupBy('la.created_by_nip', 'dp.nama', 'la.created_by_nama')
+            ->orderByDesc('total_laporan')
+            ->get();
+
+        $efektivitasPerPegawai = $results->map(function ($item) use ($totalWorkingHours) {
+            return [
+                'nip' => $item->nip,
+                'nama' => $item->nama,
+                'total_laporan' => $item->total_laporan,
+                'efektivitas' => $totalWorkingHours > 0 ? number_format($item->total_laporan / $totalWorkingHours, 2) : '0.00',
+            ];
+        })->toArray();
+
+        // Efektivitas per minggu
+        $efektivitasPerMinggu = $this->getEfektivitasLaporanPerPeriode($dateFrom, $dateTo, 'weekly');
+
+        // Efektivitas per hari
+        $efektivitasPerHari = $this->getEfektivitasLaporanPerPeriode($dateFrom, $dateTo, 'daily');
+
+        // Prepare data for PDF with underscore variable names
+        $date_from = $dateFrom;
+        $date_to = $dateTo;
+        $total_working_days = $totalWorkingDays;
+        $total_working_hours = $totalWorkingHours;
+        $total_working_minutes = $totalWorkingMinutes;
+        $total_laporan = $totalLaporan;
+        $total_pegawai = $totalPegawai;
+        $efektivitas_total = $efektivitasTotal;
+        $avg_per_person = $avgPerPerson;
+        $minutes_per_laporan = $minutesPerLaporan;
+        $laporan_per_minute = $laporanPerMinute;
+        $efektivitas_per_pegawai = $efektivitasPerPegawai;
+        $efektivitas_per_minggu = $efektivitasPerMinggu;
+        $efektivitas_per_hari = $efektivitasPerHari;
+
+        // Generate PDF
+        $pdf = PDF::loadView('pdf.efektivitas-laporan-kekurangan', compact(
+            'date_from',
+            'date_to',
+            'total_working_days',
+            'total_working_hours',
+            'total_working_minutes',
+            'total_laporan',
+            'total_pegawai',
+            'efektivitas_total',
+            'avg_per_person',
+            'minutes_per_laporan',
+            'laporan_per_minute',
+            'efektivitas_per_pegawai',
+            'efektivitas_per_minggu',
+            'efektivitas_per_hari'
+        ));
+
+        $pdf->setPaper('A4', 'portrait');
+
+        $filename = 'Efektivitas_Laporan_Kekurangan_' . date('Y-m-d', strtotime($dateFrom)) . '_sd_' . date('Y-m-d', strtotime($dateTo)) . '.pdf';
+
+        return $pdf->download($filename);
     }
 }
