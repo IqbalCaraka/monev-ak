@@ -160,12 +160,59 @@
     @if($skorNasionalPrevious && $skorNasionalCurrent)
     <div style="background-color: #ecf0f1; padding: 8px; margin-bottom: 10px; border-left: 4px solid #27ae60;">
         <strong style="font-size: 9px; color: #2c3e50;">SKOR RATA-RATA ARSIP DMS NASIONAL</strong>
-        <table cellpadding="5" style="margin-top: 5px; width: 100%;">
+        <table cellpadding="5" style="margin-top: 5px; width: 100%; margin-bottom: 8px;">
             <tr>
                 <td style="width: 30%; font-size: 7px;"><strong>Sebelum:</strong> {{ number_format($skorNasionalPrevious->skor_rata2_nasional, 2) }}</td>
                 <td style="width: 30%; font-size: 7px;"><strong>Sekarang:</strong> {{ number_format($skorNasionalCurrent->skor_rata2_nasional, 2) }}</td>
                 <td style="width: 40%; font-size: 7px;"><strong>Perubahan:</strong> {{ number_format($skorNasionalCurrent->skor_rata2_nasional - $skorNasionalPrevious->skor_rata2_nasional, 2) }}</td>
             </tr>
+        </table>
+
+        <!-- Distribusi ASN Detail -->
+        <strong style="font-size: 8px; color: #2c3e50; display: block; margin-top: 8px; margin-bottom: 4px;">Distribusi ASN Berdasarkan Status Kelengkapan:</strong>
+        <table style="width: 100%; border-collapse: collapse; font-size: 7px;">
+            <thead>
+                <tr style="background-color: #bdc3c7;">
+                    <th style="padding: 4px; border: 1px solid #95a5a6; text-align: left;">Status</th>
+                    <th style="padding: 4px; border: 1px solid #95a5a6; text-align: center;">Sebelum</th>
+                    <th style="padding: 4px; border: 1px solid #95a5a6; text-align: center;">Sekarang</th>
+                    <th style="padding: 4px; border: 1px solid #95a5a6; text-align: center;">Perubahan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; background-color: #fff;">Kurang Lengkap</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff;">{{ number_format($skorNasionalPrevious->kurang_lengkap ?? 0) }}</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff;">{{ number_format($skorNasionalCurrent->kurang_lengkap ?? 0) }}</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff; color: {{ (($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0)) > 0 ? '#e74c3c' : (($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0)) < 0 ? '#27ae60' : '#333' }};">
+                        {{ number_format(($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0)) >= 0 ? '+' : '' }}{{ number_format(($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; background-color: #f8f9fa;">Cukup Lengkap</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa;">{{ number_format($skorNasionalPrevious->cukup_lengkap ?? 0) }}</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa;">{{ number_format($skorNasionalCurrent->cukup_lengkap ?? 0) }}</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa; color: {{ (($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0)) > 0 ? '#27ae60' : (($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0)) < 0 ? '#e74c3c' : '#333' }};">
+                        {{ number_format(($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0)) >= 0 ? '+' : '' }}{{ number_format(($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; background-color: #fff;">Lengkap</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff;">{{ number_format($skorNasionalPrevious->lengkap ?? 0) }}</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff;">{{ number_format($skorNasionalCurrent->lengkap ?? 0) }}</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff; color: {{ (($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0)) > 0 ? '#27ae60' : (($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0)) < 0 ? '#e74c3c' : '#333' }};">
+                        {{ number_format(($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0)) >= 0 ? '+' : '' }}{{ number_format(($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; background-color: #f8f9fa;">Sangat Lengkap</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa;">{{ number_format($skorNasionalPrevious->sangat_lengkap ?? 0) }}</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa;">{{ number_format($skorNasionalCurrent->sangat_lengkap ?? 0) }}</td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa; color: {{ (($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0)) > 0 ? '#27ae60' : (($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0)) < 0 ? '#e74c3c' : '#333' }};">
+                        {{ number_format(($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0)) >= 0 ? '+' : '' }}{{ number_format(($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0)) }}
+                    </td>
+                </tr>
+            </tbody>
         </table>
     </div>
     @endif

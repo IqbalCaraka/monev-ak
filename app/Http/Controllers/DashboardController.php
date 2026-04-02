@@ -599,12 +599,20 @@ class DashboardController extends Controller
             'skor_nasional_current' => $skorNasionalCurrent ? [
                 'skor' => $skorNasionalCurrent->skor_rata2_nasional,
                 'jumlah_asn' => $skorNasionalCurrent->jumlah_asn,
-                'status' => $skorNasionalCurrent->status_kelengkapan
+                'status' => $skorNasionalCurrent->status_kelengkapan,
+                'kurang_lengkap' => $skorNasionalCurrent->kurang_lengkap ?? 0,
+                'cukup_lengkap' => $skorNasionalCurrent->cukup_lengkap ?? 0,
+                'lengkap' => $skorNasionalCurrent->lengkap ?? 0,
+                'sangat_lengkap' => $skorNasionalCurrent->sangat_lengkap ?? 0,
             ] : null,
             'skor_nasional_previous' => $skorNasionalPrevious ? [
                 'skor' => $skorNasionalPrevious->skor_rata2_nasional,
                 'jumlah_asn' => $skorNasionalPrevious->jumlah_asn,
-                'status' => $skorNasionalPrevious->status_kelengkapan
+                'status' => $skorNasionalPrevious->status_kelengkapan,
+                'kurang_lengkap' => $skorNasionalPrevious->kurang_lengkap ?? 0,
+                'cukup_lengkap' => $skorNasionalPrevious->cukup_lengkap ?? 0,
+                'lengkap' => $skorNasionalPrevious->lengkap ?? 0,
+                'sangat_lengkap' => $skorNasionalPrevious->sangat_lengkap ?? 0,
             ] : null,
             // Average Skor Instansi comparison
             'avg_skor_instansi_current' => round($avgSkorInstansiCurrent, 2),

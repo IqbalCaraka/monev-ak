@@ -2759,7 +2759,7 @@
                                     </div>
                                     <div class="card-body">${
                                         data.skor_nasional_previous && data.skor_nasional_current ? `
-                                        <div class="row text-center">
+                                        <div class="row text-center mb-3">
                                             <div class="col-6">
                                                 <small class="text-muted d-block">Sebelum</small>
                                                 <h4 class="mb-1">${formatNumber(data.skor_nasional_previous.skor, 2)}</h4>
@@ -2773,8 +2773,8 @@
                                                 <div class="mt-2 small text-muted">${data.skor_nasional_current.jumlah_asn.toLocaleString()} ASN</div>
                                             </div>
                                         </div>
-                                        <div class="text-center mt-3">
-                                            <strong>Perubahan: </strong>
+                                        <div class="text-center mb-3">
+                                            <strong>Perubahan Skor: </strong>
                                             ${(() => {
                                                 const diff = data.skor_nasional_current.skor - data.skor_nasional_previous.skor;
                                                 const diffFormatted = formatNumber(diff, 2);
@@ -2786,6 +2786,66 @@
                                                     return `<span class="badge badge-secondary">0.00</span>`;
                                                 }
                                             })()}
+                                        </div>
+                                        <hr>
+                                        <div class="mt-3">
+                                            <h6 class="text-muted mb-2" style="font-size: 11px;">Distribusi ASN Berdasarkan Status:</h6>
+                                            <table class="table table-sm table-bordered mb-0" style="font-size: 10px;">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Status</th>
+                                                        <th class="text-center">Sebelum</th>
+                                                        <th class="text-center">Sekarang</th>
+                                                        <th class="text-center">Perubahan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><span class="badge badge-danger" style="font-size: 9px;">Kurang Lengkap</span></td>
+                                                        <td class="text-center">${data.skor_nasional_previous.kurang_lengkap.toLocaleString()}</td>
+                                                        <td class="text-center">${data.skor_nasional_current.kurang_lengkap.toLocaleString()}</td>
+                                                        <td class="text-center">${(() => {
+                                                            const diff = data.skor_nasional_current.kurang_lengkap - data.skor_nasional_previous.kurang_lengkap;
+                                                            if (diff > 0) return `<span class="text-danger">+${diff.toLocaleString()}</span>`;
+                                                            else if (diff < 0) return `<span class="text-success">${diff.toLocaleString()}</span>`;
+                                                            else return '0';
+                                                        })()}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="badge badge-warning" style="font-size: 9px;">Cukup Lengkap</span></td>
+                                                        <td class="text-center">${data.skor_nasional_previous.cukup_lengkap.toLocaleString()}</td>
+                                                        <td class="text-center">${data.skor_nasional_current.cukup_lengkap.toLocaleString()}</td>
+                                                        <td class="text-center">${(() => {
+                                                            const diff = data.skor_nasional_current.cukup_lengkap - data.skor_nasional_previous.cukup_lengkap;
+                                                            if (diff > 0) return `<span class="text-success">+${diff.toLocaleString()}</span>`;
+                                                            else if (diff < 0) return `<span class="text-danger">${diff.toLocaleString()}</span>`;
+                                                            else return '0';
+                                                        })()}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="badge badge-primary" style="font-size: 9px;">Lengkap</span></td>
+                                                        <td class="text-center">${data.skor_nasional_previous.lengkap.toLocaleString()}</td>
+                                                        <td class="text-center">${data.skor_nasional_current.lengkap.toLocaleString()}</td>
+                                                        <td class="text-center">${(() => {
+                                                            const diff = data.skor_nasional_current.lengkap - data.skor_nasional_previous.lengkap;
+                                                            if (diff > 0) return `<span class="text-success">+${diff.toLocaleString()}</span>`;
+                                                            else if (diff < 0) return `<span class="text-danger">${diff.toLocaleString()}</span>`;
+                                                            else return '0';
+                                                        })()}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="badge badge-success" style="font-size: 9px;">Sangat Lengkap</span></td>
+                                                        <td class="text-center">${data.skor_nasional_previous.sangat_lengkap.toLocaleString()}</td>
+                                                        <td class="text-center">${data.skor_nasional_current.sangat_lengkap.toLocaleString()}</td>
+                                                        <td class="text-center">${(() => {
+                                                            const diff = data.skor_nasional_current.sangat_lengkap - data.skor_nasional_previous.sangat_lengkap;
+                                                            if (diff > 0) return `<span class="text-success">+${diff.toLocaleString()}</span>`;
+                                                            else if (diff < 0) return `<span class="text-danger">${diff.toLocaleString()}</span>`;
+                                                            else return '0';
+                                                        })()}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>` : '<p class="text-muted text-center mb-0">Data tidak tersedia untuk salah satu periode</p>'
                                     }
                                     </div>

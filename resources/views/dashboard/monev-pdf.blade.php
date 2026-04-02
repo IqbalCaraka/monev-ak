@@ -224,6 +224,51 @@
             Status kelengkapan ditentukan berdasarkan range: Sangat Lengkap (&gt;90), Lengkap (55.6-90), Cukup Lengkap (30-55.5), Kurang Lengkap (&lt;30).
         </p>
     </div>
+
+    <!-- Distribusi ASN Berdasarkan Status Kelengkapan -->
+    <div class="section-title">DISTRIBUSI ASN BERDASARKAN STATUS KELENGKAPAN</div>
+
+    <div class="stats-row">
+        <div class="stat-box danger">
+            <div class="label">Kurang Lengkap</div>
+            <div class="number">{{ number_format($selectedSkorNasional->kurang_lengkap ?? 0) }}</div>
+            <div class="range">Skor < 30</div>
+            @if($selectedSkorNasional->jumlah_asn > 0)
+            <div class="range">{{ number_format(($selectedSkorNasional->kurang_lengkap / $selectedSkorNasional->jumlah_asn) * 100, 2) }}%</div>
+            @endif
+        </div>
+        <div class="stat-box warning">
+            <div class="label">Cukup Lengkap</div>
+            <div class="number">{{ number_format($selectedSkorNasional->cukup_lengkap ?? 0) }}</div>
+            <div class="range">Skor 30 - 55.5</div>
+            @if($selectedSkorNasional->jumlah_asn > 0)
+            <div class="range">{{ number_format(($selectedSkorNasional->cukup_lengkap / $selectedSkorNasional->jumlah_asn) * 100, 2) }}%</div>
+            @endif
+        </div>
+        <div class="stat-box primary">
+            <div class="label">Lengkap</div>
+            <div class="number">{{ number_format($selectedSkorNasional->lengkap ?? 0) }}</div>
+            <div class="range">Skor 55.6 - 90</div>
+            @if($selectedSkorNasional->jumlah_asn > 0)
+            <div class="range">{{ number_format(($selectedSkorNasional->lengkap / $selectedSkorNasional->jumlah_asn) * 100, 2) }}%</div>
+            @endif
+        </div>
+        <div class="stat-box success">
+            <div class="label">Sangat Lengkap</div>
+            <div class="number">{{ number_format($selectedSkorNasional->sangat_lengkap ?? 0) }}</div>
+            <div class="range">Skor > 90</div>
+            @if($selectedSkorNasional->jumlah_asn > 0)
+            <div class="range">{{ number_format(($selectedSkorNasional->sangat_lengkap / $selectedSkorNasional->jumlah_asn) * 100, 2) }}%</div>
+            @endif
+        </div>
+    </div>
+
+    <div class="info-box" style="border-left-color: #3498db;">
+        <p style="margin: 0; font-size: 9px; color: #2c3e50;">
+            <strong>Informasi:</strong> Distribusi di atas menunjukkan jumlah ASN di seluruh Indonesia berdasarkan status kelengkapan arsip kepegawaian mereka di DMS.
+            Total ASN: {{ number_format($selectedSkorNasional->jumlah_asn) }} pegawai.
+        </p>
+    </div>
     @endif
 
     <!-- Rata-rata Skor Arsip Instansi -->
