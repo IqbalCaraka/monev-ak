@@ -259,12 +259,16 @@ class MonevDmsController extends Controller
             // Parse CSV (hanya 1 baris data)
             $row = $csvData[0];
 
-            if (count($row) < 2) {
-                return back()->with('error', 'Format CSV tidak valid. Harus ada 2 kolom: rata_rata_skor, jumlah_asn');
+            if (count($row) < 6) {
+                return back()->with('error', 'Format CSV tidak valid. Harus ada 6 kolom: rata_rata_skor, jumlah_asn, kurang_lengkap, cukup_lengkap, lengkap, sangat_lengkap');
             }
 
             $skorRata2 = floatval($row[0]);
             $jumlahAsn = intval($row[1]);
+            $kurangLengkap = intval($row[2]);
+            $cukupLengkap = intval($row[3]);
+            $lengkap = intval($row[4]);
+            $sangatLengkap = intval($row[5]);
 
             // Determine status kelengkapan based on score
             if ($skorRata2 > 90) {
@@ -283,6 +287,10 @@ class MonevDmsController extends Controller
                 'jumlah_asn' => $jumlahAsn,
                 'skor_rata2_nasional' => round($skorRata2, 2),
                 'status_kelengkapan' => $statusKelengkapan,
+                'kurang_lengkap' => $kurangLengkap,
+                'cukup_lengkap' => $cukupLengkap,
+                'lengkap' => $lengkap,
+                'sangat_lengkap' => $sangatLengkap,
             ]);
 
             DB::commit();

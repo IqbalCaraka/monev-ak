@@ -13,11 +13,19 @@ class MonevDmsSkorRata2Nasional extends Model
         'jumlah_asn',
         'skor_rata2_nasional',
         'status_kelengkapan',
+        'kurang_lengkap',
+        'cukup_lengkap',
+        'lengkap',
+        'sangat_lengkap',
     ];
 
     protected $casts = [
         'upload_date' => 'date',
         'skor_rata2_nasional' => 'decimal:2',
         'jumlah_asn' => 'integer',
+        'kurang_lengkap' => 'integer',
+        'cukup_lengkap' => 'integer',
+        'lengkap' => 'integer',
+        'sangat_lengkap' => 'integer',
     ];
 }

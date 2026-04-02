@@ -578,6 +578,69 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- Breakdown Detail ASN by Status -->
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <h5 class="mb-3"><i class="mdi mdi-chart-bar"></i> Distribusi ASN Berdasarkan Status Kelengkapan</h5>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 mb-3">
+                                            <div class="p-3 border border-danger rounded shadow-sm">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-3">
+                                                        <i class="mdi mdi-alert-circle text-danger" style="font-size: 2rem;"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Kurang Lengkap</small>
+                                                        <h4 class="mb-0 fw-bold text-danger">{{ number_format($selectedSkorNasional->kurang_lengkap ?? 0) }}</h4>
+                                                        <small class="text-muted">{{ number_format(($selectedSkorNasional->kurang_lengkap / $selectedSkorNasional->jumlah_asn) * 100, 2) }}%</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 mb-3">
+                                            <div class="p-3 border border-warning rounded shadow-sm">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-3">
+                                                        <i class="mdi mdi-alert text-warning" style="font-size: 2rem;"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Cukup Lengkap</small>
+                                                        <h4 class="mb-0 fw-bold text-warning">{{ number_format($selectedSkorNasional->cukup_lengkap ?? 0) }}</h4>
+                                                        <small class="text-muted">{{ number_format(($selectedSkorNasional->cukup_lengkap / $selectedSkorNasional->jumlah_asn) * 100, 2) }}%</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 mb-3">
+                                            <div class="p-3 border border-primary rounded shadow-sm">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-3">
+                                                        <i class="mdi mdi-check-circle text-primary" style="font-size: 2rem;"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Lengkap</small>
+                                                        <h4 class="mb-0 fw-bold text-primary">{{ number_format($selectedSkorNasional->lengkap ?? 0) }}</h4>
+                                                        <small class="text-muted">{{ number_format(($selectedSkorNasional->lengkap / $selectedSkorNasional->jumlah_asn) * 100, 2) }}%</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 mb-3">
+                                            <div class="p-3 border border-success rounded shadow-sm">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-3">
+                                                        <i class="mdi mdi-check-circle-outline text-success" style="font-size: 2rem;"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Sangat Lengkap</small>
+                                                        <h4 class="mb-0 fw-bold text-success">{{ number_format($selectedSkorNasional->sangat_lengkap ?? 0) }}</h4>
+                                                        <small class="text-muted">{{ number_format(($selectedSkorNasional->sangat_lengkap / $selectedSkorNasional->jumlah_asn) * 100, 2) }}%</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="mt-3">
                                         <div class="alert alert-info border-0 mb-0" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);">
                                             <i class="mdi mdi-information"></i>
@@ -1725,8 +1788,8 @@
                                                     <div class="text-danger mt-1 small">{{ $message }}</div>
                                                 @enderror
                                                 <small class="text-muted">
-                                                    Format CSV: rata_rata_skor, jumlah_asn<br>
-                                                    <code>Example: 51.97,3525970</code>
+                                                    Format CSV: rata_rata_skor, jumlah_asn, kurang_lengkap, cukup_lengkap, lengkap, sangat_lengkap<br>
+                                                    <code>Example: 51.97,3525970,152524,2154187,1137080,82170</code>
                                                 </small>
                                             </div>
                                             <div class="col-md-4 mb-3">
@@ -1760,6 +1823,7 @@
                                                         <th class="text-center">Jumlah ASN</th>
                                                         <th class="text-center">Skor Rata-rata</th>
                                                         <th class="text-center">Status Kelengkapan</th>
+                                                        <th class="text-center">Detail Distribusi</th>
                                                         <th class="text-center">Aksi</th>
                                                     </tr>
                                                 </thead>
@@ -1792,13 +1856,29 @@
                                                                 {{ $upload->status_kelengkapan }}
                                                             </span>
                                                         </td>
+                                                        <td>
+                                                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                                                <span class="badge badge-danger" title="Kurang Lengkap">
+                                                                    <i class="mdi mdi-alert-circle"></i> {{ number_format($upload->kurang_lengkap ?? 0) }}
+                                                                </span>
+                                                                <span class="badge badge-warning" title="Cukup Lengkap">
+                                                                    <i class="mdi mdi-alert"></i> {{ number_format($upload->cukup_lengkap ?? 0) }}
+                                                                </span>
+                                                                <span class="badge badge-primary" title="Lengkap">
+                                                                    <i class="mdi mdi-check-circle"></i> {{ number_format($upload->lengkap ?? 0) }}
+                                                                </span>
+                                                                <span class="badge badge-success" title="Sangat Lengkap">
+                                                                    <i class="mdi mdi-check-circle-outline"></i> {{ number_format($upload->sangat_lengkap ?? 0) }}
+                                                                </span>
+                                                            </div>
+                                                        </td>
                                                         <td class="text-center">
                                                             <form action="{{ route('monev-dms.delete-skor-nasional') }}" method="POST" class="d-inline"
                                                                   onsubmit="return confirm('Yakin ingin menghapus data skor nasional untuk tanggal {{ \Carbon\Carbon::parse($upload->upload_date)->format('d M Y') }}?');">
                                                                 @csrf
-                                                                <input type="hidden" name="upload_date" value="{{ $upload->upload_date }}">
+                                                                <input type="hidden" name="upload_date" value="{{ \Carbon\Carbon::parse($upload->upload_date)->format('Y-m-d') }}">
                                                                 <button type="submit" class="btn btn-sm btn-danger">
-                                                                    <i class="mdi mdi-delete"></i>
+                                                                    <i class="mdi mdi-delete"></i> Hapus
                                                                 </button>
                                                             </form>
                                                         </td>
