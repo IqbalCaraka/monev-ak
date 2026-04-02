@@ -52,12 +52,14 @@ class ProcessUbahFormatCsv implements ShouldQueue
         '50' => 'S-3/Doktor',
     ];
 
+    protected $jobId;
+
     /**
      * Create a new job instance.
      */
     public function __construct($jobId, $filePath)
     {
-        $this->jobRecord = CsvProcessingJob::where('job_id', $jobId)->first();
+        $this->jobId = $jobId;
         $this->filePath = $filePath;
     }
 
@@ -66,52 +68,108 @@ class ProcessUbahFormatCsv implements ShouldQueue
      */
     public function handle(): void
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '3072M'); // Increase to 3GB
+
         try {
             // Update status to processing
-            $this->updateProgress('processing', 5);
+            $this->updateStatus('processing', 'Memproses file CSV...');
 
-            // Read and parse CSV
-            $data = $this->parseCSV();
-            $this->updateProgress('processing', 30);
+            // Read and parse CSV in batches
+            $allData = $this->parseCSV();
 
-            if (empty($data)) {
+            if (empty($allData)) {
                 throw new \Exception('Tidak ada data yang valid untuk diproses');
             }
 
-            // Generate Excel
-            $excelPath = $this->generateExcel($data);
-            $this->updateProgress('processing', 95);
+            $totalPegawai = count($allData);
+            $batchSize = 2000; // Reduce to 2000 pegawai per batch to avoid memory issues
+            $batches = array_chunk($allData, $batchSize);
+            $totalBatches = count($batches);
 
-            // Move to public folder
-            $filename = basename($excelPath);
-            $publicPath = public_path('temp/' . $filename);
-            if (!file_exists(public_path('temp'))) {
-                mkdir(public_path('temp'), 0755, true);
+            $this->updateStatus('processing', "Menggenerate $totalBatches file Excel... (Total: $totalPegawai pegawai)");
+
+            $generatedFiles = [];
+
+            // Generate Excel per batch
+            $failedBatches = [];
+            foreach ($batches as $batchIndex => $batchData) {
+                $batchNumber = $batchIndex + 1;
+
+                try {
+                    $this->updateStatus('processing', "Menggenerate Excel batch $batchNumber dari $totalBatches...");
+
+                    $excelPath = $this->generateExcel($batchData, $batchNumber, $totalBatches);
+
+                    // Move to public folder
+                    $filename = basename($excelPath);
+                    $publicPath = public_path('temp/' . $filename);
+                    if (!file_exists(public_path('temp'))) {
+                        mkdir(public_path('temp'), 0755, true);
+                    }
+                    copy($excelPath, $publicPath);
+                    unlink($excelPath);
+
+                    $generatedFiles[] = $filename;
+
+                    // Clear memory after each batch
+                    unset($batchData);
+                    gc_collect_cycles();
+
+                } catch (\Exception $e) {
+                    Log::error("Batch $batchNumber failed: " . $e->getMessage());
+                    $failedBatches[] = $batchNumber;
+                    // Continue to next batch instead of failing entire job
+                }
             }
-            copy($excelPath, $publicPath);
-            unlink($excelPath);
 
-            // Mark as completed
-            $this->jobRecord->update([
-                'status' => 'completed',
-                'progress' => 100,
-                'result_file' => $filename,
+            // Mark as completed with list of files
+            $successCount = count($generatedFiles);
+            $failCount = count($failedBatches);
+            $filesList = implode(', ', $generatedFiles);
+
+            if ($failCount > 0) {
+                $failedList = implode(', ', $failedBatches);
+                $message = "Selesai dengan warning! Berhasil: $successCount dari $totalBatches batches. Gagal: batch $failedList. Files: $filesList";
+                $status = $successCount > 0 ? 'completed' : 'failed';
+            } else {
+                $message = "Selesai! Generated $totalBatches files: $filesList";
+                $status = 'completed';
+            }
+
+            \DB::table('csv_processing_jobs')->where('id', $this->jobId)->update([
+                'status' => $status,
+                'message' => $message,
+                'output_file' => !empty($generatedFiles) ? $generatedFiles[0] : null, // First file for download
+                'updated_at' => now(),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Job failed: ' . $e->getMessage());
-            $this->jobRecord->update([
+            Log::error('ProcessUbahFormatCsv failed: ' . $e->getMessage());
+            \DB::table('csv_processing_jobs')->where('id', $this->jobId)->update([
                 'status' => 'failed',
-                'error_message' => $e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
+                'updated_at' => now(),
             ]);
+            throw $e;
         }
     }
 
-    private function updateProgress($status, $progress)
+    private function updateStatus($status, $message)
     {
-        $this->jobRecord->update([
+        \DB::table('csv_processing_jobs')->where('id', $this->jobId)->update([
             'status' => $status,
-            'progress' => $progress,
+            'message' => $message,
+            'updated_at' => now(),
+        ]);
+    }
+
+    public function failed(\Throwable $exception)
+    {
+        \DB::table('csv_processing_jobs')->where('id', $this->jobId)->update([
+            'status' => 'failed',
+            'message' => 'Error: ' . $exception->getMessage(),
+            'updated_at' => now(),
         ]);
     }
 
@@ -136,6 +194,7 @@ class ProcessUbahFormatCsv implements ShouldQueue
         $skorArsipIndex = array_search('Nilai Arsip 2026', $header);
 
         $data = [];
+
         while (($row = fgetcsv($handle)) !== false) {
             if (count($row) < $statusArsipIndex + 1) continue;
 
@@ -168,43 +227,22 @@ class ProcessUbahFormatCsv implements ShouldQueue
         return $data;
     }
 
-    private function generateExcel($data)
+    private function generateExcel($data, $batchNumber = 1, $totalBatches = 1)
     {
         $spreadsheet = new Spreadsheet();
         $spreadsheet->removeSheetByIndex(0);
 
         $this->createDataUtamaSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 40);
-
         $this->createGolonganSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 50);
-
         $this->createPendidikanSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 55);
-
         $this->createJabatanSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 60);
-
         $this->createDiklatSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 65);
-
         $this->createPindahInstansiSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 70);
-
         $this->createPenghargaanSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 75);
-
         $this->createSkpSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 80);
-
         $this->createAngkaKreditSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 85);
-
         $this->createCutiLnSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 88);
-
         $this->createPmkSheet($spreadsheet, $data);
-        $this->updateProgress('processing', 90);
 
         $spreadsheet->setActiveSheetIndex(0);
 
@@ -213,7 +251,9 @@ class ProcessUbahFormatCsv implements ShouldQueue
             mkdir($tempDir, 0755, true);
         }
 
-        $filename = 'Status_Arsip_' . date('YmdHis') . '.xlsx';
+        // Add batch number to filename if multiple batches
+        $batchSuffix = $totalBatches > 1 ? "_Part{$batchNumber}of{$totalBatches}" : '';
+        $filename = 'Status_Arsip_' . date('YmdHis') . $batchSuffix . '.xlsx';
         $filepath = $tempDir . $filename;
 
         $writer = new Xlsx($spreadsheet);

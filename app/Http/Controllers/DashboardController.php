@@ -11,6 +11,7 @@ use App\Models\DmsInstansiScore;
 use App\Models\DmsNasional;
 use App\Models\MonevDmsInstansiScore;
 use App\Models\MonevDmsNasional;
+use App\Models\MonevDmsSkorRata2Nasional;
 
 class DashboardController extends Controller
 {
@@ -304,6 +305,17 @@ class DashboardController extends Controller
             $comparisonData = null;
         }
 
+        // Get skor rata2 nasional uploads
+        $skorNasionalUploads = MonevDmsSkorRata2Nasional::orderBy('upload_date', 'desc')->get();
+
+        // Get skor nasional based on selected date (same logic as monevNasionalScore)
+        $selectedSkorNasional = null;
+        if ($selectedMonevDate) {
+            $selectedSkorNasional = MonevDmsSkorRata2Nasional::where('upload_date', $selectedMonevDate)->first();
+        } else {
+            $selectedSkorNasional = MonevDmsSkorRata2Nasional::orderBy('upload_date', 'desc')->first();
+        }
+
         return view('dashboard.dms', compact(
             'uploads',
             'stats',
@@ -322,7 +334,9 @@ class DashboardController extends Controller
             'monevAllInstansi',
             'monevSearch',
             'monevKantorRegionalStats',
-            'comparisonData'
+            'comparisonData',
+            'skorNasionalUploads',
+            'selectedSkorNasional'
         ));
     }
 
@@ -380,12 +394,16 @@ class DashboardController extends Controller
             ->orderBy('clean_kantor_regional_id', 'asc')
             ->get();
 
+        // Get Skor Rata-rata Nasional for the same date
+        $selectedSkorNasional = MonevDmsSkorRata2Nasional::where('upload_date', $monevNasionalScore->upload_date)->first();
+
         // Generate PDF
         $pdf = \PDF::loadView('dashboard.monev-pdf', compact(
             'monevNasionalScore',
             'monevTopInstansi',
             'monevBottomInstansi',
-            'monevKantorRegionalStats'
+            'monevKantorRegionalStats',
+            'selectedSkorNasional'
         ));
 
         $pdf->setPaper('a4', 'portrait');
@@ -745,33 +763,106 @@ class DashboardController extends Controller
             return back()->with('error', 'Tidak ada data instansi untuk periode ini');
         }
 
+        // Get skor rata-rata nasional for this date
+        $skorNasional = MonevDmsSkorRata2Nasional::where('upload_date', $monevDate)->first();
+
         // Create Excel
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         // Header info
         $sheet->setCellValue('A1', 'DAFTAR SEMUA INSTANSI - MONEV DMS');
-        $sheet->mergeCells('A1:E1');
+        $sheet->mergeCells('A1:J1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         $sheet->setCellValue('A2', 'Periode Penilaian: ' . \Carbon\Carbon::parse($monevDate)->format('d F Y'));
-        $sheet->mergeCells('A2:E2');
+        $sheet->mergeCells('A2:J2');
         $sheet->getStyle('A2')->getFont()->setBold(true);
 
         $sheet->setCellValue('A3', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
-        $sheet->mergeCells('A3:E3');
+        $sheet->mergeCells('A3:J3');
 
         $sheet->setCellValue('A4', 'Total Instansi: ' . $instansiList->count());
-        $sheet->mergeCells('A4:E4');
+        $sheet->mergeCells('A4:J4');
         $sheet->getStyle('A4')->getFont()->setBold(true);
 
+        $currentRow = 6;
+
+        // Skor Rata-rata DMS Nasional section
+        if ($skorNasional) {
+            $sheet->setCellValue('A' . $currentRow, 'SKOR RATA-RATA ARSIP DMS NASIONAL');
+            $sheet->mergeCells('A' . $currentRow . ':J' . $currentRow);
+            $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true)->setSize(12);
+            $sheet->getStyle('A' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A' . $currentRow)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FF27AE60');
+            $sheet->getStyle('A' . $currentRow)->getFont()->getColor()->setARGB('FFFFFFFF');
+            $currentRow++;
+
+            $sheet->setCellValue('A' . $currentRow, 'Skor Rata-rata DMS');
+            $sheet->setCellValue('B' . $currentRow, number_format($skorNasional->skor_rata2_nasional, 2));
+            $sheet->setCellValue('D' . $currentRow, 'Total ASN');
+            $sheet->setCellValue('E' . $currentRow, number_format($skorNasional->jumlah_asn));
+            $sheet->setCellValue('G' . $currentRow, 'Status Kelengkapan');
+            $sheet->setCellValue('H' . $currentRow, $skorNasional->status_kelengkapan);
+            $sheet->mergeCells('H' . $currentRow . ':J' . $currentRow);
+
+            $sheet->getStyle('A' . $currentRow . ':J' . $currentRow)->getFont()->setBold(true);
+            $sheet->getStyle('B' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('E' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('H' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $currentRow += 2;
+        }
+
+        // Rata-rata Skor Arsip Instansi section
+        $avgScore = $instansiList->avg('monev_skor_instansi');
+        $countSangatLengkap = $instansiList->where('monev_status_kelengkapan', 'Sangat Lengkap')->count();
+        $countLengkap = $instansiList->where('monev_status_kelengkapan', 'Lengkap')->count();
+        $countCukupLengkap = $instansiList->where('monev_status_kelengkapan', 'Cukup Lengkap')->count();
+        $countKurangLengkap = $instansiList->where('monev_status_kelengkapan', 'Kurang Lengkap')->count();
+
+        $sheet->setCellValue('A' . $currentRow, 'RATA-RATA SKOR ARSIP INSTANSI');
+        $sheet->mergeCells('A' . $currentRow . ':J' . $currentRow);
+        $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A' . $currentRow)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF3498DB');
+        $sheet->getStyle('A' . $currentRow)->getFont()->getColor()->setARGB('FFFFFFFF');
+        $currentRow++;
+
+        $sheet->setCellValue('A' . $currentRow, 'Rata-rata Skor');
+        $sheet->setCellValue('B' . $currentRow, number_format($avgScore, 2));
+        $sheet->setCellValue('C' . $currentRow, 'Sangat Lengkap');
+        $sheet->setCellValue('D' . $currentRow, $countSangatLengkap);
+        $sheet->setCellValue('E' . $currentRow, 'Lengkap');
+        $sheet->setCellValue('F' . $currentRow, $countLengkap);
+        $sheet->setCellValue('G' . $currentRow, 'Cukup Lengkap');
+        $sheet->setCellValue('H' . $currentRow, $countCukupLengkap);
+        $sheet->setCellValue('I' . $currentRow, 'Kurang Lengkap');
+        $sheet->setCellValue('J' . $currentRow, $countKurangLengkap);
+
+        $sheet->getStyle('A' . $currentRow . ':J' . $currentRow)->getFont()->setBold(true);
+        $sheet->getStyle('B' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('D' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('F' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('H' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('J' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $currentRow += 2;
+
         // Table header
-        $sheet->setCellValue('A6', 'No');
-        $sheet->setCellValue('B6', 'Nama Instansi');
-        $sheet->setCellValue('C6', 'Kantor Regional');
-        $sheet->setCellValue('D6', 'Skor');
-        $sheet->setCellValue('E6', 'Status Kelengkapan');
+        $sheet->setCellValue('A' . $currentRow, 'No');
+        $sheet->setCellValue('B' . $currentRow, 'Nama Instansi');
+        $sheet->setCellValue('C' . $currentRow, 'Kantor Regional');
+        $sheet->setCellValue('D' . $currentRow, 'Skor');
+        $sheet->setCellValue('E' . $currentRow, 'Jumlah ASN');
+        $sheet->setCellValue('F' . $currentRow, 'Sangat Lengkap');
+        $sheet->setCellValue('G' . $currentRow, 'Lengkap');
+        $sheet->setCellValue('H' . $currentRow, 'Cukup Lengkap');
+        $sheet->setCellValue('I' . $currentRow, 'Kurang Lengkap');
+        $sheet->setCellValue('J' . $currentRow, 'Status Kelengkapan');
 
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
@@ -789,17 +880,23 @@ class DashboardController extends Controller
                 ]
             ]
         ];
-        $sheet->getStyle('A6:E6')->applyFromArray($headerStyle);
+        $sheet->getStyle('A' . $currentRow . ':J' . $currentRow)->applyFromArray($headerStyle);
+        $currentRow++;
 
         // Data rows
-        $row = 7;
+        $row = $currentRow;
         $no = 1;
         foreach ($instansiList as $instansi) {
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $instansi->nama_instansi);
             $sheet->setCellValue('C' . $row, 'Kanreg ' . $instansi->kantor_regional_id);
             $sheet->setCellValue('D' . $row, number_format(floor($instansi->monev_skor_instansi * 10) / 10, 1));
-            $sheet->setCellValue('E' . $row, $instansi->monev_status_kelengkapan);
+            $sheet->setCellValue('E' . $row, number_format($instansi->jumlah_asn ?? 0));
+            $sheet->setCellValue('F' . $row, number_format($instansi->sangat_lengkap ?? 0));
+            $sheet->setCellValue('G' . $row, number_format($instansi->lengkap ?? 0));
+            $sheet->setCellValue('H' . $row, number_format($instansi->cukup_lengkap ?? 0));
+            $sheet->setCellValue('I' . $row, number_format($instansi->kurang_lengkap ?? 0));
+            $sheet->setCellValue('J' . $row, $instansi->monev_status_kelengkapan);
 
             // Color code status
             $statusColor = '';
@@ -819,7 +916,7 @@ class DashboardController extends Controller
             }
 
             if ($statusColor) {
-                $sheet->getStyle('E' . $row)->getFill()
+                $sheet->getStyle('J' . $row)->getFill()
                     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                     ->getStartColor()->setARGB($statusColor);
             }
@@ -829,6 +926,11 @@ class DashboardController extends Controller
             $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('D' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('E' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('G' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('H' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('I' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('J' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
             $row++;
             $no++;
@@ -839,7 +941,12 @@ class DashboardController extends Controller
         $sheet->getColumnDimension('B')->setWidth(50);
         $sheet->getColumnDimension('C')->setWidth(15);
         $sheet->getColumnDimension('D')->setWidth(12);
-        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('E')->setWidth(15);
+        $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(12);
+        $sheet->getColumnDimension('H')->setWidth(15);
+        $sheet->getColumnDimension('I')->setWidth(15);
+        $sheet->getColumnDimension('J')->setWidth(20);
 
         // Export using StreamedResponse
         $filename = 'Daftar_Semua_Instansi_' . date('Ymd') . '.xlsx';
@@ -877,9 +984,12 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Tidak ada data instansi untuk periode ini'], 404);
         }
 
+        // Get skor rata-rata nasional for this date
+        $skorNasional = MonevDmsSkorRata2Nasional::where('upload_date', $monevDate)->first();
+
         // Render HTML first
         try {
-            $html = view('dashboard.all-instansi-pdf', compact('instansiList', 'monevDate'))->render();
+            $html = view('dashboard.all-instansi-pdf', compact('instansiList', 'monevDate', 'skorNasional'))->render();
 
             $pdf = \PDF::loadHTML($html);
             $pdf->setPaper('a4', 'landscape'); // Landscape karena banyak kolom

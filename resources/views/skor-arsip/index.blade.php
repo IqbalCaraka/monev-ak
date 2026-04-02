@@ -347,12 +347,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 filePreviewUbah.style.display = 'none';
             }
         });
+    }
 
-        // Show loading on form submit
+    // Show loading on form submit for Ubah Format
+    if (uploadFormUbah) {
         uploadFormUbah.addEventListener('submit', function(e) {
-            loadingOverlay.style.display = 'flex';
-            document.getElementById('processingAlert').style.display = 'block';
-            document.getElementById('btnGenerateExcel').disabled = true;
+            try {
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'flex';
+                }
+                const btnGenerate = document.getElementById('btnGenerateExcel');
+                if (btnGenerate) {
+                    btnGenerate.disabled = true;
+                }
+            } catch (error) {
+                console.error('Error showing loading overlay:', error);
+            }
+            // Form will still submit even if there's an error above
         });
     }
 

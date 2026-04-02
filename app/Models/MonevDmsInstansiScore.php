@@ -13,6 +13,11 @@ class MonevDmsInstansiScore extends Model
         'nama_instansi',
         'upload_date',
         'monev_skor_instansi',
+        'jumlah_asn',
+        'sangat_lengkap',
+        'lengkap',
+        'cukup_lengkap',
+        'kurang_lengkap',
         'kantor_regional_id',
         'monev_status_kelengkapan',
     ];

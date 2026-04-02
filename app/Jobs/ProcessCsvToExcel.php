@@ -291,6 +291,12 @@ class ProcessCsvToExcel implements ShouldQueue
     private function createDokumenSheet($spreadsheet, $data, $dokType)
     {
         $sheetName = str_replace('/', '-', $dokType); // Replace / to avoid sheet name errors
+
+        // Excel sheet names must be max 31 characters
+        if (strlen($sheetName) > 31) {
+            $sheetName = substr($sheetName, 0, 31);
+        }
+
         $sheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, $sheetName);
         $spreadsheet->addSheet($sheet);
 

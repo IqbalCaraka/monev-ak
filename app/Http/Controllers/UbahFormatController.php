@@ -55,9 +55,25 @@ class UbahFormatController extends Controller
         try {
             $file = $request->file('csv_file');
 
+            if (!$file) {
+                throw new \Exception('File tidak ditemukan dalam request');
+            }
+
             // Store CSV file temporarily
             $originalFilename = $file->getClientOriginalName();
-            $csvPath = $file->store('csv_uploads');
+
+            // Use storeAs to specify exact path without disk confusion
+            $filename = uniqid() . '_' . time() . '.csv';
+            $csvPath = 'csv_uploads/' . $filename;
+
+            // Move file directly to storage/app/csv_uploads
+            $fullPath = storage_path('app/' . $csvPath);
+            $file->move(storage_path('app/csv_uploads'), $filename);
+
+            // Verify file was actually saved
+            if (!file_exists($fullPath)) {
+                throw new \Exception('File gagal disimpan ke: ' . $fullPath);
+            }
 
             // Create job record in database
             $jobId = \DB::table('csv_processing_jobs')->insertGetId([
@@ -70,8 +86,10 @@ class UbahFormatController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Dispatch job to queue
-            \App\Jobs\ProcessCsvToExcel::dispatch($csvPath, auth()->id() ?? null, $jobId);
+            // Dispatch job to queue (using the correct Job class)
+            // Note: ProcessUbahFormatCsv expects ($jobId, $filePath) not ($csvPath, $userId, $jobId)
+            $fullPath = storage_path('app/' . $csvPath);
+            \App\Jobs\ProcessUbahFormatCsv::dispatch($jobId, $fullPath);
 
             // Redirect to status page
             return redirect()->route('ubah-format.status', ['jobId' => $jobId])

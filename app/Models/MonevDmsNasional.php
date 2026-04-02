@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MonevDmsNasional extends Model
 {
-    protected $table = 'monev_dms_nasional';
+    protected $table = 'monev_dms_skor_rata2_instansi';
 
     protected $fillable = [
         'upload_date',

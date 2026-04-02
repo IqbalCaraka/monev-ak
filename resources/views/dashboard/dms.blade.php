@@ -429,7 +429,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <h6 class="text-muted font-weight-normal">Rata-rata Skor Nasional</h6>
+                                    <h6 class="text-muted font-weight-normal">Rata-rata Skor DMS Instansi</h6>
                                 </div>
                             </div>
                         </div>
@@ -472,7 +472,7 @@
                                     <div class="row">
                                         <div class="col-lg-3 col-md-6 mb-3">
                                             <div class="p-3 bg-gradient-primary text-white rounded">
-                                                <p class="mb-1 opacity-75">Rata-rata Skor Nasional</p>
+                                                <p class="mb-1 opacity-75">Rata-rata Skor DMS Instansi</p>
                                                 <h2 class="mb-0 fw-bold">{{ number_format(floor($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</h2>
                                                 <small class="opacity-75">Dari {{ number_format($monevNasionalScore->total_instansi) }} instansi</small>
                                             </div>
@@ -516,6 +516,93 @@
                             <div class="alert alert-warning" role="alert">
                                 <h5><i class="mdi mdi-alert"></i> Belum Ada Data Skor Nasional</h5>
                                 <p class="mb-0">Silakan upload data CSV terlebih dahulu pada tab <strong>Kelola Statistik Instansi</strong> untuk mulai monitoring skor.</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Skor Rata-rata Arsip DMS Nasional -->
+                    @if($selectedSkorNasional)
+                    <div class="row mt-4">
+                        <div class="col-lg-12 grid-margin stretch-card">
+                            <div class="card card-rounded border-success" style="border-width: 2px;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h4 class="card-title card-title-dash mb-0">
+                                            <i class="mdi mdi-earth text-success"></i> Skor Rata-rata Arsip DMS Nasional
+                                        </h4>
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-calendar"></i>
+                                            Data per: {{ \Carbon\Carbon::parse($selectedSkorNasional->upload_date)->format('d M Y') }}
+                                        </small>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-6 mb-3">
+                                            <div class="p-4 bg-gradient-success text-white rounded shadow-sm">
+                                                <p class="mb-2 opacity-75">Skor Rata-rata Nasional</p>
+                                                <h1 class="mb-0 fw-bold display-4">{{ number_format($selectedSkorNasional->skor_rata2_nasional, 2) }}</h1>
+                                                <small class="opacity-75">Dari {{ number_format($selectedSkorNasional->jumlah_asn) }} ASN</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6 mb-3">
+                                            <div class="p-4 bg-light rounded shadow-sm border">
+                                                <p class="mb-2 text-muted">Total ASN Nasional</p>
+                                                <h2 class="mb-0 fw-bold text-dark">{{ number_format($selectedSkorNasional->jumlah_asn) }}</h2>
+                                                <small class="text-muted">Pegawai Aktif</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6 mb-3">
+                                            @php
+                                                $badgeClass = match($selectedSkorNasional->status_kelengkapan) {
+                                                    'Sangat Lengkap' => 'bg-success',
+                                                    'Lengkap' => 'bg-primary',
+                                                    'Cukup Lengkap' => 'bg-warning',
+                                                    'Kurang Lengkap' => 'bg-danger',
+                                                    default => 'bg-secondary'
+                                                };
+                                            @endphp
+                                            <div class="p-4 {{ $badgeClass }} text-white rounded shadow-sm">
+                                                <p class="mb-2 opacity-75">Status Kelengkapan</p>
+                                                <h3 class="mb-0 fw-bold">{{ $selectedSkorNasional->status_kelengkapan }}</h3>
+                                                <small class="opacity-75">
+                                                    @if($selectedSkorNasional->skor_rata2_nasional > 90)
+                                                        Skor > 90
+                                                    @elseif($selectedSkorNasional->skor_rata2_nasional >= 55.6)
+                                                        Skor 55.6 - 90
+                                                    @elseif($selectedSkorNasional->skor_rata2_nasional >= 30)
+                                                        Skor 30 - 55.5
+                                                    @else
+                                                        Skor < 30
+                                                    @endif
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="alert alert-info border-0 mb-0" style="background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);">
+                                            <i class="mdi mdi-information"></i>
+                                            <strong>Info:</strong> Data ini merupakan rata-rata skor arsip DMS dari seluruh ASN di Indonesia yang diupload secara manual dari database server pusat.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @elseif($monevNasionalScore)
+                    <!-- Show alert when monevNasionalScore exists but selectedSkorNasional doesn't -->
+                    <div class="row mt-4">
+                        <div class="col-lg-12 grid-margin stretch-card">
+                            <div class="card card-rounded border-warning" style="border-width: 2px;">
+                                <div class="card-body">
+                                    <div class="alert alert-warning mb-0">
+                                        <h5><i class="mdi mdi-alert-circle"></i> Data Skor Rata-rata Arsip DMS Nasional Tidak Tersedia</h5>
+                                        <p class="mb-0">
+                                            Belum ada data skor rata-rata nasional untuk tanggal
+                                            <strong>{{ \Carbon\Carbon::parse($selectedMonevDate ?? $monevNasionalScore->upload_date)->format('d M Y') }}</strong>.
+                                            Silakan upload data pada tab <strong>Kelola Statistik Instansi → Section 2</strong>.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -925,10 +1012,15 @@
                                             <table class="table table-hover table-bordered">
                                                 <thead class="table-primary">
                                                     <tr>
-                                                        <th width="5%" class="text-center">#</th>
-                                                        <th width="55%">Nama Instansi</th>
-                                                        <th width="15%" class="text-center">Skor</th>
-                                                        <th width="25%" class="text-center">Status Kelengkapan</th>
+                                                        <th width="3%" class="text-center">#</th>
+                                                        <th width="30%">Nama Instansi</th>
+                                                        <th width="7%" class="text-center">Skor</th>
+                                                        <th width="7%" class="text-center">Jumlah ASN</th>
+                                                        <th width="7%" class="text-center"><span class="badge badge-success">Sangat Lengkap</span></th>
+                                                        <th width="7%" class="text-center"><span class="badge badge-primary">Lengkap</span></th>
+                                                        <th width="7%" class="text-center"><span class="badge badge-warning">Cukup Lengkap</span></th>
+                                                        <th width="7%" class="text-center"><span class="badge badge-danger">Kurang Lengkap</span></th>
+                                                        <th width="15%" class="text-center">Status Kelengkapan</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="monevTableBody">
@@ -953,6 +1045,21 @@
                                                                 </span>
                                                             </td>
                                                             <td class="text-center">
+                                                                <strong>{{ number_format($instansi->jumlah_asn ?? 0) }}</strong>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge badge-success px-2 py-1">{{ number_format($instansi->sangat_lengkap ?? 0) }}</span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge badge-primary px-2 py-1">{{ number_format($instansi->lengkap ?? 0) }}</span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge badge-warning px-2 py-1">{{ number_format($instansi->cukup_lengkap ?? 0) }}</span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <span class="badge badge-danger px-2 py-1">{{ number_format($instansi->kurang_lengkap ?? 0) }}</span>
+                                                            </td>
+                                                            <td class="text-center">
                                                                 <span class="badge {{ $badgeClass }} px-3 py-2">
                                                                     {{ $instansi->monev_status_kelengkapan }}
                                                                 </span>
@@ -960,7 +1067,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="4" class="text-center text-muted py-4">
+                                                            <td colspan="9" class="text-center text-muted py-4">
                                                                 @if($monevSearch)
                                                                     <i class="mdi mdi-magnify mdi-48px d-block mb-2"></i>
                                                                     Tidak ada data yang ditemukan untuk "<strong>{{ $monevSearch }}</strong>"
@@ -1014,7 +1121,7 @@
                                             <p class="mb-0 fw-bold">{{ number_format($monevNasionalScore->total_instansi) }} instansi</p>
                                         </div>
                                         <div class="col-md-3">
-                                            <p class="text-muted mb-1 small">Rata-rata Skor Nasional</p>
+                                            <p class="text-muted mb-1 small">Rata-rata Skor DMS Instansi</p>
                                             <p class="mb-0 fw-bold text-primary">{{ number_format(floor($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</p>
                                         </div>
                                         <div class="col-md-3">
@@ -1082,7 +1189,7 @@
                                     <div class="row">
                                         <div class="col-lg-3 col-md-6 mb-3">
                                             <div class="p-3 bg-light rounded">
-                                                <p class="text-muted mb-1">Rata-rata Skor Nasional</p>
+                                                <p class="text-muted mb-1">Rata-rata Skor DMS Instansi</p>
                                                 <h2 class="mb-0 text-primary">{{ number_format($nasionalScore->avg_skor_nasional_system, 2) }}</h2>
                                                 <small class="text-muted">Sistem</small> |
                                                 <small class="text-success">CSV: {{ number_format($nasionalScore->avg_skor_nasional_csv, 2) }}</small>
@@ -1490,8 +1597,8 @@
                                                     <div class="text-danger mt-1 small">{{ $message }}</div>
                                                 @enderror
                                                 <small class="text-muted">
-                                                    Format CSV: id_instansi, nama_instansi, skor_instansi<br>
-                                                    <code>Example: 001,Kementerian Dalam Negeri,85.50</code>
+                                                    Format CSV: id, nama, skor_instansi, kantor_regional_id, jumlah_asn, kurang_lengkap, cukup_lengkap, lengkap, sangat_lengkap<br>
+                                                    <code>Example: 001,Kementerian Dalam Negeri,85.50,00,1500,10,200,800,490</code>
                                                 </small>
                                             </div>
                                             <div class="col-md-4 mb-3">
@@ -1583,13 +1690,140 @@
                         </div>
                     </div>
 
-                    <!-- ===== SECTION 2: DETAIL SKOR INSTANSI (Upload Data DMS PNS) ===== -->
+                    <!-- ===== SECTION 2: SKOR RATA-RATA NASIONAL ===== -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h4 class="card-title text-white mb-0">
+                                        <i class="mdi mdi-chart-line"></i> Section 2: Skor Rata-rata Arsip DMS Nasional
+                                    </h4>
+                                    <small>Upload data skor rata-rata nasional dari database server</small>
+                                </div>
+                                <div class="card-body">
+                                    @if(session('success'))
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                            <i class="mdi mdi-check-circle"></i> {{ session('success') }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    @endif
+
+                                    @if(session('error'))
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <i class="mdi mdi-alert-circle"></i> {{ session('error') }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    @endif
+
+                                    <form action="{{ route('monev-dms.upload-skor-nasional') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label fw-bold">Pilih File CSV Skor Nasional</label>
+                                                <input type="file" name="nasional_csv_file" class="form-control" accept=".csv" required>
+                                                @error('nasional_csv_file')
+                                                    <div class="text-danger mt-1 small">{{ $message }}</div>
+                                                @enderror
+                                                <small class="text-muted">
+                                                    Format CSV: rata_rata_skor, jumlah_asn<br>
+                                                    <code>Example: 51.97,3525970</code>
+                                                </small>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label fw-bold">Tanggal Upload</label>
+                                                <input type="date" name="upload_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                                                @error('upload_date')
+                                                    <div class="text-danger mt-1 small">{{ $message }}</div>
+                                                @enderror
+                                                <small class="text-muted">Pilih tanggal untuk data ini</small>
+                                            </div>
+                                            <div class="col-md-2 mb-3 d-flex align-items-end">
+                                                <button type="submit" class="btn btn-success w-100">
+                                                    <i class="mdi mdi-upload"></i> Upload CSV
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                    <hr class="my-4">
+
+                                    <h5 class="mb-3">
+                                        <i class="mdi mdi-history"></i> Riwayat Upload Skor Nasional
+                                    </h5>
+
+                                    @if($skorNasionalUploads->count() > 0)
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-bordered">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Tanggal Upload</th>
+                                                        <th class="text-center">Jumlah ASN</th>
+                                                        <th class="text-center">Skor Rata-rata</th>
+                                                        <th class="text-center">Status Kelengkapan</th>
+                                                        <th class="text-center">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($skorNasionalUploads as $upload)
+                                                    <tr>
+                                                        <td>
+                                                            <strong>{{ \Carbon\Carbon::parse($upload->upload_date)->format('d M Y') }}</strong>
+                                                            @if($loop->first)
+                                                                <span class="badge bg-success ms-2">Latest</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-info px-3 py-2">{{ number_format($upload->jumlah_asn) }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <strong class="text-primary">{{ number_format($upload->skor_rata2_nasional, 2) }}</strong>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @php
+                                                                $badgeClass = match($upload->status_kelengkapan) {
+                                                                    'Sangat Lengkap' => 'badge-success',
+                                                                    'Lengkap' => 'badge-primary',
+                                                                    'Cukup Lengkap' => 'badge-warning',
+                                                                    'Kurang Lengkap' => 'badge-danger',
+                                                                    default => 'badge-secondary'
+                                                                };
+                                                            @endphp
+                                                            <span class="badge {{ $badgeClass }} px-3 py-2">
+                                                                {{ $upload->status_kelengkapan }}
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <form action="{{ route('monev-dms.delete-skor-nasional') }}" method="POST" class="d-inline"
+                                                                  onsubmit="return confirm('Yakin ingin menghapus data skor nasional untuk tanggal {{ \Carbon\Carbon::parse($upload->upload_date)->format('d M Y') }}?');">
+                                                                @csrf
+                                                                <input type="hidden" name="upload_date" value="{{ $upload->upload_date }}">
+                                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                                    <i class="mdi mdi-delete"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <div class="alert alert-info">
+                                            <i class="mdi mdi-information"></i> Belum ada data skor nasional yang diupload.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== SECTION 3: DETAIL SKOR INSTANSI (Upload Data DMS PNS) ===== -->
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header bg-secondary text-white">
                                     <h4 class="card-title text-white mb-0">
-                                        <i class="mdi mdi-database"></i> Section 2: Detail Skor Instansi
+                                        <i class="mdi mdi-database"></i> Section 3: Detail Skor Instansi
                                     </h4>
                                     <small>Upload data detail PNS dari CSV untuk perhitungan otomatis</small>
                                 </div>

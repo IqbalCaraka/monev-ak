@@ -149,39 +149,89 @@
         $countKurangLengkap = $instansiList->where('monev_status_kelengkapan', 'Kurang Lengkap')->count();
     @endphp
 
-    <table style="width: 100%; margin-bottom: 12px; border-collapse: collapse;" cellpadding="6">
-        <tr>
-            <td style="width: 20%; text-align: center; background-color: #3498db; color: white; padding: 6px;">
-                <div style="font-size: 14px; font-weight: bold;">{{ number_format($avgScore, 2) }}</div>
-                <div style="font-size: 6px;">Rata-rata Skor</div>
-            </td>
-            <td style="width: 20%; text-align: center; background-color: #27ae60; color: white; padding: 6px;">
-                <div style="font-size: 12px; font-weight: bold;">{{ $countSangatLengkap }}</div>
-                <div style="font-size: 6px;">Sangat Lengkap</div>
-            </td>
-            <td style="width: 20%; text-align: center; background-color: #3498db; color: white; padding: 6px;">
-                <div style="font-size: 12px; font-weight: bold;">{{ $countLengkap }}</div>
-                <div style="font-size: 6px;">Lengkap</div>
-            </td>
-            <td style="width: 20%; text-align: center; background-color: #f39c12; color: white; padding: 6px;">
-                <div style="font-size: 12px; font-weight: bold;">{{ $countCukupLengkap }}</div>
-                <div style="font-size: 6px;">Cukup Lengkap</div>
-            </td>
-            <td style="width: 20%; text-align: center; background-color: #e74c3c; color: white; padding: 6px;">
-                <div style="font-size: 12px; font-weight: bold;">{{ $countKurangLengkap }}</div>
-                <div style="font-size: 6px;">Kurang Lengkap</div>
-            </td>
-        </tr>
-    </table>
+    <!-- Skor Rata-rata DMS Nasional -->
+    @if($skorNasional)
+    <div style="background-color: #ecf0f1; padding: 10px; margin-bottom: 10px; border-left: 4px solid #27ae60;">
+        <div style="font-weight: bold; font-size: 9px; color: #2c3e50; margin-bottom: 5px;">SKOR RATA-RATA ARSIP DMS NASIONAL</div>
+        <table style="width: 100%; border-collapse: collapse;" cellpadding="5">
+            <tr>
+                <td style="width: 25%; text-align: center; background-color: #27ae60; color: white; padding: 8px; border: 1px solid #27ae60;">
+                    <div style="font-size: 16px; font-weight: bold;">{{ number_format($skorNasional->skor_rata2_nasional, 2) }}</div>
+                    <div style="font-size: 7px;">Skor Rata-rata DMS</div>
+                </td>
+                <td style="width: 25%; text-align: center; background-color: #3498db; color: white; padding: 8px; border: 1px solid #3498db;">
+                    <div style="font-size: 14px; font-weight: bold;">{{ number_format($skorNasional->jumlah_asn) }}</div>
+                    <div style="font-size: 7px;">Total ASN</div>
+                </td>
+                <td style="width: 50%; text-align: center; padding: 8px; border: 1px solid #bdc3c7;">
+                    @php
+                        $statusClass = '';
+                        switch($skorNasional->status_kelengkapan) {
+                            case 'Sangat Lengkap':
+                                $statusClass = 'background-color: #27ae60;';
+                                break;
+                            case 'Lengkap':
+                                $statusClass = 'background-color: #3498db;';
+                                break;
+                            case 'Cukup Lengkap':
+                                $statusClass = 'background-color: #f39c12;';
+                                break;
+                            case 'Kurang Lengkap':
+                                $statusClass = 'background-color: #e74c3c;';
+                                break;
+                        }
+                    @endphp
+                    <span style="padding: 4px 10px; border-radius: 3px; font-weight: bold; font-size: 8px; color: white; {{ $statusClass }}">
+                        {{ $skorNasional->status_kelengkapan }}
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    @endif
+
+    <!-- Rata-rata Skor Arsip Instansi -->
+    <div style="background-color: #ecf0f1; padding: 10px; margin-bottom: 10px; border-left: 4px solid #3498db;">
+        <div style="font-weight: bold; font-size: 9px; color: #2c3e50; margin-bottom: 5px;">RATA-RATA SKOR ARSIP INSTANSI</div>
+        <table style="width: 100%; border-collapse: collapse;" cellpadding="5">
+            <tr>
+                <td style="width: 20%; text-align: center; background-color: #3498db; color: white; padding: 8px; border: 1px solid #3498db;">
+                    <div style="font-size: 16px; font-weight: bold;">{{ number_format($avgScore, 2) }}</div>
+                    <div style="font-size: 7px;">Rata-rata Skor</div>
+                </td>
+                <td style="width: 20%; text-align: center; background-color: #27ae60; color: white; padding: 8px; border: 1px solid #27ae60;">
+                    <div style="font-size: 14px; font-weight: bold;">{{ $countSangatLengkap }}</div>
+                    <div style="font-size: 7px;">Sangat Lengkap</div>
+                </td>
+                <td style="width: 20%; text-align: center; background-color: #3498db; color: white; padding: 8px; border: 1px solid #3498db;">
+                    <div style="font-size: 14px; font-weight: bold;">{{ $countLengkap }}</div>
+                    <div style="font-size: 7px;">Lengkap</div>
+                </td>
+                <td style="width: 20%; text-align: center; background-color: #f39c12; color: white; padding: 8px; border: 1px solid #f39c12;">
+                    <div style="font-size: 14px; font-weight: bold;">{{ $countCukupLengkap }}</div>
+                    <div style="font-size: 7px;">Cukup Lengkap</div>
+                </td>
+                <td style="width: 20%; text-align: center; background-color: #e74c3c; color: white; padding: 8px; border: 1px solid #e74c3c;">
+                    <div style="font-size: 14px; font-weight: bold;">{{ $countKurangLengkap }}</div>
+                    <div style="font-size: 7px;">Kurang Lengkap</div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <!-- Data Table -->
     <table>
         <thead>
             <tr>
-                <th width="30" class="text-center">No</th>
-                <th width="240">Nama Instansi</th>
-                <th width="60" class="text-center">Kanreg</th>
-                <th width="50" class="text-center">Skor</th>
+                <th width="25" class="text-center">No</th>
+                <th width="180">Nama Instansi</th>
+                <th width="45" class="text-center">Kanreg</th>
+                <th width="40" class="text-center">Skor</th>
+                <th width="50" class="text-center">Jumlah ASN</th>
+                <th width="50" class="text-center">Sangat Lengkap</th>
+                <th width="50" class="text-center">Lengkap</th>
+                <th width="50" class="text-center">Cukup Lengkap</th>
+                <th width="50" class="text-center">Kurang Lengkap</th>
                 <th width="80" class="text-center">Status</th>
             </tr>
         </thead>
@@ -194,6 +244,11 @@
                 <td class="text-center">
                     <strong>{{ number_format(floor($instansi->monev_skor_instansi * 10) / 10, 1) }}</strong>
                 </td>
+                <td class="text-center">{{ number_format($instansi->jumlah_asn ?? 0) }}</td>
+                <td class="text-center">{{ number_format($instansi->sangat_lengkap ?? 0) }}</td>
+                <td class="text-center">{{ number_format($instansi->lengkap ?? 0) }}</td>
+                <td class="text-center">{{ number_format($instansi->cukup_lengkap ?? 0) }}</td>
+                <td class="text-center">{{ number_format($instansi->kurang_lengkap ?? 0) }}</td>
                 <td class="text-center">
                     @php
                         $statusClass = '';

@@ -205,11 +205,32 @@
         </div>
     </div>
 
-    <!-- National Statistics -->
-    <div class="section-title">RINGKASAN SKOR NASIONAL</div>
+    <!-- Skor Rata-rata Arsip DMS Nasional (if available) -->
+    @if($selectedSkorNasional)
+    <div class="section-title">SKOR RATA-RATA ARSIP DMS NASIONAL</div>
+
+    <div style="text-align: center; padding: 15px; background-color: #27ae60; color: white; margin-bottom: 15px; border-radius: 4px;">
+        <div style="font-size: 11px; margin-bottom: 5px;">Skor Rata-rata Arsip Nasional</div>
+        <div style="font-size: 24px; font-weight: bold;">{{ number_format($selectedSkorNasional->skor_rata2_nasional, 2) }}</div>
+        <div style="font-size: 9px; opacity: 0.8; margin-top: 3px;">Dari {{ number_format($selectedSkorNasional->jumlah_asn) }} ASN di Indonesia</div>
+        <div style="font-size: 9px; opacity: 0.9; margin-top: 5px; background-color: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 3px; display: inline-block;">
+            Status: {{ $selectedSkorNasional->status_kelengkapan }}
+        </div>
+    </div>
+
+    <div class="info-box" style="border-left-color: #27ae60; background-color: #e8f5e9;">
+        <p style="margin: 0; font-size: 9px; color: #2c3e50;">
+            <strong>Keterangan:</strong> Data skor rata-rata arsip DMS di atas merupakan hasil monitoring dari seluruh ASN di Indonesia yang diupload secara manual dari database server pusat.
+            Status kelengkapan ditentukan berdasarkan range: Sangat Lengkap (&gt;90), Lengkap (55.6-90), Cukup Lengkap (30-55.5), Kurang Lengkap (&lt;30).
+        </p>
+    </div>
+    @endif
+
+    <!-- Rata-rata Skor Arsip Instansi -->
+    <div class="section-title">RATA-RATA SKOR ARSIP INSTANSI</div>
 
     <div style="text-align: center; padding: 15px; background-color: #3498db; color: white; margin-bottom: 15px; border-radius: 4px;">
-        <div style="font-size: 11px; margin-bottom: 5px;">Rata-rata Skor Nasional</div>
+        <div style="font-size: 11px; margin-bottom: 5px;">Rata-rata Skor Arsip Instansi</div>
         <div style="font-size: 24px; font-weight: bold;">{{ number_format(floor($monevNasionalScore->monev_skor_nasional * 10) / 10, 1) }}</div>
         <div style="font-size: 9px; opacity: 0.8;">Dari {{ number_format($monevNasionalScore->total_instansi) }} Instansi</div>
     </div>
@@ -252,66 +273,65 @@
         </div>
     </div>
 
-    <!-- Top & Bottom Instansi -->
-    <div class="clearfix">
-        <div class="two-column">
-            <div class="section-title">TOP 5 INSTANSI TERBAIK</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th width="30" class="text-center">#</th>
-                        <th>Nama Instansi</th>
-                        <th width="60" class="text-center">Skor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($monevTopInstansi as $index => $inst)
-                    <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td>{{ Str::limit($inst->nama_instansi, 35) }}</td>
-                        <td class="text-center">
-                            <span class="badge badge-success">{{ number_format(floor($inst->monev_skor_instansi * 10) / 10, 1) }}</span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="3" class="text-center">Tidak ada data</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    <!-- Page break before Top & Bottom section -->
+    <div class="page-break"></div>
 
-        <div class="two-column">
-            <div class="section-title">TOP 5 INSTANSI PERLU PERHATIAN</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th width="30" class="text-center">#</th>
-                        <th>Nama Instansi</th>
-                        <th width="60" class="text-center">Skor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($monevBottomInstansi as $index => $inst)
-                    <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td>{{ Str::limit($inst->nama_instansi, 35) }}</td>
-                        <td class="text-center">
-                            <span class="badge badge-danger">{{ number_format(floor($inst->monev_skor_instansi * 10) / 10, 1) }}</span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="3" class="text-center">Tidak ada data</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <!-- Top 5 Instansi Terbaik -->
+    <div class="section-title">TOP 5 INSTANSI TERBAIK</div>
+    <table>
+        <thead>
+            <tr>
+                <th width="30" class="text-center">#</th>
+                <th>Nama Instansi</th>
+                <th width="80" class="text-center">Skor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($monevTopInstansi as $index => $inst)
+            <tr>
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td>{{ $inst->nama_instansi }}</td>
+                <td class="text-center">
+                    <span class="badge badge-success">{{ number_format(floor($inst->monev_skor_instansi * 10) / 10, 1) }}</span>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="3" class="text-center">Tidak ada data</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
 
-    <div style="clear: both;"></div>
+    <!-- Space between tables -->
+    <div style="margin: 20px 0;"></div>
+
+    <!-- Top 5 Instansi Perlu Perhatian -->
+    <div class="section-title">TOP 5 INSTANSI PERLU PERHATIAN</div>
+    <table>
+        <thead>
+            <tr>
+                <th width="30" class="text-center">#</th>
+                <th>Nama Instansi</th>
+                <th width="80" class="text-center">Skor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($monevBottomInstansi as $index => $inst)
+            <tr>
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td>{{ $inst->nama_instansi }}</td>
+                <td class="text-center">
+                    <span class="badge badge-danger">{{ number_format(floor($inst->monev_skor_instansi * 10) / 10, 1) }}</span>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="3" class="text-center">Tidak ada data</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
 
     <!-- Kantor Regional Statistics -->
     @if($monevKantorRegionalStats->count() > 0)

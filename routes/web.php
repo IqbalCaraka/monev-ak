@@ -102,6 +102,8 @@ Route::prefix('dms')->group(function () {
 Route::prefix('monev-dms')->group(function () {
     Route::post('/upload-csv', [MonevDmsController::class, 'uploadMonevCsv'])->name('monev-dms.upload-csv');
     Route::post('/delete', [MonevDmsController::class, 'deleteMonevData'])->name('monev-dms.delete');
+    Route::post('/upload-skor-nasional', [MonevDmsController::class, 'uploadSkorRata2Nasional'])->name('monev-dms.upload-skor-nasional');
+    Route::post('/delete-skor-nasional', [MonevDmsController::class, 'deleteSkorRata2Nasional'])->name('monev-dms.delete-skor-nasional');
 });
 
 // Monev DMS API Routes
