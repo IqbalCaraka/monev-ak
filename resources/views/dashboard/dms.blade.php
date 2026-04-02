@@ -2670,6 +2670,82 @@
                             </div>
                         </div>
 
+                        <!-- Skor Nasional & Rata-rata Instansi Comparison -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-success" style="border-width: 2px;">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0"><i class="mdi mdi-earth"></i> Skor Rata-rata DMS Nasional</h6>
+                                    </div>
+                                    <div class="card-body">${
+                                        data.skor_nasional_previous && data.skor_nasional_current ? `
+                                        <div class="row text-center">
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Sebelum</small>
+                                                <h4 class="mb-1">${formatNumber(data.skor_nasional_previous.skor, 2)}</h4>
+                                                <span class="badge badge-secondary">${data.skor_nasional_previous.status}</span>
+                                                <div class="mt-2 small text-muted">${data.skor_nasional_previous.jumlah_asn.toLocaleString()} ASN</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Sekarang</small>
+                                                <h4 class="mb-1">${formatNumber(data.skor_nasional_current.skor, 2)}</h4>
+                                                <span class="badge badge-info">${data.skor_nasional_current.status}</span>
+                                                <div class="mt-2 small text-muted">${data.skor_nasional_current.jumlah_asn.toLocaleString()} ASN</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-center mt-3">
+                                            <strong>Perubahan: </strong>
+                                            ${(() => {
+                                                const diff = data.skor_nasional_current.skor - data.skor_nasional_previous.skor;
+                                                const diffFormatted = formatNumber(diff, 2);
+                                                if (diff > 0) {
+                                                    return `<span class="badge badge-success"><i class="mdi mdi-arrow-up"></i> +${diffFormatted}</span>`;
+                                                } else if (diff < 0) {
+                                                    return `<span class="badge badge-danger"><i class="mdi mdi-arrow-down"></i> ${diffFormatted}</span>`;
+                                                } else {
+                                                    return `<span class="badge badge-secondary">0.00</span>`;
+                                                }
+                                            })()}
+                                        </div>` : '<p class="text-muted text-center mb-0">Data tidak tersedia untuk salah satu periode</p>'
+                                    }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-primary" style="border-width: 2px;">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0"><i class="mdi mdi-office-building"></i> Rata-rata Skor Arsip Instansi</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row text-center">
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Sebelum</small>
+                                                <h4 class="mb-1">${formatNumber(data.avg_skor_instansi_previous, 2)}</h4>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Sekarang</small>
+                                                <h4 class="mb-1">${formatNumber(data.avg_skor_instansi_current, 2)}</h4>
+                                            </div>
+                                        </div>
+                                        <div class="text-center mt-3">
+                                            <strong>Perubahan: </strong>
+                                            ${(() => {
+                                                const diff = data.avg_skor_instansi_current - data.avg_skor_instansi_previous;
+                                                const diffFormatted = formatNumber(diff, 2);
+                                                if (diff > 0) {
+                                                    return `<span class="badge badge-success"><i class="mdi mdi-arrow-up"></i> +${diffFormatted}</span>`;
+                                                } else if (diff < 0) {
+                                                    return `<span class="badge badge-danger"><i class="mdi mdi-arrow-down"></i> ${diffFormatted}</span>`;
+                                                } else {
+                                                    return `<span class="badge badge-secondary">0.00</span>`;
+                                                }
+                                            })()}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Summary Statistics -->
                         <div class="row mb-3">
                             <div class="col-md-4">
@@ -2725,15 +2801,29 @@
 
                         <!-- Comparison Table -->
                         <div class="table-responsive">
-                            <table class="table table-hover table-bordered">
+                            <table class="table table-hover table-bordered" style="font-size: 11px;">
                                 <thead class="table-light">
                                     <tr>
-                                        <th width="40" class="text-center">#</th>
-                                        <th>Nama Instansi</th>
-                                        <th width="100" class="text-center">${formatDate(data.previous_period)}</th>
-                                        <th width="100" class="text-center">${formatDate(data.current_period)}</th>
-                                        <th width="100" class="text-center">Perubahan</th>
-                                        <th width="100" class="text-center">Status</th>
+                                        <th width="30" rowspan="2" class="text-center align-middle">#</th>
+                                        <th rowspan="2" class="align-middle">Nama Instansi</th>
+                                        <th colspan="2" class="text-center bg-secondary text-white">Skor</th>
+                                        <th colspan="5" class="text-center bg-warning text-dark">Kelengkapan Sebelum</th>
+                                        <th colspan="5" class="text-center bg-info text-white">Kelengkapan Sekarang</th>
+                                        <th rowspan="2" width="70" class="text-center align-middle">Status</th>
+                                    </tr>
+                                    <tr>
+                                        <th width="60" class="text-center">Sebelum</th>
+                                        <th width="60" class="text-center">Sekarang</th>
+                                        <th width="50" class="text-center" title="Jumlah ASN">Jml ASN</th>
+                                        <th width="50" class="text-center" title="Sangat Lengkap">S.Lengkap</th>
+                                        <th width="50" class="text-center">Lengkap</th>
+                                        <th width="50" class="text-center" title="Cukup Lengkap">C.Lengkap</th>
+                                        <th width="50" class="text-center" title="Kurang Lengkap">K.Lengkap</th>
+                                        <th width="50" class="text-center" title="Jumlah ASN">Jml ASN</th>
+                                        <th width="50" class="text-center" title="Sangat Lengkap">S.Lengkap</th>
+                                        <th width="50" class="text-center">Lengkap</th>
+                                        <th width="50" class="text-center" title="Cukup Lengkap">C.Lengkap</th>
+                                        <th width="50" class="text-center" title="Kurang Lengkap">K.Lengkap</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -2777,22 +2867,18 @@
                                         </td>
                                         <td class="text-center">
                                             <span class="badge badge-info">${formatNumber(change.skor_sekarang)}</span>
+                                            ${change.perubahan !== 0 ? `<br><small class="${change.perubahan > 0 ? 'text-success' : 'text-danger'}">${change.perubahan > 0 ? '+' : ''}${formatNumber(change.perubahan)}</small>` : ''}
                                         </td>
-                                        <td class="text-center">`;
-
-            if (change.perubahan > 0) {
-                html += `<span class="badge badge-success">
-                            <i class="mdi mdi-arrow-up"></i> +${formatNumber(change.perubahan)}
-                         </span>`;
-            } else if (change.perubahan < 0) {
-                html += `<span class="badge badge-danger">
-                            <i class="mdi mdi-arrow-down"></i> ${formatNumber(change.perubahan)}
-                         </span>`;
-            } else {
-                html += `<span class="badge badge-secondary">0.0</span>`;
-            }
-
-            html += `</td>
+                                        <td class="text-center">${change.jumlah_asn_sebelum.toLocaleString()}</td>
+                                        <td class="text-center">${change.sangat_lengkap_sebelum.toLocaleString()}</td>
+                                        <td class="text-center">${change.lengkap_sebelum.toLocaleString()}</td>
+                                        <td class="text-center">${change.cukup_lengkap_sebelum.toLocaleString()}</td>
+                                        <td class="text-center">${change.kurang_lengkap_sebelum.toLocaleString()}</td>
+                                        <td class="text-center">${change.jumlah_asn_sekarang.toLocaleString()}</td>
+                                        <td class="text-center">${change.sangat_lengkap_sekarang.toLocaleString()}</td>
+                                        <td class="text-center">${change.lengkap_sekarang.toLocaleString()}</td>
+                                        <td class="text-center">${change.cukup_lengkap_sekarang.toLocaleString()}</td>
+                                        <td class="text-center">${change.kurang_lengkap_sekarang.toLocaleString()}</td>
                                         <td class="text-center">
                                             <span class="badge ${statusBadge}">
                                                 <i class="mdi ${statusIcon}"></i> ${statusText}

@@ -425,14 +425,20 @@ class DashboardController extends Controller
         $previousPeriod = $comparePeriodStart;
         $currentPeriod = $comparePeriodEnd;
 
+        // Get skor nasional from both periods
+        $skorNasionalCurrent = MonevDmsSkorRata2Nasional::where('upload_date', $currentPeriod)->first();
+        $skorNasionalPrevious = MonevDmsSkorRata2Nasional::where('upload_date', $previousPeriod)->first();
+
         // Get scores from both periods
         $currentScores = MonevDmsInstansiScore::where('upload_date', $currentPeriod)
-            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi', 'monev_status_kelengkapan')
+            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi', 'monev_status_kelengkapan',
+                     'jumlah_asn', 'sangat_lengkap', 'lengkap', 'cukup_lengkap', 'kurang_lengkap')
             ->get()
             ->keyBy('id_instansi');
 
         $previousScores = MonevDmsInstansiScore::where('upload_date', $previousPeriod)
-            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi', 'monev_status_kelengkapan')
+            ->select('id_instansi', 'nama_instansi', 'kantor_regional_id', 'monev_skor_instansi', 'monev_status_kelengkapan',
+                     'jumlah_asn', 'sangat_lengkap', 'lengkap', 'cukup_lengkap', 'kurang_lengkap')
             ->get()
             ->keyBy('id_instansi');
 
@@ -478,7 +484,22 @@ class DashboardController extends Controller
                     'skor_sebelum' => $skorSebelumTruncated,
                     'skor_sekarang' => $skorSekarangTruncated,
                     'perubahan' => $scoreDiffTruncated,
-                    'perubahan_abs' => abs($scoreDiffTruncated)
+                    'perubahan_abs' => abs($scoreDiffTruncated),
+                    // Kelengkapan data periode sebelumnya
+                    'jumlah_asn_sebelum' => $previous->jumlah_asn ?? 0,
+                    'sangat_lengkap_sebelum' => $previous->sangat_lengkap ?? 0,
+                    'lengkap_sebelum' => $previous->lengkap ?? 0,
+                    'cukup_lengkap_sebelum' => $previous->cukup_lengkap ?? 0,
+                    'kurang_lengkap_sebelum' => $previous->kurang_lengkap ?? 0,
+                    // Kelengkapan data periode sekarang
+                    'jumlah_asn_sekarang' => $current->jumlah_asn ?? 0,
+                    'sangat_lengkap_sekarang' => $current->sangat_lengkap ?? 0,
+                    'lengkap_sekarang' => $current->lengkap ?? 0,
+                    'cukup_lengkap_sekarang' => $current->cukup_lengkap ?? 0,
+                    'kurang_lengkap_sekarang' => $current->kurang_lengkap ?? 0,
+                    // Status kelengkapan
+                    'status_kelengkapan_sebelum' => $previous->monev_status_kelengkapan,
+                    'status_kelengkapan_sekarang' => $current->monev_status_kelengkapan
                 ];
 
                 // Count trends - Stagnan hanya jika benar-benar 0 setelah truncate
@@ -556,6 +577,10 @@ class DashboardController extends Controller
             })
             ->toArray();
 
+        // Calculate average skor instansi for both periods
+        $avgSkorInstansiCurrent = $currentScores->avg('monev_skor_instansi');
+        $avgSkorInstansiPrevious = $previousScores->avg('monev_skor_instansi');
+
         $comparisonData = [
             'current_period' => $currentPeriod,
             'previous_period' => $previousPeriod,
@@ -569,7 +594,21 @@ class DashboardController extends Controller
             'count_kategori_naik' => $countKategoriNaik,
             'count_kategori_turun' => $countKategoriTurun,
             'count_kategori_stagnan' => $countKategoriStagnan,
-            'total_compared' => count($changes)
+            'total_compared' => count($changes),
+            // Skor Nasional comparison
+            'skor_nasional_current' => $skorNasionalCurrent ? [
+                'skor' => $skorNasionalCurrent->skor_rata2_nasional,
+                'jumlah_asn' => $skorNasionalCurrent->jumlah_asn,
+                'status' => $skorNasionalCurrent->status_kelengkapan
+            ] : null,
+            'skor_nasional_previous' => $skorNasionalPrevious ? [
+                'skor' => $skorNasionalPrevious->skor_rata2_nasional,
+                'jumlah_asn' => $skorNasionalPrevious->jumlah_asn,
+                'status' => $skorNasionalPrevious->status_kelengkapan
+            ] : null,
+            // Average Skor Instansi comparison
+            'avg_skor_instansi_current' => round($avgSkorInstansiCurrent, 2),
+            'avg_skor_instansi_previous' => round($avgSkorInstansiPrevious, 2)
         ];
 
         return response()->json($comparisonData);
@@ -1213,14 +1252,20 @@ class DashboardController extends Controller
             return back()->with('error', 'Periode perbandingan tidak lengkap');
         }
 
+        // Get skor nasional from both periods
+        $skorNasionalCurrent = MonevDmsSkorRata2Nasional::where('upload_date', $currentDate)->first();
+        $skorNasionalPrevious = MonevDmsSkorRata2Nasional::where('upload_date', $previousDate)->first();
+
         // Get scores from both periods
         $currentScores = MonevDmsInstansiScore::where('upload_date', $currentDate)
-            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi', 'monev_status_kelengkapan',
+                     'jumlah_asn', 'sangat_lengkap', 'lengkap', 'cukup_lengkap', 'kurang_lengkap')
             ->get()
             ->keyBy('id_instansi');
 
         $previousScores = MonevDmsInstansiScore::where('upload_date', $previousDate)
-            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi')
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi', 'monev_status_kelengkapan',
+                     'jumlah_asn', 'sangat_lengkap', 'lengkap', 'cukup_lengkap', 'kurang_lengkap')
             ->get()
             ->keyBy('id_instansi');
 
@@ -1262,7 +1307,22 @@ class DashboardController extends Controller
                     'skor_sebelum' => $skorSebelumTruncated,
                     'skor_sekarang' => $skorSekarangTruncated,
                     'perubahan' => $scoreDiffTruncated,  // Gunakan nilai yang sudah di-truncate
-                    'status' => $status
+                    'status' => $status,
+                    // Kelengkapan data sebelumnya
+                    'jumlah_asn_sebelum' => $previous->jumlah_asn ?? 0,
+                    'sangat_lengkap_sebelum' => $previous->sangat_lengkap ?? 0,
+                    'lengkap_sebelum' => $previous->lengkap ?? 0,
+                    'cukup_lengkap_sebelum' => $previous->cukup_lengkap ?? 0,
+                    'kurang_lengkap_sebelum' => $previous->kurang_lengkap ?? 0,
+                    // Kelengkapan data sekarang
+                    'jumlah_asn_sekarang' => $current->jumlah_asn ?? 0,
+                    'sangat_lengkap_sekarang' => $current->sangat_lengkap ?? 0,
+                    'lengkap_sekarang' => $current->lengkap ?? 0,
+                    'cukup_lengkap_sekarang' => $current->cukup_lengkap ?? 0,
+                    'kurang_lengkap_sekarang' => $current->kurang_lengkap ?? 0,
+                    // Status kelengkapan
+                    'status_kelengkapan_sebelum' => $previous->monev_status_kelengkapan,
+                    'status_kelengkapan_sekarang' => $current->monev_status_kelengkapan
                 ];
             }
         }
@@ -1272,51 +1332,126 @@ class DashboardController extends Controller
             return $b['perubahan'] <=> $a['perubahan'];
         });
 
+        // Calculate average skor instansi for both periods
+        $avgSkorInstansiCurrent = $currentScores->avg('monev_skor_instansi');
+        $avgSkorInstansiPrevious = $previousScores->avg('monev_skor_instansi');
+
         // Create Excel
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         // Header info
         $sheet->setCellValue('A1', 'ANALISIS PERBANDINGAN PERIODE - MONEV DMS');
-        $sheet->mergeCells('A1:F1');
+        $sheet->mergeCells('A1:K1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         $sheet->setCellValue('A2', 'Periode Awal: ' . \Carbon\Carbon::parse($previousDate)->format('d F Y'));
-        $sheet->mergeCells('A2:F2');
+        $sheet->mergeCells('A2:K2');
         $sheet->getStyle('A2')->getFont()->setBold(true);
 
         $sheet->setCellValue('A3', 'Periode Akhir: ' . \Carbon\Carbon::parse($currentDate)->format('d F Y'));
-        $sheet->mergeCells('A3:F3');
+        $sheet->mergeCells('A3:K3');
         $sheet->getStyle('A3')->getFont()->setBold(true);
 
         $sheet->setCellValue('A4', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
-        $sheet->mergeCells('A4:F4');
+        $sheet->mergeCells('A4:K4');
 
-        $sheet->setCellValue('A5', 'Total Instansi: ' . count($changes));
-        $sheet->mergeCells('A5:F5');
-        $sheet->getStyle('A5')->getFont()->setBold(true);
+        $currentRow = 6;
+
+        // Skor Nasional Section
+        if ($skorNasionalPrevious && $skorNasionalCurrent) {
+            $sheet->setCellValue('A' . $currentRow, 'SKOR RATA-RATA ARSIP DMS NASIONAL');
+            $sheet->mergeCells('A' . $currentRow . ':K' . $currentRow);
+            $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true)->setSize(12);
+            $sheet->getStyle('A' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A' . $currentRow)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FF27AE60');
+            $sheet->getStyle('A' . $currentRow)->getFont()->getColor()->setARGB('FFFFFFFF');
+            $currentRow++;
+
+            $sheet->setCellValue('A' . $currentRow, 'Skor Sebelum');
+            $sheet->setCellValue('B' . $currentRow, number_format($skorNasionalPrevious->skor_rata2_nasional, 2));
+            $sheet->setCellValue('C' . $currentRow, 'Skor Sekarang');
+            $sheet->setCellValue('D' . $currentRow, number_format($skorNasionalCurrent->skor_rata2_nasional, 2));
+            $sheet->setCellValue('E' . $currentRow, 'Perubahan');
+            $diff = $skorNasionalCurrent->skor_rata2_nasional - $skorNasionalPrevious->skor_rata2_nasional;
+            $sheet->setCellValue('F' . $currentRow, number_format($diff, 2));
+            $sheet->getStyle('A' . $currentRow . ':F' . $currentRow)->getFont()->setBold(true);
+            $currentRow += 2;
+        }
+
+        // Rata-rata Skor Instansi Section
+        $sheet->setCellValue('A' . $currentRow, 'RATA-RATA SKOR ARSIP INSTANSI');
+        $sheet->mergeCells('A' . $currentRow . ':K' . $currentRow);
+        $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A' . $currentRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A' . $currentRow)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FF3498DB');
+        $sheet->getStyle('A' . $currentRow)->getFont()->getColor()->setARGB('FFFFFFFF');
+        $currentRow++;
+
+        $sheet->setCellValue('A' . $currentRow, 'Rata-rata Sebelum');
+        $sheet->setCellValue('B' . $currentRow, number_format($avgSkorInstansiPrevious, 2));
+        $sheet->setCellValue('C' . $currentRow, 'Rata-rata Sekarang');
+        $sheet->setCellValue('D' . $currentRow, number_format($avgSkorInstansiCurrent, 2));
+        $sheet->setCellValue('E' . $currentRow, 'Perubahan');
+        $diffAvg = $avgSkorInstansiCurrent - $avgSkorInstansiPrevious;
+        $sheet->setCellValue('F' . $currentRow, number_format($diffAvg, 2));
+        $sheet->getStyle('A' . $currentRow . ':F' . $currentRow)->getFont()->setBold(true);
+        $currentRow += 2;
 
         // Summary Statistics
-        $sheet->setCellValue('A6', 'Instansi Naik: ' . $countNaik);
-        $sheet->mergeCells('A6:B6');
-        $sheet->getStyle('A6')->getFont()->setBold(true)->getColor()->setARGB('FF27AE60');
+        $sheet->setCellValue('A' . $currentRow, 'Total Instansi: ' . count($changes));
+        $sheet->mergeCells('A' . $currentRow . ':K' . $currentRow);
+        $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true);
+        $currentRow++;
 
-        $sheet->setCellValue('C6', 'Instansi Stagnan: ' . $countStagnan);
-        $sheet->mergeCells('C6:D6');
-        $sheet->getStyle('C6')->getFont()->setBold(true)->getColor()->setARGB('FFF39C12');
+        $sheet->setCellValue('A' . $currentRow, 'Instansi Naik: ' . $countNaik);
+        $sheet->mergeCells('A' . $currentRow . ':C' . $currentRow);
+        $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true)->getColor()->setARGB('FF27AE60');
 
-        $sheet->setCellValue('E6', 'Instansi Turun: ' . $countTurun);
-        $sheet->mergeCells('E6:F6');
-        $sheet->getStyle('E6')->getFont()->setBold(true)->getColor()->setARGB('FFE74C3C');
+        $sheet->setCellValue('D' . $currentRow, 'Instansi Stagnan: ' . $countStagnan);
+        $sheet->mergeCells('D' . $currentRow . ':G' . $currentRow);
+        $sheet->getStyle('D' . $currentRow)->getFont()->setBold(true)->getColor()->setARGB('FFF39C12');
 
-        // Table header (row 8)
-        $sheet->setCellValue('A8', 'No');
-        $sheet->setCellValue('B8', 'Nama Instansi');
-        $sheet->setCellValue('C8', \Carbon\Carbon::parse($previousDate)->format('d M Y'));
-        $sheet->setCellValue('D8', \Carbon\Carbon::parse($currentDate)->format('d M Y'));
-        $sheet->setCellValue('E8', 'Perubahan');
-        $sheet->setCellValue('F8', 'Status');
+        $sheet->setCellValue('H' . $currentRow, 'Instansi Turun: ' . $countTurun);
+        $sheet->mergeCells('H' . $currentRow . ':K' . $currentRow);
+        $sheet->getStyle('H' . $currentRow)->getFont()->setBold(true)->getColor()->setARGB('FFE74C3C');
+        $currentRow += 2;
+
+        // Table header - Row 1 (Merged headers)
+        $headerRow1 = $currentRow;
+        $sheet->setCellValue('A' . $headerRow1, 'No');
+        $sheet->setCellValue('B' . $headerRow1, 'Nama Instansi');
+        $sheet->setCellValue('C' . $headerRow1, 'Skor Sebelum');
+        $sheet->setCellValue('D' . $headerRow1, 'Skor Sekarang');
+        $sheet->setCellValue('E' . $headerRow1, 'Perubahan');
+        $sheet->setCellValue('F' . $headerRow1, 'Kelengkapan Sebelum');
+        $sheet->mergeCells('F' . $headerRow1 . ':J' . $headerRow1);
+        $sheet->setCellValue('K' . $headerRow1, 'Kelengkapan Sekarang');
+        $sheet->mergeCells('K' . $headerRow1 . ':O' . $headerRow1);
+        $sheet->setCellValue('P' . $headerRow1, 'Status Kelengkapan');
+        $sheet->setCellValue('Q' . $headerRow1, 'Status');
+
+        $headerRow2 = $currentRow + 1;
+        $sheet->setCellValue('F' . $headerRow2, 'Jml ASN');
+        $sheet->setCellValue('G' . $headerRow2, 'S.Lengkap');
+        $sheet->setCellValue('H' . $headerRow2, 'Lengkap');
+        $sheet->setCellValue('I' . $headerRow2, 'C.Lengkap');
+        $sheet->setCellValue('J' . $headerRow2, 'K.Lengkap');
+        $sheet->setCellValue('K' . $headerRow2, 'Jml ASN');
+        $sheet->setCellValue('L' . $headerRow2, 'S.Lengkap');
+        $sheet->setCellValue('M' . $headerRow2, 'Lengkap');
+        $sheet->setCellValue('N' . $headerRow2, 'C.Lengkap');
+        $sheet->setCellValue('O' . $headerRow2, 'K.Lengkap');
+
+        // Merge cells untuk kolom yang tidak punya sub-header
+        $sheet->mergeCells('A' . $headerRow1 . ':A' . $headerRow2);
+        $sheet->mergeCells('B' . $headerRow1 . ':B' . $headerRow2);
+        $sheet->mergeCells('C' . $headerRow1 . ':C' . $headerRow2);
+        $sheet->mergeCells('D' . $headerRow1 . ':D' . $headerRow2);
+        $sheet->mergeCells('E' . $headerRow1 . ':E' . $headerRow2);
+        $sheet->mergeCells('P' . $headerRow1 . ':P' . $headerRow2);
+        $sheet->mergeCells('Q' . $headerRow1 . ':Q' . $headerRow2);
 
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
@@ -1334,10 +1469,11 @@ class DashboardController extends Controller
                 ]
             ]
         ];
-        $sheet->getStyle('A8:F8')->applyFromArray($headerStyle);
+        $sheet->getStyle('A' . $headerRow1 . ':Q' . $headerRow2)->applyFromArray($headerStyle);
+        $currentRow += 2;
 
-        // Data rows (start from row 9)
-        $row = 9;
+        // Data rows
+        $row = $currentRow;
         $no = 1;
         foreach ($changes as $change) {
             $sheet->setCellValue('A' . $row, $no);
@@ -1345,7 +1481,20 @@ class DashboardController extends Controller
             $sheet->setCellValue('C' . $row, number_format(floor($change['skor_sebelum'] * 10) / 10, 1));
             $sheet->setCellValue('D' . $row, number_format(floor($change['skor_sekarang'] * 10) / 10, 1));
             $sheet->setCellValue('E' . $row, number_format(floor($change['perubahan'] * 10) / 10, 1));
-            $sheet->setCellValue('F' . $row, $change['status']);
+            // Kelengkapan Sebelum
+            $sheet->setCellValue('F' . $row, number_format($change['jumlah_asn_sebelum']));
+            $sheet->setCellValue('G' . $row, number_format($change['sangat_lengkap_sebelum']));
+            $sheet->setCellValue('H' . $row, number_format($change['lengkap_sebelum']));
+            $sheet->setCellValue('I' . $row, number_format($change['cukup_lengkap_sebelum']));
+            $sheet->setCellValue('J' . $row, number_format($change['kurang_lengkap_sebelum']));
+            // Kelengkapan Sekarang
+            $sheet->setCellValue('K' . $row, number_format($change['jumlah_asn_sekarang']));
+            $sheet->setCellValue('L' . $row, number_format($change['sangat_lengkap_sekarang']));
+            $sheet->setCellValue('M' . $row, number_format($change['lengkap_sekarang']));
+            $sheet->setCellValue('N' . $row, number_format($change['cukup_lengkap_sekarang']));
+            $sheet->setCellValue('O' . $row, number_format($change['kurang_lengkap_sekarang']));
+            $sheet->setCellValue('P' . $row, $change['status_kelengkapan_sekarang']);
+            $sheet->setCellValue('Q' . $row, $change['status']);
 
             // Color code status
             $statusColor = match($change['status']) {
@@ -1355,16 +1504,14 @@ class DashboardController extends Controller
                 default => 'FFCCCCCC'
             };
 
-            $sheet->getStyle('F' . $row)->getFill()
+            $sheet->getStyle('Q' . $row)->getFill()
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getStartColor()->setARGB($statusColor);
 
             // Center align
-            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('D' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('E' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            foreach (range('A', 'Q') as $col) {
+                $sheet->getStyle($col . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            }
 
             $row++;
             $no++;
@@ -1373,10 +1520,21 @@ class DashboardController extends Controller
         // Auto size columns
         $sheet->getColumnDimension('A')->setWidth(8);
         $sheet->getColumnDimension('B')->setWidth(50);
-        $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(15);
-        $sheet->getColumnDimension('E')->setWidth(15);
-        $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(12);
+        $sheet->getColumnDimension('E')->setWidth(12);
+        $sheet->getColumnDimension('F')->setWidth(12);
+        $sheet->getColumnDimension('G')->setWidth(12);
+        $sheet->getColumnDimension('H')->setWidth(12);
+        $sheet->getColumnDimension('I')->setWidth(12);
+        $sheet->getColumnDimension('J')->setWidth(12);
+        $sheet->getColumnDimension('K')->setWidth(12);
+        $sheet->getColumnDimension('L')->setWidth(12);
+        $sheet->getColumnDimension('M')->setWidth(12);
+        $sheet->getColumnDimension('N')->setWidth(12);
+        $sheet->getColumnDimension('O')->setWidth(12);
+        $sheet->getColumnDimension('P')->setWidth(20);
+        $sheet->getColumnDimension('Q')->setWidth(15);
 
         // Export
         $filename = 'Perbandingan_Periode_' . date('Ymd') . '.xlsx';
@@ -1399,14 +1557,20 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Periode perbandingan tidak lengkap'], 404);
         }
 
+        // Get skor nasional from both periods
+        $skorNasionalCurrent = MonevDmsSkorRata2Nasional::where('upload_date', $currentDate)->first();
+        $skorNasionalPrevious = MonevDmsSkorRata2Nasional::where('upload_date', $previousDate)->first();
+
         // Get scores from both periods
         $currentScores = MonevDmsInstansiScore::where('upload_date', $currentDate)
-            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi', 'monev_status_kelengkapan')
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi', 'monev_status_kelengkapan',
+                     'jumlah_asn', 'sangat_lengkap', 'lengkap', 'cukup_lengkap', 'kurang_lengkap')
             ->get()
             ->keyBy('id_instansi');
 
         $previousScores = MonevDmsInstansiScore::where('upload_date', $previousDate)
-            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi', 'monev_status_kelengkapan')
+            ->select('id_instansi', 'nama_instansi', 'monev_skor_instansi', 'monev_status_kelengkapan',
+                     'jumlah_asn', 'sangat_lengkap', 'lengkap', 'cukup_lengkap', 'kurang_lengkap')
             ->get()
             ->keyBy('id_instansi');
 
@@ -1474,7 +1638,14 @@ class DashboardController extends Controller
                     'skor_sebelum' => $skorSebelumTruncated,
                     'skor_sekarang' => $skorSekarangTruncated,
                     'perubahan' => $scoreDiffTruncated,  // Gunakan nilai yang sudah di-truncate
-                    'status' => $status
+                    'status' => $status,
+                    // Kelengkapan data
+                    'jumlah_asn_sekarang' => $current->jumlah_asn ?? 0,
+                    'sangat_lengkap_sekarang' => $current->sangat_lengkap ?? 0,
+                    'lengkap_sekarang' => $current->lengkap ?? 0,
+                    'cukup_lengkap_sekarang' => $current->cukup_lengkap ?? 0,
+                    'kurang_lengkap_sekarang' => $current->kurang_lengkap ?? 0,
+                    'status_kelengkapan_sekarang' => $current->monev_status_kelengkapan
                 ];
             }
         }
@@ -1484,9 +1655,13 @@ class DashboardController extends Controller
             return $b['perubahan'] <=> $a['perubahan'];
         });
 
+        // Calculate average skor instansi for both periods
+        $avgSkorInstansiCurrent = $currentScores->avg('monev_skor_instansi');
+        $avgSkorInstansiPrevious = $previousScores->avg('monev_skor_instansi');
+
         // Render HTML
         try {
-            $html = view('dashboard.comparison-pdf', compact('changes', 'previousDate', 'currentDate', 'countNaik', 'countTurun', 'countStagnan', 'countKategoriNaik', 'countKategoriTurun', 'countKategoriStagnan'))->render();
+            $html = view('dashboard.comparison-pdf', compact('changes', 'previousDate', 'currentDate', 'countNaik', 'countTurun', 'countStagnan', 'countKategoriNaik', 'countKategoriTurun', 'countKategoriStagnan', 'skorNasionalCurrent', 'skorNasionalPrevious', 'avgSkorInstansiCurrent', 'avgSkorInstansiPrevious'))->render();
 
             $pdf = \PDF::loadHTML($html);
             $pdf->setPaper('a4', 'landscape');

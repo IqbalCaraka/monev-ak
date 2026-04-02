@@ -156,6 +156,31 @@
         </div>
     </div>
 
+    <!-- Skor Nasional & Rata-rata Instansi -->
+    @if($skorNasionalPrevious && $skorNasionalCurrent)
+    <div style="background-color: #ecf0f1; padding: 8px; margin-bottom: 10px; border-left: 4px solid #27ae60;">
+        <strong style="font-size: 9px; color: #2c3e50;">SKOR RATA-RATA ARSIP DMS NASIONAL</strong>
+        <table cellpadding="5" style="margin-top: 5px; width: 100%;">
+            <tr>
+                <td style="width: 30%; font-size: 7px;"><strong>Sebelum:</strong> {{ number_format($skorNasionalPrevious->skor_rata2_nasional, 2) }}</td>
+                <td style="width: 30%; font-size: 7px;"><strong>Sekarang:</strong> {{ number_format($skorNasionalCurrent->skor_rata2_nasional, 2) }}</td>
+                <td style="width: 40%; font-size: 7px;"><strong>Perubahan:</strong> {{ number_format($skorNasionalCurrent->skor_rata2_nasional - $skorNasionalPrevious->skor_rata2_nasional, 2) }}</td>
+            </tr>
+        </table>
+    </div>
+    @endif
+
+    <div style="background-color: #ecf0f1; padding: 8px; margin-bottom: 10px; border-left: 4px solid #3498db;">
+        <strong style="font-size: 9px; color: #2c3e50;">RATA-RATA SKOR ARSIP INSTANSI</strong>
+        <table cellpadding="5" style="margin-top: 5px; width: 100%;">
+            <tr>
+                <td style="width: 30%; font-size: 7px;"><strong>Sebelum:</strong> {{ number_format($avgSkorInstansiPrevious, 2) }}</td>
+                <td style="width: 30%; font-size: 7px;"><strong>Sekarang:</strong> {{ number_format($avgSkorInstansiCurrent, 2) }}</td>
+                <td style="width: 40%; font-size: 7px;"><strong>Perubahan:</strong> {{ number_format($avgSkorInstansiCurrent - $avgSkorInstansiPrevious, 2) }}</td>
+            </tr>
+        </table>
+    </div>
+
     <!-- Summary Stats -->
     <div class="summary-stats">
         <table cellpadding="8">
@@ -203,15 +228,28 @@
     </div>
 
     <!-- Data Table -->
-    <table>
+    <table style="font-size: 5px;">
         <thead>
             <tr>
-                <th width="25" class="text-center">No</th>
-                <th width="200">Nama Instansi</th>
-                <th width="70" class="text-center">{{ \Carbon\Carbon::parse($previousDate)->format('d M Y') }}</th>
-                <th width="70" class="text-center">{{ \Carbon\Carbon::parse($currentDate)->format('d M Y') }}</th>
-                <th width="60" class="text-center">Perubahan</th>
-                <th width="60" class="text-center">Status</th>
+                <th width="15" rowspan="2" class="text-center">No</th>
+                <th width="120" rowspan="2">Nama Instansi</th>
+                <th width="35" rowspan="2" class="text-center">Skor Sebelum</th>
+                <th width="35" rowspan="2" class="text-center">Skor Sekarang</th>
+                <th colspan="5" class="text-center" style="background-color: #f39c12;">Kelengkapan Sebelum</th>
+                <th colspan="5" class="text-center" style="background-color: #3498db;">Kelengkapan Sekarang</th>
+                <th width="40" rowspan="2" class="text-center">Status</th>
+            </tr>
+            <tr>
+                <th width="20" class="text-center">ASN</th>
+                <th width="20" class="text-center">S.L</th>
+                <th width="20" class="text-center">L</th>
+                <th width="20" class="text-center">C.L</th>
+                <th width="20" class="text-center">K.L</th>
+                <th width="20" class="text-center">ASN</th>
+                <th width="20" class="text-center">S.L</th>
+                <th width="20" class="text-center">L</th>
+                <th width="20" class="text-center">C.L</th>
+                <th width="20" class="text-center">K.L</th>
             </tr>
         </thead>
         <tbody>
@@ -228,16 +266,24 @@
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ $change['nama_instansi'] }}</td>
                 <td class="text-center">{{ number_format(floor($change['skor_sebelum'] * 10) / 10, 1) }}</td>
-                <td class="text-center">{{ number_format(floor($change['skor_sekarang'] * 10) / 10, 1) }}</td>
                 <td class="text-center">
-                    <strong>
-                        @if($change['perubahan'] > 0)
-                            +{{ number_format(floor($change['perubahan'] * 10) / 10, 1) }}
-                        @else
-                            {{ number_format(floor($change['perubahan'] * 10) / 10, 1) }}
-                        @endif
-                    </strong>
+                    {{ number_format(floor($change['skor_sekarang'] * 10) / 10, 1) }}
+                    @if($change['perubahan'] != 0)
+                    <br><small style="color: {{ $change['perubahan'] > 0 ? '#27ae60' : '#e74c3c' }}; font-size: 4px;">
+                        {{ $change['perubahan'] > 0 ? '+' : '' }}{{ number_format(floor($change['perubahan'] * 10) / 10, 1) }}
+                    </small>
+                    @endif
                 </td>
+                <td class="text-center">{{ number_format($change['jumlah_asn_sebelum']) }}</td>
+                <td class="text-center">{{ number_format($change['sangat_lengkap_sebelum']) }}</td>
+                <td class="text-center">{{ number_format($change['lengkap_sebelum']) }}</td>
+                <td class="text-center">{{ number_format($change['cukup_lengkap_sebelum']) }}</td>
+                <td class="text-center">{{ number_format($change['kurang_lengkap_sebelum']) }}</td>
+                <td class="text-center">{{ number_format($change['jumlah_asn_sekarang']) }}</td>
+                <td class="text-center">{{ number_format($change['sangat_lengkap_sekarang']) }}</td>
+                <td class="text-center">{{ number_format($change['lengkap_sekarang']) }}</td>
+                <td class="text-center">{{ number_format($change['cukup_lengkap_sekarang']) }}</td>
+                <td class="text-center">{{ number_format($change['kurang_lengkap_sekarang']) }}</td>
                 <td class="text-center">
                     <span class="status-badge {{ $statusClass }}">
                         {{ $change['status'] }}
