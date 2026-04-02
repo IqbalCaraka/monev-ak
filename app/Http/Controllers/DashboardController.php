@@ -1639,7 +1639,13 @@ class DashboardController extends Controller
                     'skor_sekarang' => $skorSekarangTruncated,
                     'perubahan' => $scoreDiffTruncated,  // Gunakan nilai yang sudah di-truncate
                     'status' => $status,
-                    // Kelengkapan data
+                    // Kelengkapan data periode sebelumnya
+                    'jumlah_asn_sebelum' => $previous->jumlah_asn ?? 0,
+                    'sangat_lengkap_sebelum' => $previous->sangat_lengkap ?? 0,
+                    'lengkap_sebelum' => $previous->lengkap ?? 0,
+                    'cukup_lengkap_sebelum' => $previous->cukup_lengkap ?? 0,
+                    'kurang_lengkap_sebelum' => $previous->kurang_lengkap ?? 0,
+                    // Kelengkapan data periode sekarang
                     'jumlah_asn_sekarang' => $current->jumlah_asn ?? 0,
                     'sangat_lengkap_sekarang' => $current->sangat_lengkap ?? 0,
                     'lengkap_sekarang' => $current->lengkap ?? 0,
