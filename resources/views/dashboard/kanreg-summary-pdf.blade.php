@@ -132,7 +132,7 @@
         </div>
         <div style="text-align: right;">
             <span class="label">Waktu Cetak:</span>
-            <span>{{ \Carbon\Carbon::now()->format('d F Y, H:i') }} WIB</span>
+            <span>{{ request('printed_at') ?? \Carbon\Carbon::now()->format('d/m/Y H:i:s') }}</span>
         </div>
         <div>
             <span class="label">Total Kantor Regional:</span>

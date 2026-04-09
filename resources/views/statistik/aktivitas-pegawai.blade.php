@@ -869,6 +869,15 @@ if (searchInput) {
     });
 }
 
+// Helper: append printed_at client time to URL
+function appendPrintedAt(url) {
+    const sep = url.includes('?') ? '&' : '?';
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const printedAt = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    return url + sep + 'printed_at=' + encodeURIComponent(printedAt);
+}
+
 // Export PDF function with loading
 function exportPdf() {
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -900,7 +909,7 @@ function exportPdf() {
     }
 
     // Trigger download directly
-    window.location.href = url;
+    window.location.href = appendPrintedAt(url);
 
     // Hide loading after 3 seconds (give time for PDF generation)
     setTimeout(function() {
@@ -934,7 +943,7 @@ function exportRekapSemuaAktivitasExcel() {
         url += '?' + params.toString();
     }
 
-    window.location.href = url;
+    window.location.href = appendPrintedAt(url);
 
     setTimeout(function() {
         loadingOverlay.style.display = 'none';
@@ -967,7 +976,7 @@ function exportAktivitasDokumenExcel() {
         url += '?' + params.toString();
     }
 
-    window.location.href = url;
+    window.location.href = appendPrintedAt(url);
 
     setTimeout(function() {
         loadingOverlay.style.display = 'none';
@@ -1005,7 +1014,7 @@ function exportPicPdf() {
     }
 
     // Trigger download directly
-    window.location.href = url;
+    window.location.href = appendPrintedAt(url);
 
     // Hide loading after 5 seconds (PIC PDF takes longer)
     setTimeout(function() {

@@ -400,7 +400,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>Dicetak pada: {{ now()->format('d F Y, H:i:s') }} WIB</p>
+        <p>Dicetak pada: {{ request('printed_at') ?? now()->format('d/m/Y H:i:s') }}</p>
     </div>
 </body>
 </html>

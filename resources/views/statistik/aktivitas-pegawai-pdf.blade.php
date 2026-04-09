@@ -264,7 +264,7 @@
     </table>
 
     <div class="footer">
-        <p>Laporan ini digenerate secara otomatis pada {{ date('d F Y H:i:s') }}</p>
+        <p>Laporan ini digenerate secara otomatis pada {{ request('printed_at') ?? date('d/m/Y H:i:s') }}</p>
         <p>Direktorat Arsip Kepegawaian Aparatur Sipil Negara</p>
     </div>
 </body>

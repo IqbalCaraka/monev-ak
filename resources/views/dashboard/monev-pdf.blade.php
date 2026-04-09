@@ -197,7 +197,7 @@
         </div>
         <div>
             <span class="label">Tanggal Cetak:</span>
-            <span>{{ \Carbon\Carbon::now()->format('d F Y, H:i') }} WIB</span>
+            <span>{{ request('printed_at') ?? \Carbon\Carbon::now()->format('d/m/Y H:i:s') }}</span>
         </div>
         <div>
             <span class="label">Total Instansi:</span>
@@ -434,7 +434,7 @@
     <!-- Footer -->
     <div class="footer">
         <p>Dokumen ini dicetak secara otomatis dari Sistem Monitoring DMS - Badan Kepegawaian Negara</p>
-        <p>Dicetak pada: {{ \Carbon\Carbon::now()->format('d F Y, H:i:s') }} WIB</p>
+        <p>Dicetak pada: {{ request('printed_at') ?? \Carbon\Carbon::now()->format('d/m/Y H:i:s') }}</p>
     </div>
 </body>
 </html>

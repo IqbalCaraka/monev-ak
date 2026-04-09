@@ -670,7 +670,7 @@ class DashboardController extends Controller
         $sheet->setCellValue('A3', 'Periode Penilaian: ' . \Carbon\Carbon::parse($monevDate)->format('d F Y'));
         $sheet->mergeCells('A3:D3');
 
-        $sheet->setCellValue('A4', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->setCellValue('A4', 'Waktu Cetak: ' . (request('printed_at') ?? \Carbon\Carbon::now()->format('d/m/Y H:i:s')));
         $sheet->mergeCells('A4:D4');
 
         // Table header
@@ -827,7 +827,7 @@ class DashboardController extends Controller
         $sheet->mergeCells('A2:J2');
         $sheet->getStyle('A2')->getFont()->setBold(true);
 
-        $sheet->setCellValue('A3', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->setCellValue('A3', 'Waktu Cetak: ' . (request('printed_at') ?? \Carbon\Carbon::now()->format('d/m/Y H:i:s')));
         $sheet->mergeCells('A3:J3');
 
         $sheet->setCellValue('A4', 'Total Instansi: ' . $instansiList->count());
@@ -1098,7 +1098,7 @@ class DashboardController extends Controller
         $sheet->mergeCells('A2:J2');
         $sheet->getStyle('A2')->getFont()->setBold(true);
 
-        $sheet->setCellValue('A3', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->setCellValue('A3', 'Waktu Cetak: ' . (request('printed_at') ?? \Carbon\Carbon::now()->format('d/m/Y H:i:s')));
         $sheet->mergeCells('A3:J3');
 
         $sheet->setCellValue('A4', 'Total Kantor Regional: ' . $kanregStats->count());
@@ -1362,7 +1362,7 @@ class DashboardController extends Controller
         $sheet->mergeCells('A3:K3');
         $sheet->getStyle('A3')->getFont()->setBold(true);
 
-        $sheet->setCellValue('A4', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->setCellValue('A4', 'Waktu Cetak: ' . (request('printed_at') ?? \Carbon\Carbon::now()->format('d/m/Y H:i:s')));
         $sheet->mergeCells('A4:K4');
 
         $currentRow = 6;
@@ -1824,7 +1824,7 @@ class DashboardController extends Controller
         $sheet->mergeCells('A3:J3');
         $sheet->getStyle('A3')->getFont()->setBold(true);
 
-        $sheet->setCellValue('A4', 'Waktu Cetak: ' . \Carbon\Carbon::now()->format('d F Y, H:i') . ' WIB');
+        $sheet->setCellValue('A4', 'Waktu Cetak: ' . (request('printed_at') ?? \Carbon\Carbon::now()->format('d/m/Y H:i:s')));
         $sheet->mergeCells('A4:J4');
 
         // Table header

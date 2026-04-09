@@ -63,5 +63,26 @@
     <script src="{{ asset('assets/js/todolist.js') }}"></script>
 
     @stack('scripts')
+
+    <script>
+    // Auto-append printed_at (client time) to all export links
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href*="export"]');
+        if (!link) return;
+
+        e.preventDefault();
+        const url = new URL(link.href, window.location.origin);
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const printedAt = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+        url.searchParams.set('printed_at', printedAt);
+
+        if (link.target === '_blank') {
+            window.open(url.toString(), '_blank');
+        } else {
+            window.location.href = url.toString();
+        }
+    });
+    </script>
 </body>
 </html>

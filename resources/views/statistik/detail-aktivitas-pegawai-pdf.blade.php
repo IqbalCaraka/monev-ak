@@ -183,7 +183,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>Dicetak pada: {{ date('d F Y H:i:s') }}</p>
+        <p>Dicetak pada: {{ request('printed_at') ?? date('d/m/Y H:i:s') }}</p>
         <p>Sistem Monitoring & Evaluasi - Direktorat Arsip Kepegawaian ASN</p>
     </div>
 </body>

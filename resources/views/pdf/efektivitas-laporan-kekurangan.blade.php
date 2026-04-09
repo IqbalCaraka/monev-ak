@@ -237,7 +237,7 @@
     </table>
 
     <div class="footer">
-        <p>Dicetak pada {{ date('d/m/Y H:i:s') }} | Laporan Efektivitas Laporan Kekurangan Berkas</p>
+        <p>Dicetak pada {{ request('printed_at') ?? date('d/m/Y H:i:s') }} | Laporan Efektivitas Laporan Kekurangan Berkas</p>
     </div>
 </body>
 </html>

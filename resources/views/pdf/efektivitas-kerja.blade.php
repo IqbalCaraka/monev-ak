@@ -237,7 +237,7 @@
     </table>
 
     <div class="footer">
-        <p>Dicetak pada {{ date('d/m/Y H:i:s') }} | Laporan Efektivitas Kerja Mapping Non-Inject</p>
+        <p>Dicetak pada {{ request('printed_at') ?? date('d/m/Y H:i:s') }} | Laporan Efektivitas Kerja Mapping Non-Inject</p>
     </div>
 </body>
 </html>
