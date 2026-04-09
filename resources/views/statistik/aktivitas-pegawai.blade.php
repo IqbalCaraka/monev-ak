@@ -180,14 +180,14 @@
     </div>
 </div>
 
-<!-- Top 5 Kategori & Statistik PIC DMS -->
+<!-- Top 6 Kategori & Statistik PIC DMS -->
 <div class="row">
-    <!-- Top 5 Kategori Aktivitas (col-4) -->
+    <!-- Top 6 Kategori Aktivitas (col-4) -->
     <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title mb-0">Top 5 Kategori Aktivitas</h4>
+                    <h4 class="card-title mb-0">Kategori Aktivitas</h4>
                     <button type="button"
                             class="btn btn-danger btn-sm"
                             id="btnExportPdf"
@@ -196,11 +196,14 @@
                         <i class="ti-printer me-1"></i> Print Report
                     </button>
                 </div>
+                @php
+                    $badgeColors = ['primary', 'success', 'info', 'warning', 'danger', 'dark', 'secondary'];
+                @endphp
                 @foreach($topKategori as $index => $kategori)
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <div class="d-flex align-items-center">
-                            <span class="badge badge-{{ ['primary', 'success', 'info', 'warning', 'danger'][$index] }} me-2">
+                            <span class="badge badge-{{ $badgeColors[$index % count($badgeColors)] }} me-2">
                                 #{{ $index + 1 }}
                             </span>
                             <small class="text-muted">{{ $kategori->kategori_aktivitas }}</small>
@@ -208,7 +211,7 @@
                         <strong>{{ number_format($kategori->total) }}</strong>
                     </div>
                     <div class="progress" style="height: 6px;">
-                        <div class="progress-bar bg-{{ ['primary', 'success', 'info', 'warning', 'danger'][$index] }}"
+                        <div class="progress-bar bg-{{ $badgeColors[$index % count($badgeColors)] }}"
                              role="progressbar"
                              style="width: {{ ($kategori->total / $topKategori->first()->total) * 100 }}%">
                         </div>
@@ -320,10 +323,26 @@
     </div>
 </div>
 
-<!-- Mapping & Inject Dokumen Summary -->
+<!-- Mapping, Inject & Approval Dokumen Summary -->
+<div class="row mb-2">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="ti-bar-chart text-primary me-2"></i>Rekap Aktivitas Dokumen</h4>
+            <div>
+                <button type="button" class="btn btn-primary btn-sm me-1" onclick="exportRekapSemuaAktivitasExcel()" id="btnExportRekapSemua">
+                    <i class="ti-layout-list-post me-1"></i> Rekap Semua Aktivitas
+                </button>
+                <button type="button" class="btn btn-success btn-sm" onclick="exportAktivitasDokumenExcel()" id="btnExportAktivitasDokExcel">
+                    <i class="ti-file me-1"></i> Export Per Kategori
+                </button>
+            </div>
+        </div>
+        <p class="text-muted small mt-1 mb-0">Ringkasan aktivitas Mapping, Inject, dan Approval dokumen per pegawai</p>
+    </div>
+</div>
 <div class="row">
     <!-- Mapping Dokumen (Non-Inject) -->
-    <div class="col-md-6 grid-margin stretch-card">
+    <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -385,7 +404,7 @@
     </div>
 
     <!-- Inject Dokumen (Inject - Unggah Dokumen) -->
-    <div class="col-md-6 grid-margin stretch-card">
+    <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -437,6 +456,68 @@
                             <small class="text-muted d-block">Per Object PNS</small>
                             <div>
                                 <strong class="text-success" id="injectTotalPNS">0</strong>
+                                <span class="text-muted small">PNS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval Dokumen MyASN -->
+    <div class="col-md-4 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">
+                        <i class="ti-check-box text-success me-2"></i>Approval Dokumen MyASN
+                    </h4>
+                    <span class="badge badge-success">Approval</span>
+                </div>
+                <p class="text-muted small mb-3">Approval upload dokumen MyASN - Semua Pegawai</p>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-success">
+                            <tr>
+                                <th width="40">#</th>
+                                <th>Nama Pegawai</th>
+                                <th class="text-center" width="100">Total</th>
+                                <th class="text-center" width="100">Per PNS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="approvalTableBody">
+                            <!-- Skeleton Loader -->
+                            <tr>
+                                <td colspan="4" class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="ms-2 text-muted">Memuat data approval dokumen...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div id="approvalPaginationContainer"></div>
+
+                <!-- Summary -->
+                <div id="approvalSummaryContainer" class="mt-3 pt-3 border-top" style="display:none;">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Total Halaman Ini</small>
+                            <div>
+                                <strong class="text-primary" id="approvalTotalDok">0</strong>
+                                <span class="text-muted small">approval</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Per Object PNS</small>
+                            <div>
+                                <strong class="text-success" id="approvalTotalPNS">0</strong>
                                 <span class="text-muted small">PNS</span>
                             </div>
                         </div>
@@ -829,6 +910,72 @@ function exportPdf() {
     }, 3000);
 }
 
+// Export Rekap Semua Aktivitas (1 sheet, semua event)
+function exportRekapSemuaAktivitasExcel() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingText = loadingOverlay.querySelector('p');
+    const btn = document.getElementById('btnExportRekapSemua');
+
+    loadingOverlay.style.display = 'flex';
+    loadingText.textContent = 'Generating Excel... Mohon tunggu, sedang memproses rekap semua aktivitas.';
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating...';
+
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+
+    let url = '{{ route("aktivitas-pegawai.export-rekap-semua-excel") }}';
+    const params = new URLSearchParams();
+    if (dateFrom) params.append('date_from', dateFrom);
+    if (dateTo) params.append('date_to', dateTo);
+
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+
+    window.location.href = url;
+
+    setTimeout(function() {
+        loadingOverlay.style.display = 'none';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ti-layout-list-post me-1"></i> Rekap Semua Aktivitas';
+    }, 3000);
+}
+
+// Export Aktivitas Dokumen Excel (Mapping, Inject, Approval)
+function exportAktivitasDokumenExcel() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingText = loadingOverlay.querySelector('p');
+    const btn = document.getElementById('btnExportAktivitasDokExcel');
+
+    loadingOverlay.style.display = 'flex';
+    loadingText.textContent = 'Generating Excel... Mohon tunggu, sedang memproses data aktivitas dokumen.';
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating...';
+
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+
+    let url = '{{ route("aktivitas-pegawai.export-aktivitas-dokumen-excel") }}';
+    const params = new URLSearchParams();
+    if (dateFrom) params.append('date_from', dateFrom);
+    if (dateTo) params.append('date_to', dateTo);
+
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+
+    window.location.href = url;
+
+    setTimeout(function() {
+        loadingOverlay.style.display = 'none';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ti-file me-1"></i> Export Excel';
+    }, 3000);
+}
+
 // Export PIC PDF function with loading
 function exportPicPdf() {
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -883,6 +1030,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load Inject Dokumen table with delay
     setTimeout(() => loadInjectDokumen(), 1200);
+
+    // Load Approval Dokumen table with delay
+    setTimeout(() => loadApprovalDokumen(), 1700);
 });
 
 function loadAktivitasPegawai(page = 1) {
@@ -1201,6 +1351,108 @@ function loadInjectDokumen(page = 1) {
         })
         .catch(error => {
             console.error('Error loading inject dokumen:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger py-3">
+                        <i class="mdi mdi-alert-circle"></i> Gagal memuat data
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+// Load Approval Dokumen table
+function loadApprovalDokumen(page = 1) {
+    const tableBody = document.getElementById('approvalTableBody');
+    const paginationContainer = document.getElementById('approvalPaginationContainer');
+    const summaryContainer = document.getElementById('approvalSummaryContainer');
+
+    const dateFrom = '{{ $dateFrom ?? '' }}';
+    const dateTo = '{{ $dateTo ?? '' }}';
+    const search = '{{ $search ?? '' }}';
+
+    let url = '/api/monev-dms/approval-dokumen?page=' + page;
+    if (search) url += '&search=' + encodeURIComponent(search);
+    if (dateFrom) url += '&date_from=' + dateFrom;
+    if (dateTo) url += '&date_to=' + dateTo;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(result => {
+            tableBody.innerHTML = '';
+
+            if (result.data.length > 0) {
+                let totalApproval = 0, totalPNS = 0;
+
+                result.data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td>${item.no}</td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 200px;" title="${item.nama}">
+                                    ${item.nama}
+                                </div>
+                                <small class="text-muted">${item.nip}</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-success">${item.total_approval}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-info">${item.total_per_object_pns}</span>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+
+                    totalApproval += parseInt(item.total_approval.replace(/,/g, ''));
+                    totalPNS += parseInt(item.total_per_object_pns.replace(/,/g, ''));
+                });
+
+                // Show summary
+                document.getElementById('approvalTotalDok').textContent = totalApproval.toLocaleString();
+                document.getElementById('approvalTotalPNS').textContent = totalPNS.toLocaleString();
+                summaryContainer.style.display = 'block';
+
+                // Pagination with navigation buttons
+                if (result.pagination.last_page > 1) {
+                    let paginationHTML = '<nav class="mt-3"><ul class="pagination pagination-sm mb-0">';
+
+                    // Previous button
+                    if (result.pagination.current_page > 1) {
+                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadApprovalDokumen(${result.pagination.current_page - 1}); return false;">«</a></li>`;
+                    }
+
+                    // Page numbers
+                    let startPage = Math.max(1, result.pagination.current_page - 2);
+                    let endPage = Math.min(result.pagination.last_page, startPage + 4);
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        const active = i === result.pagination.current_page ? 'active' : '';
+                        paginationHTML += `<li class="page-item ${active}"><a class="page-link" href="#" onclick="loadApprovalDokumen(${i}); return false;">${i}</a></li>`;
+                    }
+
+                    // Next button
+                    if (result.pagination.current_page < result.pagination.last_page) {
+                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadApprovalDokumen(${result.pagination.current_page + 1}); return false;">»</a></li>`;
+                    }
+
+                    paginationHTML += '</ul></nav>';
+                    paginationHTML += `<div class="text-muted small mt-2">Menampilkan ${result.pagination.from} - ${result.pagination.to} dari ${result.pagination.total} pegawai</div>`;
+                    paginationContainer.innerHTML = paginationHTML;
+                }
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">
+                            Tidak ada data approval dokumen
+                        </td>
+                    </tr>
+                `;
+                summaryContainer.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading approval dokumen:', error);
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="4" class="text-center text-danger py-3">

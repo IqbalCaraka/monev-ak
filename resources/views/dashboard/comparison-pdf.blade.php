@@ -126,6 +126,40 @@
         .status-stagnan {
             background-color: #f39c12;
         }
+
+        /* Prevent page break inside table header */
+        thead {
+            display: table-header-group;
+        }
+
+        tbody {
+            display: table-row-group;
+        }
+
+        /* New page for detail table */
+        .page-break {
+            page-break-before: always;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 15px 0 10px 0;
+            padding: 8px;
+            background-color: #ecf0f1;
+            border-left: 5px solid #3498db;
+        }
+
+        /* Keep header rows together */
+        table thead tr {
+            page-break-inside: avoid;
+            page-break-after: avoid;
+        }
+
+        table tbody tr {
+            page-break-inside: avoid;
+        }
     </style>
 </head>
 <body>
@@ -177,39 +211,74 @@
                     <th style="padding: 4px; border: 1px solid #95a5a6; text-align: center;">Sebelum</th>
                     <th style="padding: 4px; border: 1px solid #95a5a6; text-align: center;">Sekarang</th>
                     <th style="padding: 4px; border: 1px solid #95a5a6; text-align: center;">Perubahan</th>
+                    <th style="padding: 4px; border: 1px solid #95a5a6; text-align: center;">Persentase</th>
                 </tr>
             </thead>
             <tbody>
+                @php
+                    // Kurang Lengkap
+                    $diffKurang = ($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0);
+                    $pctKurang = ($skorNasionalPrevious->kurang_lengkap ?? 0) > 0 ? (($diffKurang / ($skorNasionalPrevious->kurang_lengkap ?? 1)) * 100) : 0;
+                    $colorKurang = $diffKurang > 0 ? '#e74c3c' : ($diffKurang < 0 ? '#27ae60' : '#333');
+
+                    // Cukup Lengkap
+                    $diffCukup = ($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0);
+                    $pctCukup = ($skorNasionalPrevious->cukup_lengkap ?? 0) > 0 ? (($diffCukup / ($skorNasionalPrevious->cukup_lengkap ?? 1)) * 100) : 0;
+                    $colorCukup = $diffCukup > 0 ? '#27ae60' : ($diffCukup < 0 ? '#e74c3c' : '#333');
+
+                    // Lengkap
+                    $diffLengkap = ($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0);
+                    $pctLengkap = ($skorNasionalPrevious->lengkap ?? 0) > 0 ? (($diffLengkap / ($skorNasionalPrevious->lengkap ?? 1)) * 100) : 0;
+                    $colorLengkap = $diffLengkap > 0 ? '#27ae60' : ($diffLengkap < 0 ? '#e74c3c' : '#333');
+
+                    // Sangat Lengkap
+                    $diffSangat = ($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0);
+                    $pctSangat = ($skorNasionalPrevious->sangat_lengkap ?? 0) > 0 ? (($diffSangat / ($skorNasionalPrevious->sangat_lengkap ?? 1)) * 100) : 0;
+                    $colorSangat = $diffSangat > 0 ? '#27ae60' : ($diffSangat < 0 ? '#e74c3c' : '#333');
+                @endphp
+
                 <tr>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; background-color: #fff;">Kurang Lengkap</td>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff;">{{ number_format($skorNasionalPrevious->kurang_lengkap ?? 0) }}</td>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff;">{{ number_format($skorNasionalCurrent->kurang_lengkap ?? 0) }}</td>
-                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff; color: {{ (($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0)) > 0 ? '#e74c3c' : (($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0)) < 0 ? '#27ae60' : '#333' }};">
-                        {{ number_format(($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0)) >= 0 ? '+' : '' }}{{ number_format(($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0)) }}
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff; color: {{ $colorKurang }};">
+                        {{ $diffKurang >= 0 ? '+' : '' }}{{ number_format($diffKurang) }}
+                    </td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff; color: {{ $colorKurang }}; font-weight: bold;">
+                        {{ $pctKurang >= 0 ? '+' : '' }}{{ number_format($pctKurang, 2) }}%
                     </td>
                 </tr>
                 <tr>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; background-color: #f8f9fa;">Cukup Lengkap</td>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa;">{{ number_format($skorNasionalPrevious->cukup_lengkap ?? 0) }}</td>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa;">{{ number_format($skorNasionalCurrent->cukup_lengkap ?? 0) }}</td>
-                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa; color: {{ (($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0)) > 0 ? '#27ae60' : (($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0)) < 0 ? '#e74c3c' : '#333' }};">
-                        {{ number_format(($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0)) >= 0 ? '+' : '' }}{{ number_format(($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0)) }}
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa; color: {{ $colorCukup }};">
+                        {{ $diffCukup >= 0 ? '+' : '' }}{{ number_format($diffCukup) }}
+                    </td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa; color: {{ $colorCukup }}; font-weight: bold;">
+                        {{ $pctCukup >= 0 ? '+' : '' }}{{ number_format($pctCukup, 2) }}%
                     </td>
                 </tr>
                 <tr>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; background-color: #fff;">Lengkap</td>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff;">{{ number_format($skorNasionalPrevious->lengkap ?? 0) }}</td>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff;">{{ number_format($skorNasionalCurrent->lengkap ?? 0) }}</td>
-                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff; color: {{ (($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0)) > 0 ? '#27ae60' : (($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0)) < 0 ? '#e74c3c' : '#333' }};">
-                        {{ number_format(($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0)) >= 0 ? '+' : '' }}{{ number_format(($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0)) }}
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff; color: {{ $colorLengkap }};">
+                        {{ $diffLengkap >= 0 ? '+' : '' }}{{ number_format($diffLengkap) }}
+                    </td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #fff; color: {{ $colorLengkap }}; font-weight: bold;">
+                        {{ $pctLengkap >= 0 ? '+' : '' }}{{ number_format($pctLengkap, 2) }}%
                     </td>
                 </tr>
                 <tr>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; background-color: #f8f9fa;">Sangat Lengkap</td>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa;">{{ number_format($skorNasionalPrevious->sangat_lengkap ?? 0) }}</td>
                     <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa;">{{ number_format($skorNasionalCurrent->sangat_lengkap ?? 0) }}</td>
-                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa; color: {{ (($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0)) > 0 ? '#27ae60' : (($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0)) < 0 ? '#e74c3c' : '#333' }};">
-                        {{ number_format(($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0)) >= 0 ? '+' : '' }}{{ number_format(($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0)) }}
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa; color: {{ $colorSangat }};">
+                        {{ $diffSangat >= 0 ? '+' : '' }}{{ number_format($diffSangat) }}
+                    </td>
+                    <td style="padding: 3px 4px; border: 1px solid #bdc3c7; text-align: center; background-color: #f8f9fa; color: {{ $colorSangat }}; font-weight: bold;">
+                        {{ $pctSangat >= 0 ? '+' : '' }}{{ number_format($pctSangat, 2) }}%
                     </td>
                 </tr>
             </tbody>
@@ -274,29 +343,35 @@
         </table>
     </div>
 
+    <!-- Page Break Before Detail Table -->
+    <div class="page-break"></div>
+
+    <!-- Section Title for Detail Table -->
+    <div class="section-title">DETAIL PERBANDINGAN SKOR PER INSTANSI</div>
+
     <!-- Data Table -->
     <table style="font-size: 5px;">
         <thead>
             <tr>
                 <th width="15" rowspan="2" class="text-center">No</th>
-                <th width="120" rowspan="2">Nama Instansi</th>
-                <th width="35" rowspan="2" class="text-center">Skor Sebelum</th>
-                <th width="35" rowspan="2" class="text-center">Skor Sekarang</th>
+                <th width="100" rowspan="2">Nama Instansi</th>
+                <th width="30" rowspan="2" class="text-center">Skor<br>Sebelum</th>
+                <th width="30" rowspan="2" class="text-center">Skor<br>Sekarang</th>
                 <th colspan="5" class="text-center" style="background-color: #f39c12;">Kelengkapan Sebelum</th>
                 <th colspan="5" class="text-center" style="background-color: #3498db;">Kelengkapan Sekarang</th>
-                <th width="40" rowspan="2" class="text-center">Status</th>
+                <th width="35" rowspan="2" class="text-center">Status</th>
             </tr>
             <tr>
-                <th width="20" class="text-center">ASN</th>
-                <th width="20" class="text-center">S.L</th>
-                <th width="20" class="text-center">L</th>
-                <th width="20" class="text-center">C.L</th>
-                <th width="20" class="text-center">K.L</th>
-                <th width="20" class="text-center">ASN</th>
-                <th width="20" class="text-center">S.L</th>
-                <th width="20" class="text-center">L</th>
-                <th width="20" class="text-center">C.L</th>
-                <th width="20" class="text-center">K.L</th>
+                <th width="22" class="text-center" style="background-color: #f39c12;">Jml<br>ASN</th>
+                <th width="22" class="text-center" style="background-color: #f39c12;">Sangat<br>Lengkap</th>
+                <th width="22" class="text-center" style="background-color: #f39c12;">Lengkap</th>
+                <th width="22" class="text-center" style="background-color: #f39c12;">Cukup<br>Lengkap</th>
+                <th width="22" class="text-center" style="background-color: #f39c12;">Kurang<br>Lengkap</th>
+                <th width="22" class="text-center" style="background-color: #3498db;">Jml<br>ASN</th>
+                <th width="22" class="text-center" style="background-color: #3498db;">Sangat<br>Lengkap</th>
+                <th width="22" class="text-center" style="background-color: #3498db;">Lengkap</th>
+                <th width="22" class="text-center" style="background-color: #3498db;">Cukup<br>Lengkap</th>
+                <th width="22" class="text-center" style="background-color: #3498db;">Kurang<br>Lengkap</th>
             </tr>
         </thead>
         <tbody>

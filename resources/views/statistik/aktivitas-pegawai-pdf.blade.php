@@ -215,8 +215,8 @@
         </div>
     </div>
 
-    <!-- Top 5 Kategori -->
-    <div class="section-title">Top 5 Kategori Aktivitas</div>
+    <!-- Top 6 Kategori -->
+    <div class="section-title">Kategori Aktivitas</div>
     <table>
         <thead>
             <tr>

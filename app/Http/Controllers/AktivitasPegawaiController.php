@@ -116,7 +116,6 @@ class AktivitasPegawaiController extends Controller
             ->select('kategori_aktivitas', DB::raw('SUM(total_aktivitas) as total'))
             ->groupBy('kategori_aktivitas')
             ->orderByDesc('total')
-            ->limit(5)
             ->get();
     }
 
@@ -138,7 +137,6 @@ class AktivitasPegawaiController extends Controller
 
         return $query->groupBy('kategori_aktivitas')
                      ->orderByDesc('total')
-                     ->limit(5)
                      ->get();
     }
 
@@ -256,6 +254,8 @@ class AktivitasPegawaiController extends Controller
                     THEN 'Menghapus User'
                 WHEN event_name = 'Laporan-Kekurangan-Riwayat'
                     THEN 'Laporan Kekurangan Riwayat'
+                WHEN event_name = 'approve_upload_dok_myasn'
+                    THEN 'Approval Dokumen MyASN'
                 ELSE CONCAT(UPPER(SUBSTRING(REPLACE(event_name, '_', ' '), 1, 1)),
                            LOWER(SUBSTRING(REPLACE(event_name, '_', ' '), 2)))
             END
@@ -3446,5 +3446,410 @@ class AktivitasPegawaiController extends Controller
         $filename = 'Efektivitas_Laporan_Kekurangan_' . date('Y-m-d', strtotime($dateFrom)) . '_sd_' . date('Y-m-d', strtotime($dateTo)) . '.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * ========================================
+     * EXPORT REKAP AKTIVITAS DOKUMEN (EXCEL)
+     * Mapping, Inject, Approval - 3 sheets
+     * ========================================
+     */
+    public function exportAktivitasDokumenExcel(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        $spreadsheet = new Spreadsheet();
+
+        // Sheet 1: Mapping Dokumen
+        $this->createMappingDokumenSheet($spreadsheet, $dateFrom, $dateTo, true);
+
+        // Sheet 2: Inject Dokumen
+        $this->createInjectDokumenSheet($spreadsheet, $dateFrom, $dateTo);
+
+        // Sheet 3: Approval Dokumen
+        $this->createApprovalDokumenSheet($spreadsheet, $dateFrom, $dateTo);
+
+        $spreadsheet->setActiveSheetIndex(0);
+
+        // Filename
+        if ($dateFrom && $dateTo) {
+            $filename = 'Rekap_Aktivitas_Dokumen_' . date('Y-m-d', strtotime($dateFrom)) . '_sd_' . date('Y-m-d', strtotime($dateTo)) . '.xlsx';
+        } else {
+            $filename = 'Rekap_Aktivitas_Dokumen_Semua_Periode.xlsx';
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+        exit;
+    }
+
+    private function createMappingDokumenSheet($spreadsheet, $dateFrom, $dateTo, $isFirst = false)
+    {
+        $sheet = $isFirst ? $spreadsheet->getActiveSheet() : $spreadsheet->createSheet();
+        $sheet->setTitle('Mapping Dokumen');
+
+        // Header
+        $sheet->setCellValue('A1', 'REKAP MAPPING DOKUMEN (NON-INJECT)');
+        $sheet->mergeCells('A1:D1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Period info
+        if ($dateFrom && $dateTo) {
+            $sheet->setCellValue('A2', 'Periode: ' . date('d/m/Y', strtotime($dateFrom)) . ' s/d ' . date('d/m/Y', strtotime($dateTo)));
+        } else {
+            $sheet->setCellValue('A2', 'Periode: Semua Data');
+        }
+        $sheet->mergeCells('A2:D2');
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Column headers
+        $sheet->setCellValue('A4', 'No');
+        $sheet->setCellValue('B4', 'NIP');
+        $sheet->setCellValue('C4', 'Nama');
+        $sheet->setCellValue('D4', 'Total Per Dokumen');
+        $sheet->setCellValue('E4', 'Total Per PNS');
+
+        $headerStyle = $sheet->getStyle('A4:E4');
+        $headerStyle->getFont()->setBold(true);
+        $headerStyle->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('17A2B8');
+        $headerStyle->getFont()->getColor()->setRGB('FFFFFF');
+        $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Data
+        $data = $this->getAktivitasDokumenData('mapping', $dateFrom, $dateTo);
+
+        $row = 5;
+        $no = 1;
+        foreach ($data as $item) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item->nip);
+            $sheet->setCellValue('C' . $row, $item->nama);
+            $sheet->setCellValue('D' . $row, number_format($item->total_per_dokumen, 0, ',', '.'));
+            $sheet->setCellValue('E' . $row, number_format($item->total_per_object_pns, 0, ',', '.'));
+            $row++;
+        }
+
+        // Total row
+        $sheet->setCellValue('A' . $row, '');
+        $sheet->setCellValue('C' . $row, 'TOTAL');
+        $sheet->setCellValue('D' . $row, number_format($data->sum('total_per_dokumen'), 0, ',', '.'));
+        $sheet->setCellValue('E' . $row, number_format($data->sum('total_per_object_pns'), 0, ',', '.'));
+        $sheet->getStyle('C' . $row . ':E' . $row)->getFont()->setBold(true);
+
+        // Auto width
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+    }
+
+    private function createInjectDokumenSheet($spreadsheet, $dateFrom, $dateTo)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $sheet->setTitle('Inject Dokumen');
+
+        $sheet->setCellValue('A1', 'REKAP INJECT DOKUMEN');
+        $sheet->mergeCells('A1:D1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        if ($dateFrom && $dateTo) {
+            $sheet->setCellValue('A2', 'Periode: ' . date('d/m/Y', strtotime($dateFrom)) . ' s/d ' . date('d/m/Y', strtotime($dateTo)));
+        } else {
+            $sheet->setCellValue('A2', 'Periode: Semua Data');
+        }
+        $sheet->mergeCells('A2:D2');
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A4', 'No');
+        $sheet->setCellValue('B4', 'NIP');
+        $sheet->setCellValue('C4', 'Nama');
+        $sheet->setCellValue('D4', 'Total Per Dokumen');
+        $sheet->setCellValue('E4', 'Total Per PNS');
+
+        $headerStyle = $sheet->getStyle('A4:E4');
+        $headerStyle->getFont()->setBold(true);
+        $headerStyle->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFC107');
+        $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $data = $this->getAktivitasDokumenData('inject', $dateFrom, $dateTo);
+
+        $row = 5;
+        $no = 1;
+        foreach ($data as $item) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item->nip);
+            $sheet->setCellValue('C' . $row, $item->nama);
+            $sheet->setCellValue('D' . $row, number_format($item->total_per_dokumen, 0, ',', '.'));
+            $sheet->setCellValue('E' . $row, number_format($item->total_per_object_pns, 0, ',', '.'));
+            $row++;
+        }
+
+        $sheet->setCellValue('A' . $row, '');
+        $sheet->setCellValue('C' . $row, 'TOTAL');
+        $sheet->setCellValue('D' . $row, number_format($data->sum('total_per_dokumen'), 0, ',', '.'));
+        $sheet->setCellValue('E' . $row, number_format($data->sum('total_per_object_pns'), 0, ',', '.'));
+        $sheet->getStyle('C' . $row . ':E' . $row)->getFont()->setBold(true);
+
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+    }
+
+    private function createApprovalDokumenSheet($spreadsheet, $dateFrom, $dateTo)
+    {
+        $sheet = $spreadsheet->createSheet();
+        $sheet->setTitle('Approval Dokumen MyASN');
+
+        $sheet->setCellValue('A1', 'REKAP APPROVAL DOKUMEN MYASN');
+        $sheet->mergeCells('A1:D1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        if ($dateFrom && $dateTo) {
+            $sheet->setCellValue('A2', 'Periode: ' . date('d/m/Y', strtotime($dateFrom)) . ' s/d ' . date('d/m/Y', strtotime($dateTo)));
+        } else {
+            $sheet->setCellValue('A2', 'Periode: Semua Data');
+        }
+        $sheet->mergeCells('A2:D2');
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $sheet->setCellValue('A4', 'No');
+        $sheet->setCellValue('B4', 'NIP');
+        $sheet->setCellValue('C4', 'Nama');
+        $sheet->setCellValue('D4', 'Total Approval');
+        $sheet->setCellValue('E4', 'Total Per PNS');
+
+        $headerStyle = $sheet->getStyle('A4:E4');
+        $headerStyle->getFont()->setBold(true);
+        $headerStyle->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('28A745');
+        $headerStyle->getFont()->getColor()->setRGB('FFFFFF');
+        $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $data = $this->getAktivitasDokumenData('approval', $dateFrom, $dateTo);
+
+        $row = 5;
+        $no = 1;
+        foreach ($data as $item) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item->nip);
+            $sheet->setCellValue('C' . $row, $item->nama);
+            $sheet->setCellValue('D' . $row, number_format($item->total_per_dokumen, 0, ',', '.'));
+            $sheet->setCellValue('E' . $row, number_format($item->total_per_object_pns, 0, ',', '.'));
+            $row++;
+        }
+
+        $sheet->setCellValue('A' . $row, '');
+        $sheet->setCellValue('C' . $row, 'TOTAL');
+        $sheet->setCellValue('D' . $row, number_format($data->sum('total_per_dokumen'), 0, ',', '.'));
+        $sheet->setCellValue('E' . $row, number_format($data->sum('total_per_object_pns'), 0, ',', '.'));
+        $sheet->getStyle('C' . $row . ':E' . $row)->getFont()->setBold(true);
+
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+    }
+
+    /**
+     * Get data for aktivitas dokumen export
+     */
+    private function getAktivitasDokumenData($type, $dateFrom = null, $dateTo = null)
+    {
+        // Use summary table when no date filter
+        if (!$dateFrom && !$dateTo) {
+            return $this->getAktivitasDokumenFromSummary($type);
+        }
+
+        // Use log_aktivitas with date filter
+        $query = DB::table('log_aktivitas as la')
+            ->leftJoin('pegawai as p', 'la.created_by_nip', '=', 'p.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(MAX(p.nama), MAX(la.created_by_nama)) as nama'),
+                DB::raw('COUNT(*) as total_per_dokumen'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
+            )
+            ->whereNotNull('la.created_by_nip');
+
+        if ($type === 'mapping') {
+            $query->where('la.event_name', 'mapping_dokumen')
+                  ->where(function($q) {
+                      $q->where('la.is_inject', 0)->orWhereNull('la.is_inject');
+                  });
+        } elseif ($type === 'inject') {
+            $query->where('la.is_inject', 1);
+        } elseif ($type === 'approval') {
+            $query->where('la.event_name', 'approve_upload_dok_myasn')
+                  ->where(function($q) {
+                      $q->where('la.is_inject', 0)->orWhereNull('la.is_inject');
+                  });
+        }
+
+        if ($dateFrom) {
+            $query->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+
+        return $query->groupBy('la.created_by_nip')
+                     ->orderByDesc('total_per_dokumen')
+                     ->get();
+    }
+
+    private function getAktivitasDokumenFromSummary($type)
+    {
+        $query = DB::table('pegawai_aktivitas_summary as pas')
+            ->leftJoin('pegawai as p', 'pas.nip', '=', 'p.nip');
+
+        if ($type === 'mapping') {
+            $query->select(
+                    'pas.nip',
+                    DB::raw('COALESCE(p.nama, pas.nip) as nama'),
+                    'pas.total_aktivitas as total_per_dokumen',
+                    'pas.total_per_object_pns'
+                )
+                ->where('pas.kategori_aktivitas', 'Mapping Dokumen');
+        } elseif ($type === 'inject') {
+            $query->select(
+                    'pas.nip',
+                    DB::raw('COALESCE(p.nama, pas.nip) as nama'),
+                    DB::raw('SUM(pas.total_aktivitas) as total_per_dokumen'),
+                    DB::raw('SUM(pas.total_per_object_pns) as total_per_object_pns')
+                )
+                ->where('pas.kategori_aktivitas', 'like', 'Inject%')
+                ->groupBy('pas.nip', 'p.nama');
+        } elseif ($type === 'approval') {
+            $query->select(
+                    'pas.nip',
+                    DB::raw('COALESCE(p.nama, pas.nip) as nama'),
+                    'pas.total_aktivitas as total_per_dokumen',
+                    'pas.total_per_object_pns'
+                )
+                ->where('pas.kategori_aktivitas', 'Approval Dokumen MyASN');
+        }
+
+        return $query->orderByDesc('total_per_dokumen')->get();
+    }
+
+    /**
+     * ========================================
+     * EXPORT REKAP SEMUA AKTIVITAS (1 SHEET)
+     * Semua event name, per pegawai
+     * ========================================
+     */
+    public function exportRekapSemuaAktivitasExcel(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Rekap Semua Aktivitas');
+
+        // Header
+        $sheet->setCellValue('A1', 'REKAP SELURUH AKTIVITAS PEGAWAI');
+        $sheet->mergeCells('A1:E1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        if ($dateFrom && $dateTo) {
+            $sheet->setCellValue('A2', 'Periode: ' . date('d/m/Y', strtotime($dateFrom)) . ' s/d ' . date('d/m/Y', strtotime($dateTo)));
+        } else {
+            $sheet->setCellValue('A2', 'Periode: Semua Data');
+        }
+        $sheet->mergeCells('A2:E2');
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Column headers
+        $sheet->setCellValue('A4', 'No');
+        $sheet->setCellValue('B4', 'NIP');
+        $sheet->setCellValue('C4', 'Nama');
+        $sheet->setCellValue('D4', 'Total Dokumen');
+        $sheet->setCellValue('E4', 'Total Unik PNS');
+
+        $headerStyle = $sheet->getStyle('A4:E4');
+        $headerStyle->getFont()->setBold(true);
+        $headerStyle->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('4B49AC');
+        $headerStyle->getFont()->getColor()->setRGB('FFFFFF');
+        $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Get data
+        if (!$dateFrom && !$dateTo) {
+            $data = DB::table('pegawai_aktivitas_summary as pas')
+                ->leftJoin('pegawai as p', 'pas.nip', '=', 'p.nip')
+                ->select(
+                    'pas.nip',
+                    DB::raw('COALESCE(p.nama, pas.nip) as nama'),
+                    DB::raw('SUM(pas.total_aktivitas) as total_dokumen'),
+                    DB::raw('SUM(pas.total_per_object_pns) as total_unik_pns')
+                )
+                ->groupBy('pas.nip', 'p.nama')
+                ->orderByDesc('total_dokumen')
+                ->get();
+        } else {
+            $query = DB::table('log_aktivitas as la')
+                ->leftJoin('pegawai as p', 'la.created_by_nip', '=', 'p.nip')
+                ->select(
+                    'la.created_by_nip as nip',
+                    DB::raw('COALESCE(MAX(p.nama), MAX(la.created_by_nama)) as nama'),
+                    DB::raw('COUNT(*) as total_dokumen'),
+                    DB::raw('COUNT(DISTINCT la.object_pns_id) as total_unik_pns')
+                )
+                ->whereNotNull('la.created_by_nip');
+
+            if ($dateFrom) {
+                $query->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+            }
+            if ($dateTo) {
+                $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+            }
+
+            $data = $query->groupBy('la.created_by_nip')
+                         ->orderByDesc('total_dokumen')
+                         ->get();
+        }
+
+        // Fill data
+        $row = 5;
+        $no = 1;
+        foreach ($data as $item) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $item->nip);
+            $sheet->setCellValue('C' . $row, $item->nama);
+            $sheet->setCellValue('D' . $row, number_format($item->total_dokumen, 0, ',', '.'));
+            $sheet->setCellValue('E' . $row, number_format($item->total_unik_pns, 0, ',', '.'));
+            $row++;
+        }
+
+        // Total row
+        $sheet->setCellValue('C' . $row, 'TOTAL');
+        $sheet->setCellValue('D' . $row, number_format($data->sum('total_dokumen'), 0, ',', '.'));
+        $sheet->setCellValue('E' . $row, number_format($data->sum('total_unik_pns'), 0, ',', '.'));
+        $sheet->getStyle('C' . $row . ':E' . $row)->getFont()->setBold(true);
+        $sheet->getStyle('A4:E' . $row)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+        // Auto width
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Filename
+        if ($dateFrom && $dateTo) {
+            $filename = 'Rekap_Semua_Aktivitas_' . date('Y-m-d', strtotime($dateFrom)) . '_sd_' . date('Y-m-d', strtotime($dateTo)) . '.xlsx';
+        } else {
+            $filename = 'Rekap_Semua_Aktivitas_Semua_Periode.xlsx';
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+        exit;
     }
 }

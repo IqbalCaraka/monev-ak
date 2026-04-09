@@ -16,6 +16,7 @@ class PegawaiAktivitasSummary extends Model
         'nip',
         'kategori_aktivitas',
         'total_aktivitas',
+        'total_per_object_pns',
         'last_activity_at',
     ];
 

@@ -2806,9 +2806,10 @@
                                                         <td class="text-center">${data.skor_nasional_current.kurang_lengkap.toLocaleString()}</td>
                                                         <td class="text-center">${(() => {
                                                             const diff = data.skor_nasional_current.kurang_lengkap - data.skor_nasional_previous.kurang_lengkap;
-                                                            if (diff > 0) return `<span class="text-danger">+${diff.toLocaleString()}</span>`;
-                                                            else if (diff < 0) return `<span class="text-success">${diff.toLocaleString()}</span>`;
-                                                            else return '0';
+                                                            const pct = data.skor_nasional_previous.kurang_lengkap > 0 ? ((diff / data.skor_nasional_previous.kurang_lengkap) * 100).toFixed(2) : 0;
+                                                            const color = diff > 0 ? 'danger' : (diff < 0 ? 'success' : 'secondary');
+                                                            const sign = diff > 0 ? '+' : '';
+                                                            return diff !== 0 ? `<span class="text-${color}">${sign}${diff.toLocaleString()}<br><small>(${sign}${pct}%)</small></span>` : '0';
                                                         })()}</td>
                                                     </tr>
                                                     <tr>
@@ -2817,9 +2818,10 @@
                                                         <td class="text-center">${data.skor_nasional_current.cukup_lengkap.toLocaleString()}</td>
                                                         <td class="text-center">${(() => {
                                                             const diff = data.skor_nasional_current.cukup_lengkap - data.skor_nasional_previous.cukup_lengkap;
-                                                            if (diff > 0) return `<span class="text-success">+${diff.toLocaleString()}</span>`;
-                                                            else if (diff < 0) return `<span class="text-danger">${diff.toLocaleString()}</span>`;
-                                                            else return '0';
+                                                            const pct = data.skor_nasional_previous.cukup_lengkap > 0 ? ((diff / data.skor_nasional_previous.cukup_lengkap) * 100).toFixed(2) : 0;
+                                                            const color = diff > 0 ? 'success' : (diff < 0 ? 'danger' : 'secondary');
+                                                            const sign = diff > 0 ? '+' : '';
+                                                            return diff !== 0 ? `<span class="text-${color}">${sign}${diff.toLocaleString()}<br><small>(${sign}${pct}%)</small></span>` : '0';
                                                         })()}</td>
                                                     </tr>
                                                     <tr>
@@ -2828,9 +2830,10 @@
                                                         <td class="text-center">${data.skor_nasional_current.lengkap.toLocaleString()}</td>
                                                         <td class="text-center">${(() => {
                                                             const diff = data.skor_nasional_current.lengkap - data.skor_nasional_previous.lengkap;
-                                                            if (diff > 0) return `<span class="text-success">+${diff.toLocaleString()}</span>`;
-                                                            else if (diff < 0) return `<span class="text-danger">${diff.toLocaleString()}</span>`;
-                                                            else return '0';
+                                                            const pct = data.skor_nasional_previous.lengkap > 0 ? ((diff / data.skor_nasional_previous.lengkap) * 100).toFixed(2) : 0;
+                                                            const color = diff > 0 ? 'success' : (diff < 0 ? 'danger' : 'secondary');
+                                                            const sign = diff > 0 ? '+' : '';
+                                                            return diff !== 0 ? `<span class="text-${color}">${sign}${diff.toLocaleString()}<br><small>(${sign}${pct}%)</small></span>` : '0';
                                                         })()}</td>
                                                     </tr>
                                                     <tr>
@@ -2839,9 +2842,10 @@
                                                         <td class="text-center">${data.skor_nasional_current.sangat_lengkap.toLocaleString()}</td>
                                                         <td class="text-center">${(() => {
                                                             const diff = data.skor_nasional_current.sangat_lengkap - data.skor_nasional_previous.sangat_lengkap;
-                                                            if (diff > 0) return `<span class="text-success">+${diff.toLocaleString()}</span>`;
-                                                            else if (diff < 0) return `<span class="text-danger">${diff.toLocaleString()}</span>`;
-                                                            else return '0';
+                                                            const pct = data.skor_nasional_previous.sangat_lengkap > 0 ? ((diff / data.skor_nasional_previous.sangat_lengkap) * 100).toFixed(2) : 0;
+                                                            const color = diff > 0 ? 'success' : (diff < 0 ? 'danger' : 'secondary');
+                                                            const sign = diff > 0 ? '+' : '';
+                                                            return diff !== 0 ? `<span class="text-${color}">${sign}${diff.toLocaleString()}<br><small>(${sign}${pct}%)</small></span>` : '0';
                                                         })()}</td>
                                                     </tr>
                                                 </tbody>

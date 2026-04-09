@@ -1385,6 +1385,74 @@ class DashboardController extends Controller
             $diff = $skorNasionalCurrent->skor_rata2_nasional - $skorNasionalPrevious->skor_rata2_nasional;
             $sheet->setCellValue('F' . $currentRow, number_format($diff, 2));
             $sheet->getStyle('A' . $currentRow . ':F' . $currentRow)->getFont()->setBold(true);
+            $currentRow++;
+
+            // Distribusi ASN Berdasarkan Status Kelengkapan
+            $sheet->setCellValue('A' . $currentRow, 'Distribusi ASN Berdasarkan Status Kelengkapan:');
+            $sheet->mergeCells('A' . $currentRow . ':K' . $currentRow);
+            $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true)->setSize(10);
+            $currentRow++;
+
+            // Header tabel distribusi
+            $sheet->setCellValue('A' . $currentRow, 'Status');
+            $sheet->setCellValue('B' . $currentRow, 'Sebelum');
+            $sheet->setCellValue('C' . $currentRow, 'Sekarang');
+            $sheet->setCellValue('D' . $currentRow, 'Perubahan');
+            $sheet->setCellValue('E' . $currentRow, 'Persentase');
+            $sheet->getStyle('A' . $currentRow . ':E' . $currentRow)->getFont()->setBold(true);
+            $sheet->getStyle('A' . $currentRow . ':E' . $currentRow)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFBDC3C7');
+            $currentRow++;
+
+            // Kurang Lengkap
+            $diffKurang = ($skorNasionalCurrent->kurang_lengkap ?? 0) - ($skorNasionalPrevious->kurang_lengkap ?? 0);
+            $pctKurang = ($skorNasionalPrevious->kurang_lengkap ?? 0) > 0 ? (($diffKurang / ($skorNasionalPrevious->kurang_lengkap ?? 1)) * 100) : 0;
+            $sheet->setCellValue('A' . $currentRow, 'Kurang Lengkap');
+            $sheet->setCellValue('B' . $currentRow, number_format($skorNasionalPrevious->kurang_lengkap ?? 0));
+            $sheet->setCellValue('C' . $currentRow, number_format($skorNasionalCurrent->kurang_lengkap ?? 0));
+            $sheet->setCellValue('D' . $currentRow, ($diffKurang >= 0 ? '+' : '') . number_format($diffKurang));
+            $sheet->setCellValue('E' . $currentRow, ($pctKurang >= 0 ? '+' : '') . number_format($pctKurang, 2) . '%');
+            $colorKurang = $diffKurang > 0 ? 'FFE74C3C' : ($diffKurang < 0 ? 'FF27AE60' : 'FF000000');
+            $sheet->getStyle('D' . $currentRow . ':E' . $currentRow)->getFont()->getColor()->setARGB($colorKurang);
+            $sheet->getStyle('D' . $currentRow . ':E' . $currentRow)->getFont()->setBold(true);
+            $currentRow++;
+
+            // Cukup Lengkap
+            $diffCukup = ($skorNasionalCurrent->cukup_lengkap ?? 0) - ($skorNasionalPrevious->cukup_lengkap ?? 0);
+            $pctCukup = ($skorNasionalPrevious->cukup_lengkap ?? 0) > 0 ? (($diffCukup / ($skorNasionalPrevious->cukup_lengkap ?? 1)) * 100) : 0;
+            $sheet->setCellValue('A' . $currentRow, 'Cukup Lengkap');
+            $sheet->setCellValue('B' . $currentRow, number_format($skorNasionalPrevious->cukup_lengkap ?? 0));
+            $sheet->setCellValue('C' . $currentRow, number_format($skorNasionalCurrent->cukup_lengkap ?? 0));
+            $sheet->setCellValue('D' . $currentRow, ($diffCukup >= 0 ? '+' : '') . number_format($diffCukup));
+            $sheet->setCellValue('E' . $currentRow, ($pctCukup >= 0 ? '+' : '') . number_format($pctCukup, 2) . '%');
+            $colorCukup = $diffCukup > 0 ? 'FF27AE60' : ($diffCukup < 0 ? 'FFE74C3C' : 'FF000000');
+            $sheet->getStyle('D' . $currentRow . ':E' . $currentRow)->getFont()->getColor()->setARGB($colorCukup);
+            $sheet->getStyle('D' . $currentRow . ':E' . $currentRow)->getFont()->setBold(true);
+            $currentRow++;
+
+            // Lengkap
+            $diffLengkap = ($skorNasionalCurrent->lengkap ?? 0) - ($skorNasionalPrevious->lengkap ?? 0);
+            $pctLengkap = ($skorNasionalPrevious->lengkap ?? 0) > 0 ? (($diffLengkap / ($skorNasionalPrevious->lengkap ?? 1)) * 100) : 0;
+            $sheet->setCellValue('A' . $currentRow, 'Lengkap');
+            $sheet->setCellValue('B' . $currentRow, number_format($skorNasionalPrevious->lengkap ?? 0));
+            $sheet->setCellValue('C' . $currentRow, number_format($skorNasionalCurrent->lengkap ?? 0));
+            $sheet->setCellValue('D' . $currentRow, ($diffLengkap >= 0 ? '+' : '') . number_format($diffLengkap));
+            $sheet->setCellValue('E' . $currentRow, ($pctLengkap >= 0 ? '+' : '') . number_format($pctLengkap, 2) . '%');
+            $colorLengkap = $diffLengkap > 0 ? 'FF27AE60' : ($diffLengkap < 0 ? 'FFE74C3C' : 'FF000000');
+            $sheet->getStyle('D' . $currentRow . ':E' . $currentRow)->getFont()->getColor()->setARGB($colorLengkap);
+            $sheet->getStyle('D' . $currentRow . ':E' . $currentRow)->getFont()->setBold(true);
+            $currentRow++;
+
+            // Sangat Lengkap
+            $diffSangat = ($skorNasionalCurrent->sangat_lengkap ?? 0) - ($skorNasionalPrevious->sangat_lengkap ?? 0);
+            $pctSangat = ($skorNasionalPrevious->sangat_lengkap ?? 0) > 0 ? (($diffSangat / ($skorNasionalPrevious->sangat_lengkap ?? 1)) * 100) : 0;
+            $sheet->setCellValue('A' . $currentRow, 'Sangat Lengkap');
+            $sheet->setCellValue('B' . $currentRow, number_format($skorNasionalPrevious->sangat_lengkap ?? 0));
+            $sheet->setCellValue('C' . $currentRow, number_format($skorNasionalCurrent->sangat_lengkap ?? 0));
+            $sheet->setCellValue('D' . $currentRow, ($diffSangat >= 0 ? '+' : '') . number_format($diffSangat));
+            $sheet->setCellValue('E' . $currentRow, ($pctSangat >= 0 ? '+' : '') . number_format($pctSangat, 2) . '%');
+            $colorSangat = $diffSangat > 0 ? 'FF27AE60' : ($diffSangat < 0 ? 'FFE74C3C' : 'FF000000');
+            $sheet->getStyle('D' . $currentRow . ':E' . $currentRow)->getFont()->getColor()->setARGB($colorSangat);
+            $sheet->getStyle('D' . $currentRow . ':E' . $currentRow)->getFont()->setBold(true);
             $currentRow += 2;
         }
 

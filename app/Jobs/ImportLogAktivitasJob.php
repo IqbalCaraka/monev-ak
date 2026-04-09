@@ -157,7 +157,7 @@ class ImportLogAktivitasJob implements ShouldQueue
 
                 // Regenerate summary untuk SEMUA NIP yang terpengaruh sekaligus
                 $sql = "
-                    INSERT INTO pegawai_aktivitas_summary (nip, kategori_aktivitas, total_aktivitas, last_activity_at, created_at, updated_at)
+                    INSERT INTO pegawai_aktivitas_summary (nip, kategori_aktivitas, total_aktivitas, total_per_object_pns, last_activity_at, created_at, updated_at)
                     SELECT
                         created_by_nip,
                         CASE
@@ -179,10 +179,13 @@ class ImportLogAktivitasJob implements ShouldQueue
                                 THEN 'Menghapus User'
                             WHEN event_name = 'Laporan-Kekurangan-Riwayat'
                                 THEN 'Laporan Kekurangan Riwayat'
+                            WHEN event_name = 'approve_upload_dok_myasn'
+                                THEN 'Approval Dokumen MyASN'
                             ELSE CONCAT(UPPER(SUBSTRING(REPLACE(event_name, '_', ' '), 1, 1)),
                                        LOWER(SUBSTRING(REPLACE(event_name, '_', ' '), 2)))
                         END AS kategori_aktivitas,
                         COUNT(*) as total_aktivitas,
+                        COUNT(DISTINCT object_pns_id) as total_per_object_pns,
                         MAX(created_at_log) as last_activity_at,
                         NOW() as created_at,
                         NOW() as updated_at

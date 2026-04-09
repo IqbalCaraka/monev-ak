@@ -44,6 +44,8 @@ Route::prefix('statistik')->group(function () {
     Route::get('aktivitas-pegawai', [AktivitasPegawaiController::class, 'index'])->name('aktivitas-pegawai.index');
     Route::get('aktivitas-pegawai/export-pdf', [AktivitasPegawaiController::class, 'exportPdf'])->name('aktivitas-pegawai.export-pdf');
     Route::get('aktivitas-pegawai/export-pic-pdf', [AktivitasPegawaiController::class, 'exportPicPdf'])->name('aktivitas-pegawai.export-pic-pdf');
+    Route::get('aktivitas-pegawai/export-aktivitas-dokumen-excel', [AktivitasPegawaiController::class, 'exportAktivitasDokumenExcel'])->name('aktivitas-pegawai.export-aktivitas-dokumen-excel');
+    Route::get('aktivitas-pegawai/export-rekap-semua-excel', [AktivitasPegawaiController::class, 'exportRekapSemuaAktivitasExcel'])->name('aktivitas-pegawai.export-rekap-semua-excel');
     Route::post('aktivitas-pegawai/upload', [AktivitasPegawaiController::class, 'uploadCsv'])->name('aktivitas-pegawai.upload');
     Route::get('aktivitas-pegawai/{nip}/export-excel', [AktivitasPegawaiController::class, 'exportPegawaiExcel'])->name('aktivitas-pegawai.export-pegawai-excel');
     Route::get('aktivitas-pegawai/{nip}/export-pdf', [AktivitasPegawaiController::class, 'exportPegawaiPdf'])->name('aktivitas-pegawai.export-pegawai-pdf');
@@ -113,4 +115,5 @@ Route::prefix('api/monev-dms')->group(function () {
     Route::get('/pic-stats', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'getPicStats'])->name('api.aktivitas-pegawai.pic-stats');
     Route::get('/mapping-dokumen', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'getMappingDokumen'])->name('api.aktivitas-pegawai.mapping-dokumen');
     Route::get('/inject-dokumen', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'getInjectDokumen'])->name('api.aktivitas-pegawai.inject-dokumen');
+    Route::get('/approval-dokumen', [\App\Http\Controllers\Api\MonevDmsApiController::class, 'getApprovalDokumen'])->name('api.aktivitas-pegawai.approval-dokumen');
 });

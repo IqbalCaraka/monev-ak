@@ -9,7 +9,8 @@
       "Bash(start http://127.0.0.1:8000/statistik/staging)",
       "Bash(php -r:*)",
       "Bash(start:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nAdd enhanced error handling for CSV file processing\n\n- Add file existence check before opening CSV\n- Add file readability check for permission issues  \n- Enhanced error messages showing actual path being searched\n- Better debugging information for file not found errors\n\nThis helps troubleshoot the \"No such file or directory\" error\non production server by providing detailed path information.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd enhanced error handling for CSV file processing\n\n- Add file existence check before opening CSV\n- Add file readability check for permission issues  \n- Enhanced error messages showing actual path being searched\n- Better debugging information for file not found errors\n\nThis helps troubleshoot the \"No such file or directory\" error\non production server by providing detailed path information.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(mysql:*)"
     ],
     "deny": [],
     "ask": []

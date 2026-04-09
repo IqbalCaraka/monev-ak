@@ -208,7 +208,12 @@ class MonevDmsApiController extends Controller
         $dateTo = $request->input('date_to');
         $search = $request->input('search');
 
-        $mappingDokumen = $this->getMappingDokumenSummaryApi($dateFrom, $dateTo, $search);
+        // Use summary table when no date filter for fast query
+        if (!$dateFrom && !$dateTo) {
+            $mappingDokumen = $this->getMappingDokumenFromSummary($search);
+        } else {
+            $mappingDokumen = $this->getMappingDokumenSummaryApi($dateFrom, $dateTo, $search);
+        }
 
         $formattedData = $mappingDokumen->map(function($item, $index) use ($mappingDokumen) {
             return [
@@ -242,7 +247,11 @@ class MonevDmsApiController extends Controller
         $dateTo = $request->input('date_to');
         $search = $request->input('search');
 
-        $injectDokumen = $this->getInjectDokumenSummaryApi($dateFrom, $dateTo, $search);
+        if (!$dateFrom && !$dateTo) {
+            $injectDokumen = $this->getInjectDokumenFromSummary($search);
+        } else {
+            $injectDokumen = $this->getInjectDokumenSummaryApi($dateFrom, $dateTo, $search);
+        }
 
         $formattedData = $injectDokumen->map(function($item, $index) use ($injectDokumen) {
             return [
@@ -297,6 +306,28 @@ class MonevDmsApiController extends Controller
         return $query->paginate(10);
     }
 
+    private function getMappingDokumenFromSummary($search = null)
+    {
+        $query = DB::table('pegawai_aktivitas_summary as pas')
+            ->leftJoin('pegawai as p', 'pas.nip', '=', 'p.nip')
+            ->select(
+                'pas.nip',
+                DB::raw('COALESCE(p.nama, pas.nip) as nama'),
+                'pas.total_aktivitas as total_per_dokumen',
+                'pas.total_per_object_pns'
+            )
+            ->where('pas.kategori_aktivitas', 'Mapping Dokumen');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('pas.nip', 'like', "%{$search}%")
+                  ->orWhere('p.nama', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->orderByDesc('total_per_dokumen')->paginate(10);
+    }
+
     private function getMappingDokumenSummaryApi($dateFrom = null, $dateTo = null, $search = null)
     {
         $query = DB::table('log_aktivitas as la')
@@ -332,6 +363,31 @@ class MonevDmsApiController extends Controller
             ->paginate(10);
     }
 
+    private function getInjectDokumenFromSummary($search = null)
+    {
+        // Inject has multiple sub-categories: "Inject - Unggah Dokumen", "Inject - Mapping Dokumen", "Inject Dokumen"
+        $query = DB::table('pegawai_aktivitas_summary as pas')
+            ->leftJoin('pegawai as p', 'pas.nip', '=', 'p.nip')
+            ->select(
+                'pas.nip',
+                DB::raw('COALESCE(p.nama, pas.nip) as nama'),
+                DB::raw('SUM(pas.total_aktivitas) as total_per_dokumen'),
+                DB::raw('SUM(pas.total_per_object_pns) as total_per_object_pns')
+            )
+            ->where('pas.kategori_aktivitas', 'like', 'Inject%');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('pas.nip', 'like', "%{$search}%")
+                  ->orWhere('p.nama', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->groupBy('pas.nip', 'p.nama')
+            ->orderByDesc('total_per_dokumen')
+            ->paginate(10);
+    }
+
     private function getInjectDokumenSummaryApi($dateFrom = null, $dateTo = null, $search = null)
     {
         $query = DB::table('log_aktivitas as la')
@@ -361,6 +417,101 @@ class MonevDmsApiController extends Controller
         return $query
             ->groupBy('la.created_by_nip')
             ->orderByDesc('total_per_dokumen')
+            ->paginate(10);
+    }
+
+    /**
+     * Get Approval Dokumen Stats - AJAX Lazy Load
+     */
+    public function getApprovalDokumen(Request $request)
+    {
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $search = $request->input('search');
+
+        if (!$dateFrom && !$dateTo) {
+            $approvalDokumen = $this->getApprovalDokumenFromSummary($search);
+        } else {
+            $approvalDokumen = $this->getApprovalDokumenFiltered($dateFrom, $dateTo, $search);
+        }
+
+        $formattedData = $approvalDokumen->map(function($item, $index) use ($approvalDokumen) {
+            return [
+                'no' => $approvalDokumen->firstItem() + $index,
+                'nip' => $item->nip,
+                'nama' => $item->nama,
+                'total_approval' => number_format($item->total_approval),
+                'total_per_object_pns' => number_format($item->total_per_object_pns),
+            ];
+        });
+
+        return response()->json([
+            'data' => $formattedData,
+            'pagination' => [
+                'current_page' => $approvalDokumen->currentPage(),
+                'last_page' => $approvalDokumen->lastPage(),
+                'per_page' => $approvalDokumen->perPage(),
+                'total' => $approvalDokumen->total(),
+                'from' => $approvalDokumen->firstItem(),
+                'to' => $approvalDokumen->lastItem(),
+            ]
+        ]);
+    }
+
+    private function getApprovalDokumenFromSummary($search = null)
+    {
+        $query = DB::table('pegawai_aktivitas_summary as pas')
+            ->leftJoin('pegawai as p', 'pas.nip', '=', 'p.nip')
+            ->select(
+                'pas.nip',
+                DB::raw('COALESCE(p.nama, pas.nip) as nama'),
+                'pas.total_aktivitas as total_approval',
+                'pas.total_per_object_pns'
+            )
+            ->where('pas.kategori_aktivitas', 'Approval Dokumen MyASN');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('pas.nip', 'like', "%{$search}%")
+                  ->orWhere('p.nama', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->orderByDesc('total_approval')->paginate(10);
+    }
+
+    private function getApprovalDokumenFiltered($dateFrom, $dateTo, $search = null)
+    {
+        $query = DB::table('log_aktivitas as la')
+            ->leftJoin('pegawai as p', 'la.created_by_nip', '=', 'p.nip')
+            ->select(
+                'la.created_by_nip as nip',
+                DB::raw('COALESCE(MAX(p.nama), MAX(la.created_by_nama)) as nama'),
+                DB::raw('COUNT(*) as total_approval'),
+                DB::raw('COUNT(DISTINCT la.object_pns_id) as total_per_object_pns')
+            )
+            ->where('la.event_name', 'approve_upload_dok_myasn')
+            ->where(function($q) {
+                $q->where('la.is_inject', 0)->orWhereNull('la.is_inject');
+            })
+            ->whereNotNull('la.created_by_nip');
+
+        if ($dateFrom) {
+            $query->where('la.created_at_log', '>=', $dateFrom . ' 00:00:00');
+        }
+        if ($dateTo) {
+            $query->where('la.created_at_log', '<=', $dateTo . ' 23:59:59');
+        }
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('la.created_by_nip', 'like', "%{$search}%")
+                  ->orWhere('p.nama', 'like', "%{$search}%");
+            });
+        }
+
+        return $query
+            ->groupBy('la.created_by_nip')
+            ->orderByDesc('total_approval')
             ->paginate(10);
     }
 }
