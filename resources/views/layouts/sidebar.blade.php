@@ -49,6 +49,29 @@
                 </ul>
             </div>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#arsip-pensiun-menu" aria-expanded="false" aria-controls="arsip-pensiun-menu">
+                <i class="menu-icon mdi mdi-archive"></i>
+                <span class="menu-title">Arsip Pensiun</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="arsip-pensiun-menu">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('arsip-pensiun.index') }}">
+                            <i class="mdi mdi-cloud-upload"></i>
+                            Upload Dokumen
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('arsip-pensiun.all-files') }}">
+                            <i class="mdi mdi-file-multiple"></i>
+                            Semua Dokumen
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
         <li class="nav-item nav-category">Pengaturan</li>
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#pengaturan-menu" aria-expanded="false" aria-controls="pengaturan-menu">

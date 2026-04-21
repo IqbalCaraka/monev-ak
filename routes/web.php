@@ -88,6 +88,21 @@ Route::get('/ubah-format/status/{jobId}', [\App\Http\Controllers\UbahFormatContr
 Route::get('/ubah-format/check-status/{jobId}', [\App\Http\Controllers\UbahFormatController::class, 'checkStatus'])->name('ubah-format.check-status');
 Route::get('/ubah-format/download/{filename}', [\App\Http\Controllers\UbahFormatController::class, 'download'])->name('ubah-format.download');
 
+// Digitalisasi Arsip Pensiun
+Route::prefix('arsip-pensiun')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ArsipPensiunController::class, 'index'])->name('arsip-pensiun.index');
+    Route::post('/upload', [\App\Http\Controllers\ArsipPensiunController::class, 'upload'])->name('arsip-pensiun.upload');
+    Route::get('/semua-dokumen', [\App\Http\Controllers\ArsipPensiunController::class, 'allFiles'])->name('arsip-pensiun.all-files');
+    Route::get('/api/files', [\App\Http\Controllers\ArsipPensiunController::class, 'apiFiles'])->name('arsip-pensiun.api-files');
+    Route::post('/download-selected', [\App\Http\Controllers\ArsipPensiunController::class, 'downloadSelected'])->name('arsip-pensiun.download-selected');
+    Route::get('/download-all-files', [\App\Http\Controllers\ArsipPensiunController::class, 'downloadAllFiles'])->name('arsip-pensiun.download-all-files');
+    Route::get('/{id}', [\App\Http\Controllers\ArsipPensiunController::class, 'show'])->name('arsip-pensiun.show');
+    Route::get('/{id}/check-status', [\App\Http\Controllers\ArsipPensiunController::class, 'checkStatus'])->name('arsip-pensiun.check-status');
+    Route::get('/{uploadId}/download/{fileId}', [\App\Http\Controllers\ArsipPensiunController::class, 'downloadFile'])->name('arsip-pensiun.download-file');
+    Route::get('/{id}/download-all', [\App\Http\Controllers\ArsipPensiunController::class, 'downloadAll'])->name('arsip-pensiun.download-all');
+    Route::delete('/{id}', [\App\Http\Controllers\ArsipPensiunController::class, 'destroy'])->name('arsip-pensiun.destroy');
+});
+
 // DMS Routes
 Route::prefix('dms')->group(function () {
     Route::post('/upload', [DmsController::class, 'upload'])->name('dms.upload');
